@@ -1,0 +1,124 @@
+/home/mahdi/miniconda3/envs/GBO2/bin/python /home/mahdi/ETHZ/codes/GBO2/discrete_multi_fidelity_bo.py 
+candidates:
+tensor([[0.284, 0.269, 0.651, 0.412, 0.147, 0.872, 0.750],
+        [0.197, 0.166, 0.636, 0.391, 0.296, 0.861, 0.500],
+        [0.241, 0.267, 0.565, 0.472, 0.296, 0.807, 0.500],
+        [0.204, 0.120, 0.608, 0.498, 0.233, 0.812, 0.500]],
+       dtype=torch.float64)
+
+observations:
+tensor([[1.498],
+        [2.083],
+        [1.890],
+        [1.581]], dtype=torch.float64)
+
+
+candidates:
+tensor([[0.088, 0.251, 0.584, 0.366, 0.273, 0.825, 0.500],
+        [0.168, 0.279, 0.676, 0.400, 0.335, 0.976, 0.500],
+        [0.107, 0.241, 0.742, 0.412, 0.336, 0.778, 0.500],
+        [0.240, 0.299, 0.723, 0.317, 0.265, 0.810, 0.500]],
+       dtype=torch.float64)
+
+observations:
+tensor([[2.252],
+        [1.438],
+        [2.025],
+        [2.348]], dtype=torch.float64)
+
+
+candidates:
+tensor([[1.000, 1.000, 0.000, 0.000, 1.000, 0.000, 1.000],
+        [0.324, 0.282, 0.552, 0.157, 0.321, 0.745, 0.500],
+        [0.539, 0.225, 0.794, 0.806, 1.000, 0.016, 1.000],
+        [0.018, 0.305, 0.837, 0.327, 0.192, 0.869, 0.750]],
+       dtype=torch.float64)
+
+observations:
+tensor([[    0.000],
+        [    2.424],
+        [    0.040],
+        [    1.734]], dtype=torch.float64)
+
+
+recommended point:
+tensor([[0.172, 0.267, 0.681, 0.318, 0.274, 0.800, 1.000]],
+       dtype=torch.float64)
+
+objective value:
+tensor([2.494], dtype=torch.float64)
+
+total cost: 67.5
+
+/home/mahdi/miniconda3/envs/GBO2/lib/python3.11/site-packages/botorch/acquisition/monte_carlo.py:393: NumericsWarning: qExpectedImprovement has known numerical issues that lead to suboptimal optimization performance. It is strongly recommended to simply replace
+
+	 qExpectedImprovement 	 --> 	 qLogExpectedImprovement 
+
+instead, which fixes the issues and has the same API. See https://arxiv.org/abs/2310.20708 for details.
+  legacy_ei_numerics_warning(legacy_name=type(self).__name__)
+candidates:
+tensor([[0.171, 0.160, 0.311, 0.770, 0.842, 0.149, 1.000],
+        [0.000, 0.403, 0.723, 0.184, 0.319, 0.793, 1.000],
+        [0.000, 0.448, 0.573, 0.081, 0.313, 0.737, 1.000],
+        [0.146, 0.367, 0.632, 0.090, 0.325, 0.769, 1.000]],
+       dtype=torch.float64)
+
+observations:
+tensor([[0.021],
+        [1.803],
+        [1.509],
+        [1.914]], dtype=torch.float64)
+
+
+/home/mahdi/miniconda3/envs/GBO2/lib/python3.11/site-packages/botorch/acquisition/monte_carlo.py:393: NumericsWarning: qExpectedImprovement has known numerical issues that lead to suboptimal optimization performance. It is strongly recommended to simply replace
+
+	 qExpectedImprovement 	 --> 	 qLogExpectedImprovement 
+
+instead, which fixes the issues and has the same API. See https://arxiv.org/abs/2310.20708 for details.
+  legacy_ei_numerics_warning(legacy_name=type(self).__name__)
+candidates:
+tensor([[0.133, 0.321, 0.635, 0.181, 0.266, 0.804, 1.000],
+        [0.139, 0.347, 0.628, 0.145, 0.357, 0.863, 1.000],
+        [0.129, 0.321, 0.648, 0.205, 0.369, 0.762, 1.000],
+        [0.008, 0.822, 0.517, 0.177, 0.973, 0.797, 1.000]],
+       dtype=torch.float64)
+
+observations:
+tensor([[2.271],
+        [1.811],
+        [2.360],
+        [0.144]], dtype=torch.float64)
+
+
+/home/mahdi/miniconda3/envs/GBO2/lib/python3.11/site-packages/botorch/acquisition/monte_carlo.py:393: NumericsWarning: qExpectedImprovement has known numerical issues that lead to suboptimal optimization performance. It is strongly recommended to simply replace
+
+	 qExpectedImprovement 	 --> 	 qLogExpectedImprovement 
+
+instead, which fixes the issues and has the same API. See https://arxiv.org/abs/2310.20708 for details.
+  legacy_ei_numerics_warning(legacy_name=type(self).__name__)
+candidates:
+tensor([[0.189, 0.305, 0.630, 0.258, 0.286, 0.746, 1.000],
+        [0.094, 0.258, 0.608, 0.222, 0.307, 0.748, 1.000],
+        [0.637, 0.071, 0.547, 0.237, 0.563, 0.609, 1.000],
+        [0.131, 0.736, 0.250, 0.707, 0.908, 0.676, 1.000]],
+       dtype=torch.float64)
+
+observations:
+tensor([[2.735],
+        [2.715],
+        [0.576],
+        [0.015]], dtype=torch.float64)
+
+
+recommended point:
+tensor([[0.141, 0.290, 0.625, 0.234, 0.305, 0.753, 1.000]],
+       dtype=torch.float64)
+
+objective value:
+tensor([2.713], dtype=torch.float64)
+
+total cost: 72.0
+
+
+Process finished with exit code 0
+
