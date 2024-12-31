@@ -220,11 +220,14 @@ def get_recommendation(model, lower, upper):
     final_rec = rec_acqf._construct_X_full(final_rec)
 
     objective_value = problem(final_rec)
-    print(f"recommended point:\n{final_rec}\n\nobjective value:\n{objective_value}")
+
 
     def denormalize(x, lower, upper):
         return x * (upper - lower) + lower
-    print(f"recommended point (unnormalized):\n{denormalize(final_rec, lower, upper)}\n\nobjective value:\n{objective_value}")
+
+    print(f"recommended point:\n{final_rec}\n\nrecommended point (unnormalized):\n{denormalize(final_rec, lower, upper)}\n\nobjective value:\n{objective_value}")
+
+    # print(f"recommended point (unnormalized):\n{denormalize(final_rec, lower, upper)}\n\nobjective value:\n{objective_value}")
     return final_rec
 
 
