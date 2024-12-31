@@ -11,6 +11,7 @@ tkwargs = {
     "device": torch.device("cuda" if torch.cuda.is_available() else "cpu"),
 }
 SMOKE_TEST = os.environ.get("SMOKE_TEST")
+print("SMOKE_TEST is ",SMOKE_TEST)
 """Purpose of SMOKE_TEST
 
     Quick Validation: When SMOKE_TEST is set to True, it reduces the computational workload by:
@@ -24,8 +25,8 @@ This helps to:
     Test the setup, model, and environment in a minimal setting."""
 from botorch.test_functions.multi_fidelity import AugmentedHartmann, Tworr
 
-problem = Tworr(negate=False).to(**tkwargs) # Setting negate=True typically multiplies the objective values by -1, transforming a minimization objective (i.e., minimizing f(x)) into a maximization objective (i.e., maximizing −f(x)).
-fidelities = torch.tensor([0.1, 1.0], **tkwargs)
+problem = Tworr(negate=True).to(**tkwargs) # Setting negate=True typically multiplies the objective values by -1, transforming a minimization objective (i.e., minimizing f(x)) into a maximization objective (i.e., maximizing −f(x)).
+fidelities = torch.tensor([0.5, 1.0], **tkwargs)
 
 # #### Model initialization
 #
@@ -85,7 +86,7 @@ def normalize(X, lower, upper):
     return (X - lower) / (upper - lower)
 
 # Define the bounds
-original_bounds = torch.tensor([[8, 3, 0.0], [12, 7, 1.0]], **tkwargs)
+original_bounds = torch.tensor([[10, 1, 0.0], [30, 5, 1.0]], **tkwargs)
 lower, upper = original_bounds[0], original_bounds[1]
 # Example input data
 X_original = torch.stack([lower, upper]).to(**tkwargs)
@@ -151,7 +152,7 @@ def optimize_mfkg_and_get_observation(mfkg_acqf):
     candidates, _ = optimize_acqf_mixed(
         acq_function=mfkg_acqf,
         bounds=bounds,
-        fixed_features_list=[{2: 0.1}, {2: 1.0}],
+        fixed_features_list=[{2: 0.5}, {2: 1.0}],
         q=BATCH_SIZE,
         num_restarts=NUM_RESTARTS,
         raw_samples=RAW_SAMPLES,
@@ -185,6 +186,7 @@ cumulative_cost = 0.0
 N_ITER = 20 if not SMOKE_TEST else 1
 
 for i in range(N_ITER):
+    print("iteration=",i)
     mll, model = initialize_model(train_x, train_obj)
     fit_gpytorch_mll(mll)
     mfkg_acqf = get_mfkg(model)
@@ -235,7 +237,7 @@ def get_recommendation(model, lower, upper):
 
 
 final_rec = get_recommendation(model, lower, upper)
-print(f"\ntotal cost: {cumulative_cost}\n")
+print(f"\nMFBO total cost: {cumulative_cost}\n")
 
 # ### Comparison to standard EI (always use target fidelity)
 # Let's now repeat the same steps using a standard EI acquisition function (note that this is not a rigorous comparison as we are only looking at one trial in order to keep computational requirements low).
@@ -299,6 +301,6 @@ for _ in range(N_ITER):
 
 
 final_rec = get_recommendation(model, lower, upper)
-print(f"\nTworr total cost: {cumulative_cost}\n")
+print(f"\nEI only total cost: {cumulative_cost}\n")
 
 # In[12]:
