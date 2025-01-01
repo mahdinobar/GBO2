@@ -26,7 +26,7 @@ This helps to:
 from botorch.test_functions.multi_fidelity import AugmentedHartmann, Tworr
 
 problem = Tworr(negate=True).to(**tkwargs) # Setting negate=True typically multiplies the objective values by -1, transforming a minimization objective (i.e., minimizing f(x)) into a maximization objective (i.e., maximizing −f(x)).
-fidelities = torch.tensor([0.5, 1.0], **tkwargs)
+fidelities = torch.tensor([0.1, 0.5, 1.0], **tkwargs)
 
 # #### Model initialization
 #
@@ -44,7 +44,7 @@ def generate_initial_data(n=16):
     # generate training data
     train_x = torch.hstack(((bounds[1,0].item()-bounds[0,0].item())*torch.rand(n, 1, **tkwargs)+bounds[0,0].item(),
                             (bounds[1,1].item()-bounds[0,1].item())*torch.rand(n, 1, **tkwargs)+bounds[0,1].item()))
-    train_f = fidelities[torch.randint(2, (n, 1))]
+    train_f = fidelities[torch.randint(1,3, (n, 1))]
     train_x_full = torch.cat((train_x, train_f), dim=1)
     train_obj = problem(train_x_full).unsqueeze(-1)  # add output dimension
     return train_x_full, train_obj
@@ -152,7 +152,7 @@ def optimize_mfkg_and_get_observation(mfkg_acqf):
     candidates, _ = optimize_acqf_mixed(
         acq_function=mfkg_acqf,
         bounds=bounds,
-        fixed_features_list=[{2: 0.5}, {2: 1.0}],
+        fixed_features_list=[{2: 0.1}, {2: 0.5}, {2: 1.0}],
         q=BATCH_SIZE,
         num_restarts=NUM_RESTARTS,
         raw_samples=RAW_SAMPLES,
