@@ -174,8 +174,9 @@ def optimize_mfkg_and_get_observation(mfkg_acqf):
 
 # In[6]:
 
-
-train_x, train_obj = generate_initial_data(n=16)
+train_x_init, train_obj_init = generate_initial_data(n=16)
+train_x=train_x_init
+train_obj = train_obj_init
 
 # We can now use the helper functions above to run a few iterations of BO.
 
@@ -285,8 +286,9 @@ def optimize_ei_and_get_observation(ei_acqf):
 
 
 cumulative_cost = 0.0
-
-train_x, train_obj = generate_initial_data(n=16)
+# train_x, train_obj = generate_initial_data(n=16)
+train_x=train_x_init
+train_obj = train_obj_init
 
 for _ in range(N_ITER):
     mll, model = initialize_model(train_x, train_obj)
