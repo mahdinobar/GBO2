@@ -24,9 +24,31 @@ This helps to:
     Quickly validate whether the script runs without errors.
     Test the setup, model, and environment in a minimal setting."""
 from botorch.test_functions.multi_fidelity import AugmentedHartmann, Tworr
+from botorch.models.gp_regression_fidelity import SingleTaskMultiFidelityGP
+from botorch.models.transforms.outcome import Standardize
+from gpytorch.mlls.exact_marginal_log_likelihood import ExactMarginalLogLikelihood
+import numpy as np
+
+def set_seed(seed: int):
+    """Set seed for reproducibility in Python, NumPy, and PyTorch."""
+    # Set the seed for PyTorch
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)  # For CUDA operations, if using GPU
+    torch.cuda.manual_seed_all(seed)  # For multi-GPU setups
+    # Ensure deterministic behavior in PyTorch (optional)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+    # Set the seed for NumPy
+    np.random.seed(seed)
+
+# Set a global seed using torch.rand
+seed = 10
+# reset seed(here is where seed is reset to count 0)
+np.random.seed(seed)
+set_seed(seed)
 
 problem = Tworr(negate=True).to(**tkwargs) # Setting negate=True typically multiplies the objective values by -1, transforming a minimization objective (i.e., minimizing f(x)) into a maximization objective (i.e., maximizing −f(x)).
-fidelities = torch.tensor([0.1, 0.5, 1.0], **tkwargs)
+fidelities = torch.tensor([0.2, 0.5, 1.0], **tkwargs)
 
 # #### Model initialization
 #
@@ -34,17 +56,13 @@ fidelities = torch.tensor([0.1, 0.5, 1.0], **tkwargs)
 
 # In[3]:
 
-
-from botorch.models.gp_regression_fidelity import SingleTaskMultiFidelityGP
-from botorch.models.transforms.outcome import Standardize
-from gpytorch.mlls.exact_marginal_log_likelihood import ExactMarginalLogLikelihood
-
-
 def generate_initial_data(n=16):
     # generate training data
     train_x = torch.hstack(((bounds[1,0].item()-bounds[0,0].item())*torch.rand(n, 1, **tkwargs)+bounds[0,0].item(),
                             (bounds[1,1].item()-bounds[0,1].item())*torch.rand(n, 1, **tkwargs)+bounds[0,1].item()))
+    # TODO: uncomment for my idea
     train_f = fidelities[torch.randint(1,3, (n, 1))]
+    # train_f = fidelities[torch.randint(2, (n, 1))]
     train_x_full = torch.cat((train_x, train_f), dim=1)
     train_obj = problem(train_x_full).unsqueeze(-1)  # add output dimension
     return train_x_full, train_obj
@@ -86,7 +104,7 @@ def normalize(X, lower, upper):
     return (X - lower) / (upper - lower)
 
 # Define the bounds
-original_bounds = torch.tensor([[10, 1, 0.0], [30, 5, 1.0]], **tkwargs)
+original_bounds = torch.tensor([[10, 0.5, 0.0], [60, 2, 1.0]], **tkwargs)
 lower, upper = original_bounds[0], original_bounds[1]
 # Example input data
 X_original = torch.stack([lower, upper]).to(**tkwargs)
@@ -96,7 +114,7 @@ bounds = normalize(X_original, lower, upper)
 
 target_fidelities = {2: 1.0}
 
-cost_model = AffineFidelityCostModel(fidelity_weights={2: 25.0}, fixed_cost=75.0)
+cost_model = AffineFidelityCostModel(fidelity_weights={2: 1.0}, fixed_cost=5.0)
 cost_aware_utility = InverseCostWeightedUtility(cost_model=cost_model)
 
 
@@ -140,8 +158,8 @@ from botorch.optim.optimize import optimize_acqf_mixed
 
 torch.set_printoptions(precision=3, sci_mode=False)
 
-NUM_RESTARTS = 5 if not SMOKE_TEST else 2
-RAW_SAMPLES = 128 if not SMOKE_TEST else 4
+NUM_RESTARTS = 4 if not SMOKE_TEST else 2
+RAW_SAMPLES = 64 if not SMOKE_TEST else 4
 BATCH_SIZE = 4
 
 
@@ -152,12 +170,12 @@ def optimize_mfkg_and_get_observation(mfkg_acqf):
     candidates, _ = optimize_acqf_mixed(
         acq_function=mfkg_acqf,
         bounds=bounds,
-        fixed_features_list=[{2: 0.1}, {2: 0.5}, {2: 1.0}],
+        fixed_features_list=[{2: 0.2},{2: 0.5}, {2: 1.0}],
         q=BATCH_SIZE,
         num_restarts=NUM_RESTARTS,
         raw_samples=RAW_SAMPLES,
         # batch_initial_conditions=X_init,
-        options={"batch_limit": 5, "maxiter": 200},
+        options={"batch_limit": 4, "maxiter": 50},
     )
 
     # observe new values
@@ -184,7 +202,7 @@ train_obj = train_obj_init
 
 
 cumulative_cost = 0.0
-N_ITER = 20 if not SMOKE_TEST else 1
+N_ITER = 10 if not SMOKE_TEST else 1
 
 for i in range(N_ITER):
     print("iteration=",i)
