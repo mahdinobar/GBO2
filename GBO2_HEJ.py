@@ -23,7 +23,7 @@ This helps to:
 
     Quickly validate whether the script runs without errors.
     Test the setup, model, and environment in a minimal setting."""
-from botorch.test_functions.multi_fidelity import AugmentedHartmann, Tworr
+from botorch.test_functions.multi_fidelity import AugmentedHartmann, HEJ
 from botorch.models.gp_regression_fidelity import SingleTaskMultiFidelityGP
 from botorch.models.transforms.outcome import Standardize
 from gpytorch.mlls.exact_marginal_log_likelihood import ExactMarginalLogLikelihood
@@ -47,7 +47,7 @@ seed = 10
 np.random.seed(seed)
 set_seed(seed)
 
-problem = Tworr(negate=True).to(**tkwargs) # Setting negate=True typically multiplies the objective values by -1, transforming a minimization objective (i.e., minimizing f(x)) into a maximization objective (i.e., maximizing −f(x)).
+problem = HEJ(negate=True).to(**tkwargs) # Setting negate=True typically multiplies the objective values by -1, transforming a minimization objective (i.e., minimizing f(x)) into a maximization objective (i.e., maximizing −f(x)).
 fidelities = torch.tensor([0.2, 0.5, 1.0], **tkwargs)
 
 # #### Model initialization
@@ -104,7 +104,7 @@ def normalize(X, lower, upper):
     return (X - lower) / (upper - lower)
 
 # Define the bounds
-original_bounds = torch.tensor([[10, 0.5, 0.0], [60, 2, 1.0]], **tkwargs)
+original_bounds = torch.tensor([[50, 2, 0.0], [120, 10, 1.0]], **tkwargs)
 lower, upper = original_bounds[0], original_bounds[1]
 # Example input data
 X_original = torch.stack([lower, upper]).to(**tkwargs)
