@@ -104,7 +104,7 @@ def normalize(X, lower, upper):
     return (X - lower) / (upper - lower)
 
 # Define the bounds
-original_bounds = torch.tensor([[50, 2, 0.0], [120, 10, 1.0]], **tkwargs)
+original_bounds = torch.tensor([[70, 2, 0.0], [120, 5, 1.0]], **tkwargs)
 lower, upper = original_bounds[0], original_bounds[1]
 # Example input data
 X_original = torch.stack([lower, upper]).to(**tkwargs)
@@ -203,7 +203,7 @@ train_obj = train_obj_init
 
 
 cumulative_cost = 0.0
-N_ITER = 10 if not SMOKE_TEST else 1
+N_ITER = 20 if not SMOKE_TEST else 1
 
 for i in range(N_ITER):
     print("iteration=",i)
