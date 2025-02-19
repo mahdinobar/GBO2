@@ -5,6 +5,7 @@ All rights reserved.
 
 import os
 import torch
+import matplotlib.pyplot as plt
 
 tkwargs = {
     "dtype": torch.double,
@@ -187,13 +188,59 @@ def optimize_mfkg_and_get_observation(mfkg_acqf):
     print(f"observations:\n{new_obj}\n\n")
     return new_x, new_obj, cost
 
+def plot_GP(model, iter):
+    # Step 3: Define fidelity levels and create a grid for plotting
+    fidelities = [1.0, 0.5, 0.2]  # Three fidelity levels
+    x1 = torch.linspace(0, 1, 50)
+    x2 = torch.linspace(0, 1, 50)
+    X1, X2 = torch.meshgrid(x1, x2, indexing="ij")
+
+    # Step 4: Prepare the figure with 3x2 subplots
+    fig, axs = plt.subplots(len(fidelities), 2, figsize=(14, 18))
+
+    for i, s_val in enumerate(fidelities):
+        s_fixed = torch.tensor([[s_val]])
+
+        # Flatten the grid and concatenate with the fidelity level
+        X_plot = torch.cat([
+            X1.reshape(-1, 1),
+            X2.reshape(-1, 1),
+            s_fixed.expand(X1.numel(), 1)
+        ], dim=1)
+
+        # Step 5: Evaluate the posterior mean and standard deviation
+        with torch.no_grad():
+            posterior = model.posterior(X_plot)
+            mean = posterior.mean.reshape(50, 50).numpy()
+            std = posterior.variance.sqrt().reshape(50, 50).numpy()
+
+        # Plot the posterior mean
+        contour_mean = axs[i, 0].contourf(X1.numpy(), X2.numpy(), mean, cmap='viridis')
+        axs[i, 0].set_title(f"Posterior Mean (s={s_val})")
+        fig.colorbar(contour_mean, ax=axs[i, 0])
+
+        # Plot the posterior standard deviation
+        contour_std = axs[i, 1].contourf(X1.numpy(), X2.numpy(), std, cmap='viridis')
+        axs[i, 1].set_title(f"Posterior Standard Deviation (s={s_val})")
+        fig.colorbar(contour_std, ax=axs[i, 1])
+
+        # Axis labels
+        for ax in axs[i]:
+            ax.set_xlabel("$x_1$")
+            ax.set_ylabel("$x_2$")
+
+    plt.tight_layout()
+    plt.savefig("/home/nobar/codes/GBO2/logs/test_0/GP_itr_{}.pdf".format(str(iter)))  # Save as PDF
+    plt.show()
+
+
 
 # ### Perform a few steps of multi-fidelity BO
 # First, let's generate some initial random data and fit a surrogate model.
 
 # In[6]:
-
-train_x_init, train_obj_init = generate_initial_data(n=16)
+N_init=16 if not SMOKE_TEST else 2
+train_x_init, train_obj_init = generate_initial_data(n=N_init)
 train_x=train_x_init
 train_obj = train_obj_init
 
@@ -209,6 +256,7 @@ for i in range(N_ITER):
     print("iteration=",i)
     mll, model = initialize_model(train_x, train_obj)
     fit_gpytorch_mll(mll)
+    plot_GP(model, i)
     mfkg_acqf = get_mfkg(model)
     new_x, new_obj, cost = optimize_mfkg_and_get_observation(mfkg_acqf)
     train_x = torch.cat([train_x, new_x])
