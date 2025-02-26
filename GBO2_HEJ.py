@@ -29,6 +29,16 @@ from botorch.models.gp_regression_fidelity import SingleTaskMultiFidelityGP
 from botorch.models.transforms.outcome import Standardize
 from gpytorch.mlls.exact_marginal_log_likelihood import ExactMarginalLogLikelihood
 import numpy as np
+from botorch import fit_gpytorch_mll
+from botorch.models.cost import AffineFidelityCostModel
+from botorch.acquisition.cost_aware import InverseCostWeightedUtility
+from botorch.acquisition import PosteriorMean
+from botorch.acquisition.knowledge_gradient import qMultiFidelityKnowledgeGradient
+from botorch.acquisition.fixed_feature import FixedFeatureAcquisitionFunction
+from botorch.optim.optimize import optimize_acqf
+from botorch.acquisition.utils import project_to_target_fidelity
+from botorch.optim.optimize import optimize_acqf_mixed
+from botorch.acquisition import qExpectedImprovement
 
 def set_seed(seed: int):
     """Set seed for reproducibility in Python, NumPy, and PyTorch."""
@@ -41,21 +51,6 @@ def set_seed(seed: int):
     torch.backends.cudnn.benchmark = False
     # Set the seed for NumPy
     np.random.seed(seed)
-
-# Set a global seed using torch.rand
-seed = 10
-# reset seed(here is where seed is reset to count 0)
-np.random.seed(seed)
-set_seed(seed)
-
-problem = HEJ(negate=True).to(**tkwargs) # Setting negate=True typically multiplies the objective values by -1, transforming a minimization objective (i.e., minimizing f(x)) into a maximization objective (i.e., maximizing −f(x)).
-fidelities = torch.tensor([0.2, 0.5, 1.0], **tkwargs)
-
-# #### Model initialization
-#
-# We use a `SingleTaskMultiFidelityGP` as the surrogate model, which uses a kernel from [2] that is well-suited for multi-fidelity applications. The `SingleTaskMultiFidelityGP` models the design and fidelity parameters jointly, so its domain is $[0,1]^7$.
-
-# In[3]:
 
 def generate_initial_data(n=16):
     # generate training data
@@ -78,46 +73,9 @@ def initialize_model(train_x, train_obj):
     mll = ExactMarginalLogLikelihood(model.likelihood, model)
     return mll, model
 
-
-# #### Define a helper function to construct the MFKG acquisition function
-# The helper function illustrates how one can initialize an $q$MFKG acquisition function. In this example, we assume that the affine cost is known. We then use the notion of a `CostAwareUtility` in BoTorch to scalarize the "competing objectives" of information gain and cost. The MFKG acquisition function optimizes the ratio of information gain to cost, which is captured by the `InverseCostWeightedUtility`.
-#
-# In order for MFKG to evaluate the information gain, it uses the model to predict the function value at the highest fidelity after conditioning on the observation. This is handled by the `project` argument, which specifies how to transform a tensor `X` to its target fidelity. We use a default helper function called `project_to_target_fidelity` to achieve this.
-#
-# An important point to keep in mind: in the case of standard KG, one can ignore the current value and simply optimize the expected maximum posterior mean of the next stage. However, for MFKG, since the goal is optimize information *gain* per cost, it is important to first compute the current value (i.e., maximum of the posterior mean at the target fidelity). To accomplish this, we use a `FixedFeatureAcquisitionFunction` on top of a `PosteriorMean`.
-
-# In[4]:
-
-
-from botorch import fit_gpytorch_mll
-from botorch.models.cost import AffineFidelityCostModel
-from botorch.acquisition.cost_aware import InverseCostWeightedUtility
-from botorch.acquisition import PosteriorMean
-from botorch.acquisition.knowledge_gradient import qMultiFidelityKnowledgeGradient
-from botorch.acquisition.fixed_feature import FixedFeatureAcquisitionFunction
-from botorch.optim.optimize import optimize_acqf
-from botorch.acquisition.utils import project_to_target_fidelity
-
-
-
 # Normalize function
 def normalize(X, lower, upper):
     return (X - lower) / (upper - lower)
-
-# Define the bounds
-original_bounds = torch.tensor([[70, 2, 0.0], [120, 5, 1.0]], **tkwargs)
-lower, upper = original_bounds[0], original_bounds[1]
-# Example input data
-X_original = torch.stack([lower, upper]).to(**tkwargs)
-# Normalize inputs to [0, 1]
-bounds = normalize(X_original, lower, upper)
-
-
-target_fidelities = {2: 1.0}
-
-cost_model = AffineFidelityCostModel(fidelity_weights={2: 1.0}, fixed_cost=5.0)
-cost_aware_utility = InverseCostWeightedUtility(cost_model=cost_model)
-
 
 def project(X):
     return project_to_target_fidelity(X=X, target_fidelities=target_fidelities)
@@ -150,25 +108,11 @@ def get_mfkg(model):
     )
 
 
-# #### Define a helper function that performs the essential BO step
-# This helper function optimizes the acquisition function and returns the batch $\{x_1, x_2, \ldots x_q\}$ along with the observed function values. The function `optimize_acqf_mixed` sequentially optimizes the acquisition function over $x$ for each value of the fidelity $s \in \{0, 0.5, 1.0\}$.
-
-# In[5]:
-
-
-from botorch.optim.optimize import optimize_acqf_mixed
-
-torch.set_printoptions(precision=3, sci_mode=False)
-
-NUM_RESTARTS = 4 if not SMOKE_TEST else 2
-RAW_SAMPLES = 64 if not SMOKE_TEST else 4
-BATCH_SIZE = 4
-
-
 def optimize_mfkg_and_get_observation(mfkg_acqf):
     """Optimizes MFKG and returns a new candidate, observation, and cost."""
 
     # generate new candidates
+    # uncomment for my idea
     candidates, _ = optimize_acqf_mixed(
         acq_function=mfkg_acqf,
         bounds=bounds,
@@ -179,6 +123,16 @@ def optimize_mfkg_and_get_observation(mfkg_acqf):
         # batch_initial_conditions=X_init,
         options={"batch_limit": 4, "maxiter": 50},
     )
+    # candidates, _ = optimize_acqf_mixed(
+    #     acq_function=mfkg_acqf,
+    #     bounds=bounds,
+    #     fixed_features_list=[{2: 0.5}, {2: 1.0}],
+    #     q=BATCH_SIZE,
+    #     num_restarts=NUM_RESTARTS,
+    #     raw_samples=RAW_SAMPLES,
+    #     # batch_initial_conditions=X_init,
+    #     options={"batch_limit": 4, "maxiter": 50},
+    # )
 
     # observe new values
     cost = cost_model(candidates).sum()
@@ -188,9 +142,11 @@ def optimize_mfkg_and_get_observation(mfkg_acqf):
     print(f"observations:\n{new_obj}\n\n")
     return new_x, new_obj, cost
 
-def plot_GP(model, iter):
+def plot_GP(model, iter, path):
     # Step 3: Define fidelity levels and create a grid for plotting
+    # uncomment for my idea
     fidelities = [1.0, 0.5, 0.2]  # Three fidelity levels
+    # fidelities = [1.0, 0.5]  # Three fidelity levels
     x1 = torch.linspace(0, 1, 50)
     x2 = torch.linspace(0, 1, 50)
     X1, X2 = torch.meshgrid(x1, x2, indexing="ij")
@@ -224,51 +180,20 @@ def plot_GP(model, iter):
         axs[i, 1].set_title(f"Posterior Standard Deviation (s={s_val})")
         fig.colorbar(contour_std, ax=axs[i, 1])
 
+        np.save(path+"/X1_{}.npy".format(str(iter)),X1)
+        np.save(path+"/X2_{}.npy".format(str(iter)),X2)
+        np.save(path+"/mean_{}.npy".format(str(iter)), mean)
+        np.save(path+"/std_{}.npy".format(str(iter)),std)
+
         # Axis labels
         for ax in axs[i]:
             ax.set_xlabel("$x_1$")
             ax.set_ylabel("$x_2$")
 
     plt.tight_layout()
-    plt.savefig("/home/nobar/codes/GBO2/logs/test_0/GP_itr_{}.pdf".format(str(iter)))  # Save as PDF
-    plt.show()
-
-
-
-# ### Perform a few steps of multi-fidelity BO
-# First, let's generate some initial random data and fit a surrogate model.
-
-# In[6]:
-N_init=16 if not SMOKE_TEST else 2
-train_x_init, train_obj_init = generate_initial_data(n=N_init)
-train_x=train_x_init
-train_obj = train_obj_init
-
-# We can now use the helper functions above to run a few iterations of BO.
-
-# In[7]:
-
-
-cumulative_cost = 0.0
-N_ITER = 20 if not SMOKE_TEST else 1
-
-for i in range(N_ITER):
-    print("iteration=",i)
-    mll, model = initialize_model(train_x, train_obj)
-    fit_gpytorch_mll(mll)
-    plot_GP(model, i)
-    mfkg_acqf = get_mfkg(model)
-    new_x, new_obj, cost = optimize_mfkg_and_get_observation(mfkg_acqf)
-    train_x = torch.cat([train_x, new_x])
-    train_obj = torch.cat([train_obj, new_obj])
-    cumulative_cost += cost
-
-
-# ### Make a final recommendation
-# In multi-fidelity BO, there are usually fewer observations of the function at the target fidelity, so it is important to use a recommendation function that uses the correct fidelity. Here, we maximize the posterior mean with the fidelity dimension fixed to the target fidelity of 1.0.
-
-# In[8]:
-
+    plt.savefig(path+"/GP_itr_{}.pdf".format(str(iter)))  # Save as PDF
+    plt.savefig(path+"/GP_itr_{}.png".format(str(iter)))
+    # plt.show()
 
 def get_recommendation(model, lower, upper):
     rec_acqf = FixedFeatureAcquisitionFunction(
@@ -277,7 +202,6 @@ def get_recommendation(model, lower, upper):
         columns=[2],
         values=[1], # here we fix fidelity to 1.0 (highest fidelity) to have the recommendation based on only target fidelity
     )
-
     final_rec, _ = optimize_acqf(
         acq_function=rec_acqf,
         bounds=bounds[:, :-1],
@@ -286,33 +210,24 @@ def get_recommendation(model, lower, upper):
         raw_samples=512,
         options={"batch_limit": 5, "maxiter": 200},
     )
-
     final_rec = rec_acqf._construct_X_full(final_rec)
-
     objective_value = problem(final_rec) #here final_rec is the normalized states
-
-
     def denormalize(x, lower, upper):
         return x * (upper - lower) + lower
-    print(f"recommended point:\n{final_rec}\n\nrecommended point (unnormalized):\n{denormalize(final_rec, lower, upper)}\n\nobjective value:\n{objective_value}")
-
-    # print(f"recommended point (unnormalized):\n{denormalize(final_rec, lower, upper)}\n\nobjective value:\n{objective_value}")
+    print(f"Final posterior optimized recommended point:\n{final_rec}\n\nrecommended point (unnormalized):\n{denormalize(final_rec, lower, upper)}\n\nobjective value:\n{objective_value}")
     return final_rec
 
+def get_recommendation_max_observed(train_x, train_obj, lower, upper):
+    idx_s1 = np.argwhere(train_x[:, 2] == 1).squeeze()
+    idx_ = np.argmax(np.asarray(train_obj[idx_s1].squeeze()))
+    idx_max = idx_s1[idx_]
+    final_rec = train_x[idx_max, :]
+    objective_value = train_obj[idx_max]
+    def denormalize(x, lower, upper):
+        return x * (upper - lower) + lower
+    print(f"Max observed recommended point:\n{final_rec}\n\nrecommended point (unnormalized):\n{denormalize(final_rec, lower, upper)}\n\nobjective value:\n{objective_value}")
+    return final_rec, objective_value
 
-# In[9]:
-
-
-final_rec = get_recommendation(model, lower, upper)
-print(f"\nMFBO total cost: {cumulative_cost}\n")
-
-# ### Comparison to standard EI (always use target fidelity)
-# Let's now repeat the same steps using a standard EI acquisition function (note that this is not a rigorous comparison as we are only looking at one trial in order to keep computational requirements low).
-
-# In[10]:
-
-
-from botorch.acquisition import qExpectedImprovement
 
 
 def get_ei(model, best_f):
@@ -322,7 +237,6 @@ def get_ei(model, best_f):
         columns=[2],
         values=[1],
     )
-
 
 def optimize_ei_and_get_observation(ei_acqf):
     """Optimizes EI and returns a new candidate, observation, and cost."""
@@ -347,28 +261,103 @@ def optimize_ei_and_get_observation(ei_acqf):
     print(f"observations:\n{new_obj}\n\n")
     return new_x, new_obj, cost
 
+# Set a global seed using torch.rand
+seed = 10
+# reset seed(here is where seed is reset to count 0)
+np.random.seed(seed)
+set_seed(seed)
 
-# In[11]:
+N_exper=50
+for exper in range(N_exper):
+    print("**********Experiment {}**********".format(exper))
+    path = "/home/nobar/codes/GBO2/logs/test_4/Exper_{}".format(str(exper))
+    # Check if the directory exists, if not, create it
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+    problem = HEJ(negate=True).to(**tkwargs) # Setting negate=True typically multiplies the objective values by -1, transforming a minimization objective (i.e., minimizing f(x)) into a maximization objective (i.e., maximizing −f(x)).
+    # uncomment for my idea
+    fidelities = torch.tensor([0.2, 0.5, 1.0], **tkwargs)
+    # fidelities = torch.tensor([0.5, 1.0], **tkwargs)
+
+    # Define the bounds
+    original_bounds = torch.tensor([[70, 2, 0.0], [120, 5, 1.0]], **tkwargs)
+    lower, upper = original_bounds[0], original_bounds[1]
+    # Example input data
+    X_original = torch.stack([lower, upper]).to(**tkwargs)
+    # Normalize inputs to [0, 1]
+    bounds = normalize(X_original, lower, upper)
+
+    target_fidelities = {2: 1.0}
+
+    cost_model = AffineFidelityCostModel(fidelity_weights={2: 1.0}, fixed_cost=5.0)
+    cost_aware_utility = InverseCostWeightedUtility(cost_model=cost_model)
+
+    torch.set_printoptions(precision=3, sci_mode=False)
+
+    NUM_RESTARTS = 4 if not SMOKE_TEST else 2
+    RAW_SAMPLES = 64 if not SMOKE_TEST else 4
+    BATCH_SIZE = 4
+
+    N_init=16 if not SMOKE_TEST else 2
+    train_x_init, train_obj_init = generate_initial_data(n=N_init)
+    train_x=train_x_init
+    train_obj = train_obj_init
+    np.save(path+"/train_obj_init.npy", train_obj_init)
+    np.save(path+"/train_x_init.npy", train_x_init)
+
+    cumulative_cost = 0.0
+    N_ITER = 10 if not SMOKE_TEST else 1
+
+    for i in range(N_ITER):
+        print("iteration=",i)
+        mll, model = initialize_model(train_x, train_obj)
+        fit_gpytorch_mll(mll)
+        plot_GP(model, i, path)
+        mfkg_acqf = get_mfkg(model)
+        new_x, new_obj, cost = optimize_mfkg_and_get_observation(mfkg_acqf)
+        train_x = torch.cat([train_x, new_x])
+        train_obj = torch.cat([train_obj, new_obj])
+        cumulative_cost += cost
+        np.save(path+"/train_x.npy", train_x)
+        np.save(path+"/train_obj.npy", train_obj)
 
 
-cumulative_cost = 0.0
-# train_x, train_obj = generate_initial_data(n=16)
-train_x=train_x_init
-train_obj = train_obj_init
+    final_rec, objective_value = get_recommendation(model, lower, upper)
+    print(f"\nMFBO total cost final posterior optimized: {cumulative_cost}\n")
+    np.save(path+"/final_rec.npy", final_rec)
+    np.save(path+"/objective_value.npy", objective_value)
 
-for _ in range(N_ITER):
-    mll, model = initialize_model(train_x, train_obj)
-    fit_gpytorch_mll(mll)
-    ei_acqf = get_ei(model, best_f=train_obj.max())
-    new_x, new_obj, cost = optimize_ei_and_get_observation(ei_acqf)
-    train_x = torch.cat([train_x, new_x])
-    train_obj = torch.cat([train_obj, new_obj])
-    cumulative_cost += cost
-
-# In[12]:
+    final_rec_max_observed, objective_value_max_observed = get_recommendation_max_observed(train_x, train_obj, lower, upper)
+    print(f"\nMFBO total cost max observed: {cumulative_cost}\n")
+    np.save(path+"/final_rec_max_observed.npy", final_rec_max_observed)
+    np.save(path+"/objective_value_max_observed.npy", objective_value_max_observed)
 
 
-final_rec = get_recommendation(model, lower, upper)
-print(f"\nEI only total cost: {cumulative_cost}\n")
 
-# In[12]:
+    # In[1]:
+
+    cumulative_cost = 0.0
+    # train_x, train_obj = generate_initial_data(n=16)
+    train_x=train_x_init
+    train_obj = train_obj_init
+
+    for _ in range(N_ITER):
+        mll, model = initialize_model(train_x, train_obj)
+        fit_gpytorch_mll(mll)
+        ei_acqf = get_ei(model, best_f=train_obj.max())
+        new_x, new_obj, cost = optimize_ei_and_get_observation(ei_acqf)
+        train_x = torch.cat([train_x, new_x])
+        train_obj = torch.cat([train_obj, new_obj])
+        cumulative_cost += cost
+
+    # In[12]:
+    final_rec_EIonly, objective_value_EIonly = get_recommendation(model, lower, upper)
+    np.save(path+"/final_rec_EIonly.npy", final_rec_EIonly)
+    np.save(path+"/objective_value.npy", objective_value_EIonly)
+    print(f"\nEI only total cost: {cumulative_cost}\n")
+
+    final_rec_max_observed_EIonly, objective_value_max_observed_EIonly = get_recommendation_max_observed(train_x, train_obj, lower, upper)
+    np.save(path+"/final_rec_max_observed.npy", final_rec_max_observed_EIonly)
+    np.save(path+"/objective_value_max_observed_EIonly.npy", objective_value_max_observed_EIonly)
+    print(f"\nEI only total cost max observed: {cumulative_cost}\n")
