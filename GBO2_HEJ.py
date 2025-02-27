@@ -215,7 +215,7 @@ def get_recommendation(model, lower, upper):
     def denormalize(x, lower, upper):
         return x * (upper - lower) + lower
     print(f"Final posterior optimized recommended point:\n{final_rec}\n\nrecommended point (unnormalized):\n{denormalize(final_rec, lower, upper)}\n\nobjective value:\n{objective_value}")
-    return final_rec
+    return final_rec, objective_value
 
 def get_recommendation_max_observed(train_x, train_obj, lower, upper):
     idx_s1 = np.argwhere(train_x[:, 2] == 1).squeeze()
