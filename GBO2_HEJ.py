@@ -304,7 +304,7 @@ for exper in range(N_exper):
     train_x_init, train_obj_init = generate_initial_data(n=N_init)
     train_x=train_x_init
     train_obj = train_obj_init
-    print("train_obj_init=",train_obj_init)
+    # print("train_obj_init=",train_obj_init)
     np.save(path+"/train_obj_init.npy", train_obj_init)
     np.save(path+"/train_x_init.npy", train_x_init)
 
