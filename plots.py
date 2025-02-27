@@ -2,6 +2,7 @@ import scipy.io
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import cm, ticker
+import os
 
 def plot_gt():
     # Load the .mat file
@@ -67,6 +68,28 @@ def plot_kernels():
     plt.savefig("/home/nobar/codes/GBO2/logs/test_3/C1kernelCoefficient.png")
     plt.show()
 
+def plots_MonteCarlo_objective(path):
+    train_x_list = []
+    train_obj_list = []
+
+    for exper in range(24):
+        exp_path = os.path.join(path, f"Exper_{exper}")
+
+        # Load files
+        train_x = np.load(os.path.join(exp_path, "train_x_init.npy"))
+        train_obj = np.load(os.path.join(exp_path, "train_obj_init.npy"))
+
+        # Append to lists
+        train_x_list.append(train_x)
+        train_obj_list.append(train_obj)
+
+    # Stack along a new dimension (first dimension)
+    train_x_all = np.stack(train_x_list, axis=1)
+    train_obj_all = -np.stack(train_obj_list, axis=1).squeeze()
+    train_obj_init=train_obj_all[:16, :]
+    train_obj_iter=train_obj_all[16:, :]
+    np.min(train_obj_iter, 0)
+    print("")
 
 if __name__ == "__main__":
     # plot_gt()
@@ -80,4 +103,7 @@ if __name__ == "__main__":
     # print("placeholder")
 
 
-    plot_kernels()
+    # plot_kernels()
+
+    path = "/home/nobar/codes/GBO2/logs/test_4/"
+    plots_MonteCarlo_objective(path)

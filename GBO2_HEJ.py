@@ -229,7 +229,6 @@ def get_recommendation_max_observed(train_x, train_obj, lower, upper):
     return final_rec, objective_value
 
 
-
 def get_ei(model, best_f):
     return FixedFeatureAcquisitionFunction(
         acq_function=qExpectedImprovement(model=model, best_f=best_f),
@@ -266,8 +265,16 @@ seed = 10
 # reset seed(here is where seed is reset to count 0)
 np.random.seed(seed)
 set_seed(seed)
+problem = HEJ(negate=True).to(
+    **tkwargs)  # Setting negate=True typically multiplies the objective values by -1, transforming a minimization objective (i.e., minimizing f(x)) into a maximization objective (i.e., maximizing −f(x)).
 
-N_exper=50
+N_exper=20
+NUM_RESTARTS = 4 if not SMOKE_TEST else 2
+RAW_SAMPLES = 64 if not SMOKE_TEST else 4
+BATCH_SIZE = 4
+N_init = 16 if not SMOKE_TEST else 2
+N_ITER = 10 if not SMOKE_TEST else 1
+
 for exper in range(N_exper):
     print("**********Experiment {}**********".format(exper))
     path = "/home/nobar/codes/GBO2/logs/test_4/Exper_{}".format(str(exper))
@@ -275,7 +282,6 @@ for exper in range(N_exper):
     if not os.path.exists(path):
         os.makedirs(path)
 
-    problem = HEJ(negate=True).to(**tkwargs) # Setting negate=True typically multiplies the objective values by -1, transforming a minimization objective (i.e., minimizing f(x)) into a maximization objective (i.e., maximizing −f(x)).
     # uncomment for my idea
     fidelities = torch.tensor([0.2, 0.5, 1.0], **tkwargs)
     # fidelities = torch.tensor([0.5, 1.0], **tkwargs)
@@ -295,20 +301,15 @@ for exper in range(N_exper):
 
     torch.set_printoptions(precision=3, sci_mode=False)
 
-    NUM_RESTARTS = 4 if not SMOKE_TEST else 2
-    RAW_SAMPLES = 64 if not SMOKE_TEST else 4
-    BATCH_SIZE = 4
-
-    N_init=16 if not SMOKE_TEST else 2
     train_x_init, train_obj_init = generate_initial_data(n=N_init)
     train_x=train_x_init
     train_obj = train_obj_init
+    print("train_obj_init=",train_obj_init)
     np.save(path+"/train_obj_init.npy", train_obj_init)
     np.save(path+"/train_x_init.npy", train_x_init)
 
     cumulative_cost = 0.0
-    N_ITER = 10 if not SMOKE_TEST else 1
-
+    costs_all = np.zeros(N_ITER)
     for i in range(N_ITER):
         print("iteration=",i)
         mll, model = initialize_model(train_x, train_obj)
@@ -319,25 +320,28 @@ for exper in range(N_exper):
         train_x = torch.cat([train_x, new_x])
         train_obj = torch.cat([train_obj, new_obj])
         cumulative_cost += cost
+        costs_all[i]=cost
+        np.save(path+"/costs_all.npy", costs_all)
         np.save(path+"/train_x.npy", train_x)
         np.save(path+"/train_obj.npy", train_obj)
 
-
     final_rec, objective_value = get_recommendation(model, lower, upper)
-    print(f"\nMFBO total cost final posterior optimized: {cumulative_cost}\n")
     np.save(path+"/final_rec.npy", final_rec)
     np.save(path+"/objective_value.npy", objective_value)
 
     final_rec_max_observed, objective_value_max_observed = get_recommendation_max_observed(train_x, train_obj, lower, upper)
-    print(f"\nMFBO total cost max observed: {cumulative_cost}\n")
     np.save(path+"/final_rec_max_observed.npy", final_rec_max_observed)
     np.save(path+"/objective_value_max_observed.npy", objective_value_max_observed)
 
+    print(f"\nMFBO total cost: {cumulative_cost}\n")
 
 
     # In[1]:
-
     cumulative_cost = 0.0
+    # Initialize costs_all as an empty tensor
+    costs_all = torch.tensor([])
+    # Ensure the correct shape for concatenation
+    costs_all = costs_all.view(0)  # Reshape to (0,) to allow concatenation
     # train_x, train_obj = generate_initial_data(n=16)
     train_x=train_x_init
     train_obj = train_obj_init
@@ -350,14 +354,17 @@ for exper in range(N_exper):
         train_x = torch.cat([train_x, new_x])
         train_obj = torch.cat([train_obj, new_obj])
         cumulative_cost += cost
+        np.save(path+"/costs_all_EIonly.npy", costs_all)
+        np.save(path+"/train_x_EIonly.npy", train_x)
+        np.save(path+"/train_obj_EIonly.npy", train_obj)
 
     # In[12]:
     final_rec_EIonly, objective_value_EIonly = get_recommendation(model, lower, upper)
     np.save(path+"/final_rec_EIonly.npy", final_rec_EIonly)
-    np.save(path+"/objective_value.npy", objective_value_EIonly)
-    print(f"\nEI only total cost: {cumulative_cost}\n")
+    np.save(path+"/objective_value_EIonly.npy", objective_value_EIonly)
 
     final_rec_max_observed_EIonly, objective_value_max_observed_EIonly = get_recommendation_max_observed(train_x, train_obj, lower, upper)
-    np.save(path+"/final_rec_max_observed.npy", final_rec_max_observed_EIonly)
+    np.save(path+"/final_rec_max_observed_EIonly.npy", final_rec_max_observed_EIonly)
     np.save(path+"/objective_value_max_observed_EIonly.npy", objective_value_max_observed_EIonly)
-    print(f"\nEI only total cost max observed: {cumulative_cost}\n")
+
+    print(f"\nEI only total cost: {cumulative_cost}\n")
