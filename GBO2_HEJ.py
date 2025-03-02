@@ -56,8 +56,10 @@ def generate_initial_data(n=16):
     # generate training data
     train_x = torch.hstack(((bounds[1,0].item()-bounds[0,0].item())*torch.rand(n, 1, **tkwargs)+bounds[0,0].item(),
                             (bounds[1,1].item()-bounds[0,1].item())*torch.rand(n, 1, **tkwargs)+bounds[0,1].item()))
-    # TODO: uncomment for my idea
-    train_f = fidelities[torch.randint(1,3, (n, 1))]
+    # # TODO: uncomment for my idea
+    # train_f = fidelities[torch.randint(1,3, (n, 1))]
+    # uncomment for deterministic initial dataset of just IS1
+    train_f = fidelities[torch.randint(2,3, (n, 1))]
     # train_f = fidelities[torch.randint(2, (n, 1))]
     train_x_full = torch.cat((train_x, train_f), dim=1)
     train_obj = problem(train_x_full).unsqueeze(-1)  # add output dimension
@@ -272,7 +274,7 @@ N_exper=20
 NUM_RESTARTS = 4 if not SMOKE_TEST else 2
 RAW_SAMPLES = 64 if not SMOKE_TEST else 4
 BATCH_SIZE = 4
-N_init = 4 if not SMOKE_TEST else 2
+N_init = 2 if not SMOKE_TEST else 2
 N_ITER = 10 if not SMOKE_TEST else 1
 
 for exper in range(N_exper):
