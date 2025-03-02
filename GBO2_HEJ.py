@@ -272,12 +272,12 @@ N_exper=20
 NUM_RESTARTS = 4 if not SMOKE_TEST else 2
 RAW_SAMPLES = 64 if not SMOKE_TEST else 4
 BATCH_SIZE = 4
-N_init = 16 if not SMOKE_TEST else 2
+N_init = 4 if not SMOKE_TEST else 2
 N_ITER = 10 if not SMOKE_TEST else 1
 
 for exper in range(N_exper):
     print("**********Experiment {}**********".format(exper))
-    path = "/cluster/home/mnobar/code/GBO2/logs/test_0/Exper_{}".format(str(exper))
+    path = "/home/nobar/codes/GBO2/logs/test_5/Exper_{}".format(str(exper))
     # Check if the directory exists, if not, create it
     if not os.path.exists(path):
         os.makedirs(path)
@@ -296,9 +296,10 @@ for exper in range(N_exper):
 
     target_fidelities = {2: 1.0}
 
-    cost_model = AffineFidelityCostModel(fidelity_weights={2: 1.0}, fixed_cost=5.0)
+    cost_model = AffineFidelityCostModel(fidelity_weights={2: 1.0}, fixed_cost=1)
     cost_aware_utility = InverseCostWeightedUtility(cost_model=cost_model)
 
+    # In[1]:
     torch.set_printoptions(precision=3, sci_mode=False)
 
     train_x_init, train_obj_init = generate_initial_data(n=N_init)
@@ -336,17 +337,21 @@ for exper in range(N_exper):
     print(f"\nMFBO total cost: {cumulative_cost}\n")
 
 
+
     # In[1]:
+    # N_ITER=5
     cumulative_cost = 0.0
-    # Initialize costs_all as an empty tensor
-    costs_all = torch.tensor([])
-    # Ensure the correct shape for concatenation
-    costs_all = costs_all.view(0)  # Reshape to (0,) to allow concatenation
-    # train_x, train_obj = generate_initial_data(n=16)
+    costs_all = np.zeros(N_ITER)
+    train_x, train_obj = generate_initial_data(n=16)
     train_x=train_x_init
     train_obj = train_obj_init
+    # exp_path_EIonly = "/home/nobar/codes/GBO2/logs/test_4/Exper_{}".format(str(exper))
+    # train_x=np.load(os.path.join(exp_path_EIonly, "train_x_IS1_init.npy"))
+    # train_obj=np.load(os.path.join(exp_path_EIonly, "train_obj_IS1_init.npy"))
+    # train_x=torch.as_tensor(train_x)
+    # train_obj=torch.as_tensor(train_obj)
 
-    for _ in range(N_ITER):
+    for i in range(N_ITER):
         mll, model = initialize_model(train_x, train_obj)
         fit_gpytorch_mll(mll)
         ei_acqf = get_ei(model, best_f=train_obj.max())
@@ -354,17 +359,18 @@ for exper in range(N_exper):
         train_x = torch.cat([train_x, new_x])
         train_obj = torch.cat([train_obj, new_obj])
         cumulative_cost += cost
-        np.save(path+"/costs_all_EIonly.npy", costs_all)
-        np.save(path+"/train_x_EIonly.npy", train_x)
-        np.save(path+"/train_obj_EIonly.npy", train_obj)
+        costs_all[i]=cost
+        np.save(path+"/costs_all_EIonly_corrected.npy", costs_all)
+        np.save(path+"/train_x_EIonly_corrected.npy", train_x)
+        np.save(path+"/train_obj_EIonly_corrected.npy", train_obj)
 
     # In[12]:
     final_rec_EIonly, objective_value_EIonly = get_recommendation(model, lower, upper)
-    np.save(path+"/final_rec_EIonly.npy", final_rec_EIonly)
-    np.save(path+"/objective_value_EIonly.npy", objective_value_EIonly)
+    np.save(path+"/final_rec_EIonly_corrected.npy", final_rec_EIonly)
+    np.save(path+"/objective_value_EIonly_corrected.npy", objective_value_EIonly)
 
     final_rec_max_observed_EIonly, objective_value_max_observed_EIonly = get_recommendation_max_observed(train_x, train_obj, lower, upper)
-    np.save(path+"/final_rec_max_observed_EIonly.npy", final_rec_max_observed_EIonly)
-    np.save(path+"/objective_value_max_observed_EIonly.npy", objective_value_max_observed_EIonly)
+    np.save(path+"/final_rec_max_observed_EIonly_corrected.npy", final_rec_max_observed_EIonly)
+    np.save(path+"/objective_value_max_observed_EIonly_corrected.npy", objective_value_max_observed_EIonly)
 
     print(f"\nEI only total cost: {cumulative_cost}\n")
