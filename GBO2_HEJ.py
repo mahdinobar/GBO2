@@ -58,7 +58,7 @@ def generate_initial_data(n=16):
                             (bounds[1,1].item()-bounds[0,1].item())*torch.rand(n, 1, **tkwargs)+bounds[0,1].item()))
     # # TODO: uncomment for my idea
     # train_f = fidelities[torch.randint(1,3, (n, 1))]
-    # uncomment for deterministic initial dataset of just IS1
+    # TODO: uncomment for deterministic initial dataset of just IS1
     train_f = fidelities[torch.randint(2,3, (n, 1))]
     # train_f = fidelities[torch.randint(2, (n, 1))]
     train_x_full = torch.cat((train_x, train_f), dim=1)
@@ -100,7 +100,7 @@ def get_mfkg(model):
         options={"batch_limit": 10, "maxiter": 200},
     )
 
-    # model: This is the surrogate model representing our current understanding of the objective function based on available data.
+    # model: This is the surrogate GP model representing our current understanding of the objective function based on available data.
     return qMultiFidelityKnowledgeGradient(
         model=model,
         num_fantasies=128 if not SMOKE_TEST else 2,
@@ -118,7 +118,7 @@ def optimize_mfkg_and_get_observation(mfkg_acqf):
     candidates, _ = optimize_acqf_mixed(
         acq_function=mfkg_acqf,
         bounds=bounds,
-        fixed_features_list=[{2: 0.2},{2: 0.5}, {2: 1.0}],
+        fixed_features_list=[{2: 0.05},{2: 0.1}, {2: 1.0}],
         q=BATCH_SIZE,
         num_restarts=NUM_RESTARTS,
         raw_samples=RAW_SAMPLES,
@@ -147,8 +147,8 @@ def optimize_mfkg_and_get_observation(mfkg_acqf):
 def plot_GP(model, iter, path):
     # Step 3: Define fidelity levels and create a grid for plotting
     # uncomment for my idea
-    fidelities = [1.0, 0.5, 0.2]  # Three fidelity levels
-    # fidelities = [1.0, 0.5]  # Three fidelity levels
+    fidelities = [1.0, 0.1, 0.05]  # Three fidelity levels
+    # fidelities = [1.0, 0.5]
     x1 = torch.linspace(0, 1, 50)
     x2 = torch.linspace(0, 1, 50)
     X1, X2 = torch.meshgrid(x1, x2, indexing="ij")
@@ -193,7 +193,7 @@ def plot_GP(model, iter, path):
             ax.set_ylabel("$x_2$")
 
     plt.tight_layout()
-    plt.savefig(path+"/GP_itr_{}.pdf".format(str(iter)))  # Save as PDF
+    # plt.savefig(path+"/GP_itr_{}.pdf".format(str(iter)))  # Save as PDF
     plt.savefig(path+"/GP_itr_{}.png".format(str(iter)))
     # plt.show()
 
@@ -279,13 +279,13 @@ N_ITER = 10 if not SMOKE_TEST else 1
 
 for exper in range(N_exper):
     print("**********Experiment {}**********".format(exper))
-    path = "/home/nobar/codes/GBO2/logs/test_5/Exper_{}".format(str(exper))
+    path = "/cluster/home/mnobar/code/GBO2/logs/test_6/Exper_{}".format(str(exper))
     # Check if the directory exists, if not, create it
     if not os.path.exists(path):
         os.makedirs(path)
 
     # uncomment for my idea
-    fidelities = torch.tensor([0.2, 0.5, 1.0], **tkwargs)
+    fidelities = torch.tensor([0.05, 0.1, 1.0], **tkwargs)
     # fidelities = torch.tensor([0.5, 1.0], **tkwargs)
 
     # Define the bounds
@@ -298,7 +298,7 @@ for exper in range(N_exper):
 
     target_fidelities = {2: 1.0}
 
-    cost_model = AffineFidelityCostModel(fidelity_weights={2: 1.0}, fixed_cost=1)
+    cost_model = AffineFidelityCostModel(fidelity_weights={2: 1.0}, fixed_cost=5)
     cost_aware_utility = InverseCostWeightedUtility(cost_model=cost_model)
 
     # In[1]:
@@ -347,7 +347,7 @@ for exper in range(N_exper):
     train_x, train_obj = generate_initial_data(n=N_init)
     train_x=train_x_init
     train_obj = train_obj_init
-    # exp_path_EIonly = "/home/nobar/codes/GBO2/logs/test_4/Exper_{}".format(str(exper))
+    # exp_path_EIonly = "/cluster/home/mnobar/code/GBO2/logs/test_4/Exper_{}".format(str(exper))
     # train_x=np.load(os.path.join(exp_path_EIonly, "train_x_IS1_init.npy"))
     # train_obj=np.load(os.path.join(exp_path_EIonly, "train_obj_IS1_init.npy"))
     # train_x=torch.as_tensor(train_x)
@@ -362,17 +362,17 @@ for exper in range(N_exper):
         train_obj = torch.cat([train_obj, new_obj])
         cumulative_cost += cost
         costs_all[i]=cost
-        np.save(path+"/costs_all_EIonly_corrected.npy", costs_all)
-        np.save(path+"/train_x_EIonly_corrected.npy", train_x)
-        np.save(path+"/train_obj_EIonly_corrected.npy", train_obj)
+        np.save(path+"/costs_all_EIonly.npy", costs_all)
+        np.save(path+"/train_x_EIonly.npy", train_x)
+        np.save(path+"/train_obj_EIonly.npy", train_obj)
 
     # In[12]:
     final_rec_EIonly, objective_value_EIonly = get_recommendation(model, lower, upper)
-    np.save(path+"/final_rec_EIonly_corrected.npy", final_rec_EIonly)
-    np.save(path+"/objective_value_EIonly_corrected.npy", objective_value_EIonly)
+    np.save(path+"/final_rec_EIonly.npy", final_rec_EIonly)
+    np.save(path+"/objective_value_EIonly.npy", objective_value_EIonly)
 
     final_rec_max_observed_EIonly, objective_value_max_observed_EIonly = get_recommendation_max_observed(train_x, train_obj, lower, upper)
-    np.save(path+"/final_rec_max_observed_EIonly_corrected.npy", final_rec_max_observed_EIonly)
-    np.save(path+"/objective_value_max_observed_EIonly_corrected.npy", objective_value_max_observed_EIonly)
+    np.save(path+"/final_rec_max_observed_EIonly.npy", final_rec_max_observed_EIonly)
+    np.save(path+"/objective_value_max_observed_EIonly.npy", objective_value_max_observed_EIonly)
 
     print(f"\nEI only total cost: {cumulative_cost}\n")

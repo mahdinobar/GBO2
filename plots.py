@@ -261,11 +261,11 @@ def plots_MonteCarlo_objective(path):
     plt.show()
 
 
-    costs=np.hstack((np.asarray(costs_init).reshape(20,1),np.stack(costs_all_list)))-sampling_cost_bias*4
+    costs=np.hstack((np.asarray(costs_init).reshape(20,1)-sampling_cost_bias*N_init,np.stack(costs_all_list)-sampling_cost_bias*4))
     C=np.cumsum(costs, axis=1)
     C_mean=np.mean(C,axis=0)
     C_std=np.std(C,axis=0)
-    costs_EIonly=np.hstack((np.asarray(costs_init).reshape(20,1),np.ones((20,10))*(sampling_cost_bias+1)*4))-sampling_cost_bias*4
+    costs_EIonly=np.hstack((np.asarray(costs_init).reshape(20,1)-sampling_cost_bias*N_init,np.ones((20,10))*(1)*4))
     C_EIonly=np.cumsum(costs_EIonly, axis=1)
     C_EIonly_mean=np.mean(C_EIonly,axis=0)
     C_EIonly_std=np.std(C_EIonly,axis=0)
