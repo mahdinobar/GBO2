@@ -344,7 +344,7 @@ for exper in range(N_exper):
     # N_ITER=5
     cumulative_cost = 0.0
     costs_all = np.zeros(N_ITER)
-    train_x, train_obj = generate_initial_data(n=16)
+    train_x, train_obj = generate_initial_data(n=N_init)
     train_x=train_x_init
     train_obj = train_obj_init
     # exp_path_EIonly = "/home/nobar/codes/GBO2/logs/test_4/Exper_{}".format(str(exper))
