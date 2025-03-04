@@ -58,8 +58,10 @@ def generate_initial_data(n=16):
                             (bounds[1,1].item()-bounds[0,1].item())*torch.rand(n, 1, **tkwargs)+bounds[0,1].item()))
     # # TODO: uncomment for my idea
     # train_f = fidelities[torch.randint(1,3, (n, 1))]
-    # TODO: uncomment for deterministic initial dataset of just IS1
-    train_f = fidelities[torch.randint(2,3, (n, 1))]
+    # # TODO: uncomment for deterministic initial dataset of just IS1 for your idea
+    # train_f = fidelities[torch.randint(2,3, (n, 1))]
+    # TODO: uncomment for deterministic initial dataset of just IS1 for baseline MFBO
+    train_f = fidelities[torch.randint(1,2, (n, 1))]
     # train_f = fidelities[torch.randint(2, (n, 1))]
     train_x_full = torch.cat((train_x, train_f), dim=1)
     train_obj = problem(train_x_full).unsqueeze(-1)  # add output dimension
@@ -114,27 +116,27 @@ def optimize_mfkg_and_get_observation(mfkg_acqf):
     """Optimizes MFKG and returns a new candidate, observation, and cost."""
 
     # generate new candidates
-    # uncomment for my idea
-    candidates, _ = optimize_acqf_mixed(
-        acq_function=mfkg_acqf,
-        bounds=bounds,
-        fixed_features_list=[{2: 0.05},{2: 0.1}, {2: 1.0}],
-        q=BATCH_SIZE,
-        num_restarts=NUM_RESTARTS,
-        raw_samples=RAW_SAMPLES,
-        # batch_initial_conditions=X_init,
-        options={"batch_limit": 4, "maxiter": 50},
-    )
+    # # uncomment for my idea
     # candidates, _ = optimize_acqf_mixed(
     #     acq_function=mfkg_acqf,
     #     bounds=bounds,
-    #     fixed_features_list=[{2: 0.5}, {2: 1.0}],
+    #     fixed_features_list=[{2: 0.05},{2: 0.1}, {2: 1.0}],
     #     q=BATCH_SIZE,
     #     num_restarts=NUM_RESTARTS,
     #     raw_samples=RAW_SAMPLES,
     #     # batch_initial_conditions=X_init,
     #     options={"batch_limit": 4, "maxiter": 50},
     # )
+    candidates, _ = optimize_acqf_mixed(
+        acq_function=mfkg_acqf,
+        bounds=bounds,
+        fixed_features_list=[{2: 0.1}, {2: 1.0}],
+        q=BATCH_SIZE,
+        num_restarts=NUM_RESTARTS,
+        raw_samples=RAW_SAMPLES,
+        # batch_initial_conditions=X_init,
+        options={"batch_limit": 4, "maxiter": 50},
+    )
 
     # observe new values
     cost = cost_model(candidates).sum()
@@ -146,9 +148,9 @@ def optimize_mfkg_and_get_observation(mfkg_acqf):
 
 def plot_GP(model, iter, path):
     # Step 3: Define fidelity levels and create a grid for plotting
-    # uncomment for my idea
-    fidelities = [1.0, 0.1, 0.05]  # Three fidelity levels
-    # fidelities = [1.0, 0.5]
+    # # uncomment for my idea
+    # fidelities = [1.0, 0.1, 0.05]  # Three fidelity levels
+    fidelities = [1.0, 0.1]
     x1 = torch.linspace(0, 1, 50)
     x2 = torch.linspace(0, 1, 50)
     X1, X2 = torch.meshgrid(x1, x2, indexing="ij")
@@ -279,14 +281,14 @@ N_ITER = 10 if not SMOKE_TEST else 1
 
 for exper in range(N_exper):
     print("**********Experiment {}**********".format(exper))
-    path = "/cluster/home/mnobar/code/GBO2/logs/test_6/Exper_{}".format(str(exper))
+    path = "/cluster/home/mnobar/code/GBO2/logs/test_6_baseline/Exper_{}".format(str(exper))
     # Check if the directory exists, if not, create it
     if not os.path.exists(path):
         os.makedirs(path)
 
-    # uncomment for my idea
-    fidelities = torch.tensor([0.05, 0.1, 1.0], **tkwargs)
-    # fidelities = torch.tensor([0.5, 1.0], **tkwargs)
+    # # uncomment for my idea
+    # fidelities = torch.tensor([0.05, 0.1, 1.0], **tkwargs)
+    fidelities = torch.tensor([0.1, 1.0], **tkwargs)
 
     # Define the bounds
     original_bounds = torch.tensor([[70, 2, 0.0], [120, 5, 1.0]], **tkwargs)
