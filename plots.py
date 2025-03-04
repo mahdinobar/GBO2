@@ -58,7 +58,7 @@ def plot_colortable(colors, *, ncols=4, sort_colors=True):
     return fig
 def plot_gt():
     # Load the .mat file
-    mat_data = scipy.io.loadmat('/home/nobar/Documents/introductions/simulink_model/ground_truth_1_20by20.mat')
+    mat_data = scipy.io.loadmat('/home/nobar/Documents/introductions/simulink_model/ground_truth_1_40by40.mat')
 
     # Extract the variables
     Kp = mat_data['Kp'].squeeze()  # Ensure it's a 1D array
@@ -70,13 +70,13 @@ def plot_gt():
 
     # Plot the contour
     plt.figure(figsize=(8, 6))
-    levs=[0.9,0.95,1,1.1,1.2,1.3,1.4,1.5,2,3]
-    contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(20,20),levs)  # Transpose to match dimensions
+    levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
+    contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(40,40),levs)  # Transpose to match dimensions
     plt.colorbar(contour, label='True Objective Value')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('True Objective Contour Plot')
-    plt.savefig("/home/nobar/codes/GBO2/logs/test_3/true_objective_contourf_grid20by20.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/test_6/true_objective_contourf_grid40by40.png")
     plt.show()
 
 def plot_kernels():
@@ -132,9 +132,9 @@ def plots_MonteCarlo_objective(path):
     idx_IS1_all=[]
     idx_IS1_all_init=[]
     idx_IS1_all_rest=[]
-    idx_IS2_all=[]
-    idx_IS2_all_init=[]
-    idx_IS2_all_rest=[]
+    idx_ISDTs_all=[]
+    idx_ISDTs_all_init=[]
+    idx_ISDTs_all_rest=[]
     # train_x_IS1_init_list=[]
     # train_obj_IS1_init_list=[]
     train_obj_EIonly_corrected_all=[]
@@ -142,7 +142,7 @@ def plots_MonteCarlo_objective(path):
     train_obj_list_rest_modified=[]
     costs_init=[]
     N_init=2
-    sampling_cost_bias=5
+    sampling_cost_bias=1
     for exper in range(20):
         exp_path = os.path.join(path, f"Exper_{exper}")
         # Load files
@@ -152,9 +152,9 @@ def plots_MonteCarlo_objective(path):
         idx_IS1 = np.argwhere(train_x[:, 2] == 1).squeeze()
         idx_IS1_init=idx_IS1[np.argwhere(idx_IS1<N_init)[:,0]]
         idx_IS1_rest=idx_IS1[np.argwhere(idx_IS1>N_init-1)[:,0]]
-        idx_IS2 = np.argwhere(train_x[:, 2] == 0.5).squeeze()
-        idx_IS2_init=idx_IS2[np.argwhere(idx_IS2<N_init)[:,0]]
-        idx_IS2_rest=idx_IS2[np.argwhere(idx_IS2>N_init-1)[:,0]]
+        idx_ISDTs = np.argwhere(~(train_x[:, 2] == 1)).squeeze()
+        idx_ISDTs_init=idx_ISDTs[np.argwhere(idx_ISDTs<N_init)[:,0]]
+        idx_ISDTs_rest=idx_ISDTs[np.argwhere(idx_ISDTs>N_init-1)[:,0]]
         train_x_IS1_init=train_x[idx_IS1_init, :]
         train_obj_IS1_init=train_obj[idx_IS1_init]
 
@@ -181,16 +181,16 @@ def plots_MonteCarlo_objective(path):
         idx_IS1_all_init.append(idx_IS1_init)
         idx_IS1_all_rest.append(idx_IS1_rest)
 
-        idx_IS2_all.append(idx_IS2)
-        idx_IS2_all_init.append(idx_IS2_init)
-        idx_IS2_all_rest.append(idx_IS2_rest)
+        idx_ISDTs_all.append(idx_ISDTs)
+        idx_ISDTs_all_init.append(idx_ISDTs_init)
+        idx_ISDTs_all_rest.append(idx_ISDTs_rest)
 
         costs_all_list_EIonly.append(costs_all_EIonly)
         train_x_list.append(train_x)
         train_obj_list.append(train_obj)
 
         A=train_obj
-        A[idx_IS2_rest]=-np.inf
+        A[idx_ISDTs_rest]=-np.inf
         train_obj_list_rest_modified.append(-A[N_init:])
 
         train_x_list_IS1.append(train_x_IS1)
@@ -290,6 +290,57 @@ def plots_MonteCarlo_objective(path):
 
 
 
+    costs=np.hstack((np.asarray(costs_init).reshape(20,1)-sampling_cost_bias*N_init,np.stack(costs_all_list)-sampling_cost_bias*4))
+    C=np.cumsum(costs, axis=1)
+    C_mean=np.mean(C,axis=0)
+    C_std=np.std(C,axis=0)
+    costs_EIonly=np.hstack((np.asarray(costs_init).reshape(20,1)-sampling_cost_bias*N_init,np.ones((20,10))*(1)*4))
+    C_EIonly=np.cumsum(costs_EIonly, axis=1)
+    C_EIonly_mean=np.mean(C_EIonly,axis=0)
+    C_EIonly_std=np.std(C_EIonly,axis=0)
+    x_ = C_mean #np.arange(0,41,4)
+    old_indices = np.linspace(0, 1, num=11)  # Original index positions
+    new_indices = np.linspace(0, 1, num=41)  # New index positions
+    # linear interpolation
+    x = np.interp(new_indices, old_indices, x_)
+    x_EI_only_ = C_EIonly_mean #np.arange(0,41,4)
+    # linear interpolation
+    x_EI_only = np.interp(new_indices, old_indices, x_EI_only_)
+
+    DD=np.stack(train_obj_list_rest_modified, axis=1).squeeze()
+    D=np.vstack((np.asarray(min_obj_init_all), DD))
+    j_min_observed_IS1=np.minimum.accumulate(D, axis=0)
+    J_mean=np.mean(j_min_observed_IS1,axis=1)
+    J_std=np.std(j_min_observed_IS1,axis=1)
+
+    DD=-np.stack(train_obj_list_EIonly).squeeze()[:,N_init:].T
+    D=np.vstack((np.asarray(min_obj_init_all), DD))
+    j_EIonly_min_observed_IS1=np.minimum.accumulate(D, axis=0)
+    J_EIonly_mean=np.mean(j_EIonly_min_observed_IS1,axis=1)
+    J_EIonly_std=np.std(j_EIonly_min_observed_IS1,axis=1)
+
+    plt.figure(figsize=(10, 5))
+    # plot_colortable(mcolors.CSS4_COLORS)
+    # mcolors.CSS4_COLORS['blueviolet']
+    plt.plot(x, J_mean, color='r', marker="o", linewidth=3, label='Mean GMFBO')  # Thick line for mean
+    plt.fill_between(x, J_mean - J_std, J_mean + J_std, color='r', alpha=0.3, label='±1 Std GMFBO')  # Shaded std region
+
+    plt.plot(x_EI_only, J_EIonly_mean, color='b', marker="o", linewidth=3, label='Mean EI only')  # Thick line for mean
+    plt.fill_between(x_EI_only, J_EIonly_mean - J_EIonly_std, J_EIonly_mean + J_EIonly_std, color='b', alpha=0.3, label='±1 Std EI only')  # Shaded std region
+
+    plt.xlabel('Mean Unbiased Sampling Cost')
+    plt.ylabel('$J^{*}$')
+    plt.title('Unbiased Cumulative Sampling Cost vs BO Iterations')
+    plt.legend()
+    plt.grid(True)
+    # plt.yscale('log')
+    # plt.ylim(0.9, 1.05)  # Focus range
+    # plt.yticks([0.9, 0.95, 1.0, 1.05])
+    plt.savefig("/home/nobar/codes/GBO2/logs/test_6/J_min_obs_IS1_Mean_Unbiased_cost_sampling.png")
+    plt.show()
+
+
+
 
 
     train_obj_all_EIonly = -np.stack(train_obj_list_EIonly, axis=1).squeeze()
@@ -324,11 +375,8 @@ def plots_MonteCarlo_objective(path):
     plt.show()
 
 
-    # Stack along a new dimension (first dimension)
-    # train_x_all = np.stack(train_x_list, axis=1)
-    # ix_IS2=np.argwhere(train_x_all[:, :, 2] == 0.5)
     train_obj_all = -np.stack(train_obj_list, axis=1).squeeze()
-    # train_obj_all[ix_IS2[:, 0], ix_IS2[:, 1]] = np.nan
+    # train_obj_all[ix_ISDTs[:, 0], ix_ISDTs[:, 1]] = np.nan
     costs_all = np.stack(costs_all_list, axis=1)
     cumul_costs_all = np.cumsum(costs_all, axis=0)
     cumul_costs_all_EIonly = np.cumsum(costs_all_EIonly, axis=0)
