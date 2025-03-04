@@ -142,13 +142,12 @@ def plots_MonteCarlo_objective(path):
     train_obj_list_rest_modified=[]
     costs_init=[]
     N_init=2
-    sampling_cost_bias=1
+    sampling_cost_bias=5
     for exper in range(20):
         exp_path = os.path.join(path, f"Exper_{exper}")
         # Load files
         train_x = np.load(os.path.join(exp_path, "train_x.npy"))
         train_obj = np.load(os.path.join(exp_path, "train_obj.npy"))
-
 
         idx_IS1 = np.argwhere(train_x[:, 2] == 1).squeeze()
         idx_IS1_init=idx_IS1[np.argwhere(idx_IS1<N_init)[:,0]]
@@ -166,14 +165,14 @@ def plots_MonteCarlo_objective(path):
 
         train_x_IS1 = train_x[idx_IS1]
         train_obj_IS1 = train_obj[idx_IS1]
-        train_x_EIonly = np.load(os.path.join(exp_path, "train_x_EIonly_corrected.npy"))
-        train_x_EIonly_corrected = np.load(os.path.join(exp_path, "train_x_EIonly_corrected.npy"))
-        train_obj_EIonly_corrected = np.load(os.path.join(exp_path, "train_obj_EIonly_corrected.npy"))
+        train_x_EIonly = np.load(os.path.join(exp_path, "train_x_EIonly.npy"))
+        train_x_EIonly_corrected = np.load(os.path.join(exp_path, "train_x_EIonly.npy"))
+        train_obj_EIonly_corrected = np.load(os.path.join(exp_path, "train_obj_EIonly.npy"))
 
-        train_obj_EIonly = np.load(os.path.join(exp_path, "train_obj_EIonly_corrected.npy"))
+        train_obj_EIonly = np.load(os.path.join(exp_path, "train_obj_EIonly.npy"))
         costs_all=np.load(os.path.join(exp_path, "costs_all.npy"))
-        costs_all_EIonly=np.load(os.path.join(exp_path, "costs_all_EIonly_corrected.npy"))
-        costs_all_EIonly_corrected=np.load(os.path.join(exp_path, "costs_all_EIonly_corrected.npy"))
+        costs_all_EIonly=np.load(os.path.join(exp_path, "costs_all_EIonly.npy"))
+        costs_all_EIonly_corrected=np.load(os.path.join(exp_path, "costs_all_EIonly.npy"))
         # Append to lists
         costs_all_list.append(costs_all)
         costs_init.append(np.sum(train_x[:N_init,2])+sampling_cost_bias*N_init)
@@ -229,7 +228,7 @@ def plots_MonteCarlo_objective(path):
     # plt.yscale('log')
     # plt.ylim(0.9, 1.05)  # Focus range
     # plt.yticks([0.9, 0.95, 1.0, 1.05])
-    plt.savefig("/home/nobar/codes/GBO2/logs/test_5/J_min_obs_IS1_BOiter.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/test_6/J_min_obs_IS1_BOiter.png")
     plt.show()
 
     costs=np.hstack((np.asarray(costs_init).reshape(20,1),np.stack(costs_all_list)))
@@ -257,7 +256,7 @@ def plots_MonteCarlo_objective(path):
     # plt.yscale('log')
     # plt.ylim(0.9, 1.05)  # Focus range
     # plt.yticks([0.9, 0.95, 1.0, 1.05])
-    plt.savefig("/home/nobar/codes/GBO2/logs/test_5/Cost_sampling_BOiter.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/test_6/Cost_sampling_BOiter.png")
     plt.show()
 
 
@@ -286,7 +285,7 @@ def plots_MonteCarlo_objective(path):
     # plt.yscale('log')
     # plt.ylim(0.9, 1.05)  # Focus range
     # plt.yticks([0.9, 0.95, 1.0, 1.05])
-    plt.savefig("/home/nobar/codes/GBO2/logs/test_5/Unbiased_cost_sampling_BOiter.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/test_6/Unbiased_cost_sampling_BOiter.png")
     plt.show()
 
 
@@ -321,7 +320,7 @@ def plots_MonteCarlo_objective(path):
     # plt.legend()
     plt.grid(True)
     # Show plot
-    plt.savefig("/home/nobar/codes/GBO2/logs/test_5/JIS1_vs_IterIS1.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/test_6/JIS1_vs_IterIS1.png")
     plt.show()
 
 
@@ -371,7 +370,7 @@ def plots_MonteCarlo_objective(path):
     plt.ylim(0.9, 1.05)  # Focus range
     # plt.yticks([0.9, 0.95, 1.0, 1.05])
 
-    plt.savefig("/home/nobar/codes/GBO2/logs/test_5/J_vs_Iter.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/test_6/J_vs_Iter.png")
     plt.show()
 
 
@@ -393,7 +392,7 @@ def plots_MonteCarlo_objective(path):
     # plt.ylim(0.9, 1.05)  # Focus range
     # plt.yticks([0.9, 0.95, 1.0, 1.05])
 
-    plt.savefig("/home/nobar/codes/GBO2/logs/test_5/SamplingCost_vs_Iter.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/test_6/SamplingCost_vs_Iter.png")
     plt.show()
 
     print("")
@@ -412,5 +411,5 @@ if __name__ == "__main__":
 
     # plot_kernels()
 
-    path = "/home/nobar/codes/GBO2/logs/test_5/"
+    path = "/home/nobar/codes/GBO2/logs/test_6/"
     plots_MonteCarlo_objective(path)
