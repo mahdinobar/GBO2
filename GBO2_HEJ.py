@@ -52,14 +52,17 @@ def set_seed(seed: int):
     # Set the seed for NumPy
     np.random.seed(seed)
 
-def generate_initial_data(n=16):
+def generate_initial_data(n_IS1,n_IS2):
+    n=n_IS1+n_IS2
     # generate training data
     train_x = torch.hstack(((bounds[1,0].item()-bounds[0,0].item())*torch.rand(n, 1, **tkwargs)+bounds[0,0].item(),
                             (bounds[1,1].item()-bounds[0,1].item())*torch.rand(n, 1, **tkwargs)+bounds[0,1].item()))
     # # TODO: uncomment for my idea
     # train_f = fidelities[torch.randint(1,3, (n, 1))]
-    # TODO: uncomment for deterministic initial dataset of just IS1
-    train_f = fidelities[torch.randint(2,3, (n, 1))]
+    # # TODO: uncomment for deterministic initial dataset of just IS1
+    # train_f = fidelities[torch.randint(2,3, (n, 1))]
+    # # TODO: uncomment for n_IS1 and n_IS2 data
+    train_f=torch.cat([torch.ones((n_IS1, 1)), torch.ones((n_IS2, 1)) * 2])
     # train_f = fidelities[torch.randint(2, (n, 1))]
     train_x_full = torch.cat((train_x, train_f), dim=1)
     train_obj = problem(train_x_full).unsqueeze(-1)  # add output dimension
@@ -118,7 +121,7 @@ def optimize_mfkg_and_get_observation(mfkg_acqf):
     candidates, _ = optimize_acqf_mixed(
         acq_function=mfkg_acqf,
         bounds=bounds,
-        fixed_features_list=[{2: 0.05},{2: 0.1}, {2: 1.0}],
+        fixed_features_list=[{2: 0.01},{2: 0.1}, {2: 1.0}],
         q=BATCH_SIZE,
         num_restarts=NUM_RESTARTS,
         raw_samples=RAW_SAMPLES,
@@ -274,12 +277,13 @@ N_exper=20
 NUM_RESTARTS = 4 if not SMOKE_TEST else 2
 RAW_SAMPLES = 64 if not SMOKE_TEST else 4
 BATCH_SIZE = 4
-N_init = 2 if not SMOKE_TEST else 2
+N_init_IS1 = 2 if not SMOKE_TEST else 2
+N_init_IS2=10 if not SMOKE_TEST else 2
 N_ITER = 10 if not SMOKE_TEST else 1
 
 for exper in range(N_exper):
     print("**********Experiment {}**********".format(exper))
-    path = "/cluster/home/mnobar/code/GBO2/logs/test_7/Exper_{}".format(str(exper))
+    path = "/cluster/home/mnobar/code/GBO2/logs/test_10/Exper_{}".format(str(exper))
     # Check if the directory exists, if not, create it
     if not os.path.exists(path):
         os.makedirs(path)
@@ -298,13 +302,12 @@ for exper in range(N_exper):
 
     target_fidelities = {2: 1.0}
 
-    cost_model = AffineFidelityCostModel(fidelity_weights={2: 1.0}, fixed_cost=0.01)
+    cost_model = AffineFidelityCostModel(fidelity_weights={2: 1.0}, fixed_cost=5)
     cost_aware_utility = InverseCostWeightedUtility(cost_model=cost_model)
 
-    # In[1]:
     torch.set_printoptions(precision=3, sci_mode=False)
 
-    train_x_init, train_obj_init = generate_initial_data(n=N_init)
+    train_x_init, train_obj_init = generate_initial_data(n_IS1=N_init_IS1,n_IS2=N_init_IS2)
     train_x=train_x_init
     train_obj = train_obj_init
     # print("train_obj_init=",train_obj_init)
@@ -339,19 +342,13 @@ for exper in range(N_exper):
     print(f"\nMFBO total cost: {cumulative_cost}\n")
 
 
-
     # In[1]:
-    # N_ITER=5
+    # Baseline Single Fidelity BO with EI
     cumulative_cost = 0.0
     costs_all = np.zeros(N_ITER)
-    train_x, train_obj = generate_initial_data(n=N_init)
+    train_x, train_obj = generate_initial_data(n_IS1=N_init_IS1,n_IS2=0)
     train_x=train_x_init
     train_obj = train_obj_init
-    # exp_path_EIonly = "/cluster/home/mnobar/code/GBO2/logs/test_4/Exper_{}".format(str(exper))
-    # train_x=np.load(os.path.join(exp_path_EIonly, "train_x_IS1_init.npy"))
-    # train_obj=np.load(os.path.join(exp_path_EIonly, "train_obj_IS1_init.npy"))
-    # train_x=torch.as_tensor(train_x)
-    # train_obj=torch.as_tensor(train_obj)
 
     for i in range(N_ITER):
         mll, model = initialize_model(train_x, train_obj)
@@ -366,7 +363,6 @@ for exper in range(N_exper):
         np.save(path+"/train_x_EIonly.npy", train_x)
         np.save(path+"/train_obj_EIonly.npy", train_obj)
 
-    # In[12]:
     final_rec_EIonly, objective_value_EIonly = get_recommendation(model, lower, upper)
     np.save(path+"/final_rec_EIonly.npy", final_rec_EIonly)
     np.save(path+"/objective_value_EIonly.npy", objective_value_EIonly)

@@ -120,7 +120,7 @@ def plot_kernels():
     plt.savefig("/home/nobar/codes/GBO2/logs/test_3/C1kernelCoefficient.png")
     plt.show()
 
-def plots_MonteCarlo_objective(path):
+def plots_MonteCarlo_objective(path,    N_init,    sampling_cost_bias):
     costs_all_list = []
     costs_all_list_EIonly = []
     train_x_list = []
@@ -141,8 +141,6 @@ def plots_MonteCarlo_objective(path):
     min_obj_init_all=[]
     train_obj_list_rest_modified=[]
     costs_init=[]
-    N_init=2
-    sampling_cost_bias=1
     for exper in range(20):
         exp_path = os.path.join(path, f"Exper_{exper}")
         # Load files
@@ -216,8 +214,8 @@ def plots_MonteCarlo_objective(path):
     plt.figure(figsize=(10, 5))
     # plot_colortable(mcolors.CSS4_COLORS)
     # mcolors.CSS4_COLORS['blueviolet']
-    plt.plot(x, J_mean, color='r', linewidth=3, label='Mean GMFBO')  # Thick line for mean
-    plt.fill_between(x, J_mean - J_std, J_mean + J_std, color='r', alpha=0.3, label='±1 Std GMFBO')  # Shaded std region
+    plt.plot(x, J_mean, color='r', linewidth=3, label='Mean MFBO')  # Thick line for mean
+    plt.fill_between(x, J_mean - J_std, J_mean + J_std, color='r', alpha=0.3, label='±1 Std MFBO')  # Shaded std region
     plt.plot(x, J_EIonly_mean, color='b', linewidth=3, label='Mean EI only')  # Thick line for mean
     plt.fill_between(x, J_EIonly_mean - J_EIonly_std, J_EIonly_mean + J_EIonly_std, color='b', alpha=0.3, label='±1 Std EI only')  # Shaded std region
     plt.xlabel('BO Iteration')
@@ -228,7 +226,7 @@ def plots_MonteCarlo_objective(path):
     # plt.yscale('log')
     # plt.ylim(0.9, 1.05)  # Focus range
     # plt.yticks([0.9, 0.95, 1.0, 1.05])
-    plt.savefig("/home/nobar/codes/GBO2/logs/test_6/J_min_obs_IS1_BOiter.png")
+    plt.savefig(path+"/J_min_obs_IS1_BOiter.png")
     plt.show()
 
     costs=np.hstack((np.asarray(costs_init).reshape(20,1),np.stack(costs_all_list)))
@@ -243,8 +241,8 @@ def plots_MonteCarlo_objective(path):
     plt.figure(figsize=(10, 5))
     # plot_colortable(mcolors.CSS4_COLORS)
     # mcolors.CSS4_COLORS['blueviolet']
-    plt.plot(x, C_mean, color='r', marker="o", linewidth=3, label='Mean Cost GMFBO')  # Thick line for mean
-    plt.fill_between(x, C_mean - C_std, C_mean + C_std, color='r', alpha=0.3, label='±1 Std Cost GMFBO')  # Shaded std region
+    plt.plot(x, C_mean, color='r', marker="o", linewidth=3, label='Mean Cost MFBO')  # Thick line for mean
+    plt.fill_between(x, C_mean - C_std, C_mean + C_std, color='r', alpha=0.3, label='±1 Std Cost MFBO')  # Shaded std region
     plt.plot(x, C_EIonly_mean, color='b', marker="o", linewidth=3, label='Mean Cost EI only')  # Thick line for mean
     plt.fill_between(x, C_EIonly_mean - C_EIonly_std, C_EIonly_mean + C_EIonly_std, color='b', alpha=0.3,
                      label='±1 Std Cost EI only')  # Shaded std region
@@ -256,7 +254,7 @@ def plots_MonteCarlo_objective(path):
     # plt.yscale('log')
     # plt.ylim(0.9, 1.05)  # Focus range
     # plt.yticks([0.9, 0.95, 1.0, 1.05])
-    plt.savefig("/home/nobar/codes/GBO2/logs/test_6/Cost_sampling_BOiter.png")
+    plt.savefig(path+"/Cost_sampling_BOiter.png")
     plt.show()
 
 
@@ -272,8 +270,8 @@ def plots_MonteCarlo_objective(path):
     plt.figure(figsize=(10, 5))
     # plot_colortable(mcolors.CSS4_COLORS)
     # mcolors.CSS4_COLORS['blueviolet']
-    plt.plot(x, C_mean, color='r', marker="o", linewidth=3, label='Mean Cost GMFBO')  # Thick line for mean
-    plt.fill_between(x, C_mean - C_std, C_mean + C_std, color='r', alpha=0.3, label='±1 Std Cost GMFBO')  # Shaded std region
+    plt.plot(x, C_mean, color='r', marker="o", linewidth=3, label='Mean Cost MFBO')  # Thick line for mean
+    plt.fill_between(x, C_mean - C_std, C_mean + C_std, color='r', alpha=0.3, label='±1 Std Cost MFBO')  # Shaded std region
     plt.plot(x, C_EIonly_mean, color='b', marker="o", linewidth=3, label='Mean Cost EI only')  # Thick line for mean
     plt.fill_between(x, C_EIonly_mean - C_EIonly_std, C_EIonly_mean + C_EIonly_std, color='b', alpha=0.3,
                      label='±1 Std Cost EI only')  # Shaded std region
@@ -285,7 +283,7 @@ def plots_MonteCarlo_objective(path):
     # plt.yscale('log')
     # plt.ylim(0.9, 1.05)  # Focus range
     # plt.yticks([0.9, 0.95, 1.0, 1.05])
-    plt.savefig("/home/nobar/codes/GBO2/logs/test_6/Unbiased_cost_sampling_BOiter.png")
+    plt.savefig(path+"/Unbiased_cost_sampling_BOiter.png")
     plt.show()
 
 
@@ -322,8 +320,8 @@ def plots_MonteCarlo_objective(path):
     plt.figure(figsize=(10, 5))
     # plot_colortable(mcolors.CSS4_COLORS)
     # mcolors.CSS4_COLORS['blueviolet']
-    plt.plot(x, J_mean, color='r', marker="o", linewidth=3, label='Mean GMFBO')  # Thick line for mean
-    plt.fill_between(x, J_mean - J_std, J_mean + J_std, color='r', alpha=0.3, label='±1 Std GMFBO')  # Shaded std region
+    plt.plot(x, J_mean, color='r', marker="o", linewidth=3, label='Mean MFBO')  # Thick line for mean
+    plt.fill_between(x, J_mean - J_std, J_mean + J_std, color='r', alpha=0.3, label='±1 Std MFBO')  # Shaded std region
 
     plt.plot(x_EI_only, J_EIonly_mean, color='b', marker="o", linewidth=3, label='Mean EI only')  # Thick line for mean
     plt.fill_between(x_EI_only, J_EIonly_mean - J_EIonly_std, J_EIonly_mean + J_EIonly_std, color='b', alpha=0.3, label='±1 Std EI only')  # Shaded std region
@@ -336,111 +334,7 @@ def plots_MonteCarlo_objective(path):
     # plt.yscale('log')
     # plt.ylim(0.9, 1.05)  # Focus range
     # plt.yticks([0.9, 0.95, 1.0, 1.05])
-    plt.savefig("/home/nobar/codes/GBO2/logs/test_6/J_min_obs_IS1_Mean_Unbiased_cost_sampling.png")
-    plt.show()
-
-
-
-
-
-    train_obj_all_EIonly = -np.stack(train_obj_list_EIonly, axis=1).squeeze()
-    train_obj_all_sorted_EIonly = np.minimum.accumulate(train_obj_all_EIonly, axis=0)
-    J_EIonly=np.vstack((np.min(train_obj_all_sorted_EIonly[0:17], axis=0),train_obj_all_sorted_EIonly[17:]))
-
-    for idx, arr in enumerate(train_obj_list):
-        start_idx=np.argwhere(idx_IS1_all[idx] > 15)[0][0]
-        # arr=arr[start_idx:]
-        x = np.arange(1, len(arr)-start_idx+1)  # x-values: 1 to n, where n is the length of the array
-
-        y = -1*arr.flatten()  # Flatten the array to make it 1D for plotting
-        y = np.minimum.accumulate(y, axis=0)
-        plt.plot(x, y[start_idx-1:-1], color='r')
-
-        arr2= train_obj_EIonly_corrected_all[idx]
-        y2 = -1*arr2.flatten()  # Flatten the array to make it 1D for plotting
-        y2 = np.minimum.accumulate(y2, axis=0)
-        plt.plot(x, y2[start_idx-1:start_idx+x.__len__()-1], color='b')
-
-        # y_EIonly=J_EIonly[0:len(arr)-start_idx, idx]
-        # plt.plot(x, y_EIonly, color='b')
-
-    # Labels and legend
-    plt.xlabel('Iteration')
-    plt.ylabel('$J^{*}$')
-    plt.title('Min Observed J(x,s=1) vs Iteration on IS1')
-    # plt.legend()
-    plt.grid(True)
-    # Show plot
-    plt.savefig("/home/nobar/codes/GBO2/logs/test_6/JIS1_vs_IterIS1.png")
-    plt.show()
-
-
-    train_obj_all = -np.stack(train_obj_list, axis=1).squeeze()
-    # train_obj_all[ix_ISDTs[:, 0], ix_ISDTs[:, 1]] = np.nan
-    costs_all = np.stack(costs_all_list, axis=1)
-    cumul_costs_all = np.cumsum(costs_all, axis=0)
-    cumul_costs_all_EIonly = np.cumsum(costs_all_EIonly, axis=0)
-    cumul_costs_all_mean = np.mean(cumul_costs_all,axis=1)
-    cumul_costs_all_std = np.std(cumul_costs_all,axis=1)
-    cumul_costs_all_EIonly_mean = np.mean(cumul_costs_all_EIonly,axis=1)
-    cumul_costs_all_EIonly_std = np.std(cumul_costs_all_EIonly,axis=1)
-    costs_all_EIonly = np.stack(costs_all_list_EIonly, axis=1)
-    train_x_all_EIonly = np.stack(train_x_list_EIonly, axis=1)
-    train_obj_all_EIonly = -np.stack(train_obj_list_EIonly, axis=1).squeeze()
-
-    train_obj_all_sorted = np.minimum.accumulate(train_obj_all, axis=0)
-    J=np.vstack((np.min(train_obj_all_sorted[0:17], axis=0),train_obj_all_sorted[17:]))
-    J_mean=np.mean(J,axis=1)
-    J_std=np.std(J,axis=1)
-    train_obj_all_sorted_EIonly = np.minimum.accumulate(train_obj_all_EIonly, axis=0)
-    J_EIonly=np.vstack((np.min(train_obj_all_sorted_EIonly[0:17], axis=0),train_obj_all_sorted_EIonly[17:]))
-    J_EIonly_mean=np.mean(J_EIonly,axis=1)
-    J_EIonly_std=np.std(J_EIonly,axis=1)
-
-    N_iter=np.shape(J)[0]
-    N_batch=4
-
-    # Plot
-    x = np.arange(1, N_iter+1)
-    plt.figure(figsize=(8, 5))
-    # plot_colortable(mcolors.CSS4_COLORS)
-    # mcolors.CSS4_COLORS['blueviolet']
-    plt.plot(x, J_mean, color='r', linewidth=3, label='Mean GMFBO')  # Thick line for mean
-    plt.fill_between(x, J_mean - J_std, J_mean + J_std, color='r', alpha=0.3, label='±1 Std GMFBO')  # Shaded std region
-    plt.plot(x, J_EIonly_mean, color='b', linewidth=3, label='Mean EIonly')  # Thick line for mean
-    plt.fill_between(x, J_EIonly_mean - J_EIonly_std, J_EIonly_mean + J_EIonly_std, color='b', alpha=0.3, label='±1 Std EIonly')  # Shaded std region
-    plt.xlabel('Iteration')
-    plt.ylabel('$J^{*}$')
-    plt.title('Minimum Observed Objective over Iterations')
-    plt.legend()
-    plt.grid(True)
-    # plt.yscale('log')
-    plt.ylim(0.9, 1.05)  # Focus range
-    # plt.yticks([0.9, 0.95, 1.0, 1.05])
-
-    plt.savefig("/home/nobar/codes/GBO2/logs/test_6/J_vs_Iter.png")
-    plt.show()
-
-
-    # Plot
-    x = np.arange(1, N_iter/N_batch+1)
-    plt.figure(figsize=(8, 5))
-    # plot_colortable(mcolors.CSS4_COLORS)
-    # mcolors.CSS4_COLORS['blueviolet']
-    plt.plot(x, cumul_costs_all_mean, color='r', linewidth=3, label='Mean GMFBO')  # Thick line for mean
-    plt.fill_between(x, cumul_costs_all_mean - cumul_costs_all_std, cumul_costs_all_mean + cumul_costs_all_std, color='r', alpha=0.3, label='±1 Std GMFBO')  # Shaded std region
-    plt.plot(x, cumul_costs_all_EIonly_mean, color='b', linewidth=3, label='Mean EIonly')  # Thick line for mean
-    plt.fill_between(x,cumul_costs_all_EIonly_mean - cumul_costs_all_EIonly_std, cumul_costs_all_EIonly_mean + cumul_costs_all_EIonly_std, color='b', alpha=0.3, label='±1 Std EIonly')  # Shaded std region
-    plt.xlabel('Iteration')
-    plt.ylabel('cost')
-    plt.title('Cumulative Sampling Cost over Iterations')
-    plt.legend()
-    plt.grid(True)
-    # plt.yscale('log')
-    # plt.ylim(0.9, 1.05)  # Focus range
-    # plt.yticks([0.9, 0.95, 1.0, 1.05])
-
-    plt.savefig("/home/nobar/codes/GBO2/logs/test_6/SamplingCost_vs_Iter.png")
+    plt.savefig(path+"/J_min_obs_IS1_Mean_Unbiased_cost_sampling.png")
     plt.show()
 
     print("")
@@ -459,5 +353,7 @@ if __name__ == "__main__":
 
     # plot_kernels()
 
-    path = "/home/nobar/codes/GBO2/logs/test_6/"
-    plots_MonteCarlo_objective(path)
+    path = "/home/nobar/codes/GBO2/logs/test_6_baseline/"
+    N_init=2
+    sampling_cost_bias=5
+    plots_MonteCarlo_objective(path,N_init,sampling_cost_bias)
