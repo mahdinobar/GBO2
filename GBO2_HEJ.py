@@ -62,7 +62,7 @@ def generate_initial_data(n_IS1,n_IS2):
     # # TODO: uncomment for deterministic initial dataset of just IS1
     # train_f = fidelities[torch.randint(2,3, (n, 1))]
     # # TODO: uncomment for n_IS1 and n_IS2 data
-    train_f=torch.cat([torch.ones((n_IS1, 1)), torch.ones((n_IS2, 1)) * 2])
+    train_f=fidelities[(torch.cat([torch.ones((n_IS1, 1))*2, torch.ones((n_IS2, 1)) * 1])).to(torch.int)]
     # train_f = fidelities[torch.randint(2, (n, 1))]
     train_x_full = torch.cat((train_x, train_f), dim=1)
     train_obj = problem(train_x_full).unsqueeze(-1)  # add output dimension
@@ -283,7 +283,7 @@ N_ITER = 10 if not SMOKE_TEST else 1
 
 for exper in range(N_exper):
     print("**********Experiment {}**********".format(exper))
-    path = "/cluster/home/mnobar/code/GBO2/logs/test_10/Exper_{}".format(str(exper))
+    path = "/home/nobar/codes/GBO2/logs/test_0/Exper_{}".format(str(exper))
     # Check if the directory exists, if not, create it
     if not os.path.exists(path):
         os.makedirs(path)
