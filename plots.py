@@ -7,6 +7,8 @@ import os
 import matplotlib.colors as mcolors
 from matplotlib.patches import Rectangle
 import math
+from scipy.stats import t
+
 
 def plot_colortable(colors, *, ncols=4, sort_colors=True):
 
@@ -120,7 +122,7 @@ def plot_kernels():
     plt.savefig("/home/nobar/codes/GBO2/logs/test_3/C1kernelCoefficient.png")
     plt.show()
 
-def plots_MonteCarlo_objective(path,    N_init,    sampling_cost_bias):
+def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_bias,N_exper,N_iter):
     costs_all_list = []
     costs_all_list_EIonly = []
     train_x_list = []
@@ -141,18 +143,19 @@ def plots_MonteCarlo_objective(path,    N_init,    sampling_cost_bias):
     min_obj_init_all=[]
     train_obj_list_rest_modified=[]
     costs_init=[]
-    for exper in range(20):
-        exp_path = os.path.join(path, f"Exper_{exper}")
+    costs_init_EIonly=[]
+    for exper in range(N_exper):
+        exp_path = os.path.join(path, f"basExper_{exper}")
         # Load files
         train_x = np.load(os.path.join(exp_path, "train_x.npy"))
         train_obj = np.load(os.path.join(exp_path, "train_obj.npy"))
 
         idx_IS1 = np.argwhere(train_x[:, 2] == 1).squeeze()
-        idx_IS1_init=idx_IS1[np.argwhere(idx_IS1<N_init)[:,0]]
-        idx_IS1_rest=idx_IS1[np.argwhere(idx_IS1>N_init-1)[:,0]]
+        idx_IS1_init=idx_IS1[np.argwhere(idx_IS1<N_init_IS1+N_init_IS2)[:,0]]
+        idx_IS1_rest=idx_IS1[np.argwhere(idx_IS1>N_init_IS1+N_init_IS2-1)[:,0]]
         idx_ISDTs = np.argwhere(~(train_x[:, 2] == 1)).squeeze()
-        idx_ISDTs_init=idx_ISDTs[np.argwhere(idx_ISDTs<N_init)[:,0]]
-        idx_ISDTs_rest=idx_ISDTs[np.argwhere(idx_ISDTs>N_init-1)[:,0]]
+        idx_ISDTs_init=idx_ISDTs[np.argwhere(idx_ISDTs<N_init_IS1+N_init_IS2)[:,0]]
+        idx_ISDTs_rest=idx_ISDTs[np.argwhere(idx_ISDTs>N_init_IS1+N_init_IS2-1)[:,0]]
         train_x_IS1_init=train_x[idx_IS1_init, :]
         train_obj_IS1_init=train_obj[idx_IS1_init]
 
@@ -168,12 +171,18 @@ def plots_MonteCarlo_objective(path,    N_init,    sampling_cost_bias):
         train_obj_EIonly_corrected = np.load(os.path.join(exp_path, "train_obj_EIonly.npy"))
 
         train_obj_EIonly = np.load(os.path.join(exp_path, "train_obj_EIonly.npy"))
+
+        # train_x_EIonly=np.delete(train_x_EIonly, np.s_[N_init_IS1:N_init_IS1 + N_init_IS2], axis=0)
+        # train_obj_EIonly=np.delete(train_obj_EIonly, np.s_[N_init_IS1:N_init_IS1 + N_init_IS2], axis=0)
+
+        train_obj_EIonly[N_init_IS1:N_init_IS1 + N_init_IS2]
         costs_all=np.load(os.path.join(exp_path, "costs_all.npy"))
         costs_all_EIonly=np.load(os.path.join(exp_path, "costs_all_EIonly.npy"))
         costs_all_EIonly_corrected=np.load(os.path.join(exp_path, "costs_all_EIonly.npy"))
         # Append to lists
         costs_all_list.append(costs_all)
-        costs_init.append(np.sum(train_x[:N_init,2])+sampling_cost_bias*N_init)
+        costs_init.append(np.sum(train_x[:N_init_IS1+N_init_IS2,2])+sampling_cost_bias*(N_init_IS1+N_init_IS2))
+        costs_init_EIonly.append(np.sum(train_x_EIonly[:N_init_IS1,2])+sampling_cost_bias*(N_init_IS1))
 
         idx_IS1_all.append(idx_IS1)
         idx_IS1_all_init.append(idx_IS1_init)
@@ -189,7 +198,7 @@ def plots_MonteCarlo_objective(path,    N_init,    sampling_cost_bias):
 
         A=train_obj
         A[idx_ISDTs_rest]=-np.inf
-        train_obj_list_rest_modified.append(-A[N_init:])
+        train_obj_list_rest_modified.append(-A[N_init_IS1+N_init_IS2:])
 
         train_x_list_IS1.append(train_x_IS1)
         train_obj_list_IS1.append(train_obj_IS1)
@@ -205,7 +214,7 @@ def plots_MonteCarlo_objective(path,    N_init,    sampling_cost_bias):
     J_mean=np.mean(j_min_observed_IS1,axis=1)
     J_std=np.std(j_min_observed_IS1,axis=1)
 
-    DD=-np.stack(train_obj_list_EIonly).squeeze()[:,N_init:].T
+    DD=-np.stack(train_obj_list_EIonly).squeeze()[:,N_init_IS1:].T
     D=np.vstack((np.asarray(min_obj_init_all), DD))
     j_EIonly_min_observed_IS1=np.minimum.accumulate(D, axis=0)
     J_EIonly_mean=np.mean(j_EIonly_min_observed_IS1,axis=1)
@@ -214,8 +223,8 @@ def plots_MonteCarlo_objective(path,    N_init,    sampling_cost_bias):
     plt.figure(figsize=(10, 5))
     # plot_colortable(mcolors.CSS4_COLORS)
     # mcolors.CSS4_COLORS['blueviolet']
-    plt.plot(x, J_mean, color='r', linewidth=3, label='Mean MFBO')  # Thick line for mean
-    plt.fill_between(x, J_mean - J_std, J_mean + J_std, color='r', alpha=0.3, label='±1 Std MFBO')  # Shaded std region
+    plt.plot(x, J_mean, color='r', linewidth=3, label='Mean GMFBO')  # Thick line for mean
+    plt.fill_between(x, J_mean - J_std, J_mean + J_std, color='r', alpha=0.3, label='±1 Std GMFBO')  # Shaded std region
     plt.plot(x, J_EIonly_mean, color='b', linewidth=3, label='Mean EI only')  # Thick line for mean
     plt.fill_between(x, J_EIonly_mean - J_EIonly_std, J_EIonly_mean + J_EIonly_std, color='b', alpha=0.3, label='±1 Std EI only')  # Shaded std region
     plt.xlabel('BO Iteration')
@@ -229,11 +238,11 @@ def plots_MonteCarlo_objective(path,    N_init,    sampling_cost_bias):
     plt.savefig(path+"/J_min_obs_IS1_BOiter.png")
     plt.show()
 
-    costs=np.hstack((np.asarray(costs_init).reshape(20,1),np.stack(costs_all_list)))
+    costs=np.hstack((np.asarray(costs_init).reshape(N_exper,1),np.stack(costs_all_list)))
     C=np.cumsum(costs, axis=1)
     C_mean=np.mean(C,axis=0)
     C_std=np.std(C,axis=0)
-    costs_EIonly=np.hstack((np.asarray(costs_init).reshape(20,1),np.ones((20,10))*(sampling_cost_bias+1)*4))
+    costs_EIonly=np.hstack((np.asarray(costs_init_EIonly).reshape(N_exper,1),np.ones((N_exper,N_iter))*(sampling_cost_bias+1)*4))
     C_EIonly=np.cumsum(costs_EIonly, axis=1)
     C_EIonly_mean=np.mean(C_EIonly,axis=0)
     C_EIonly_std=np.std(C_EIonly,axis=0)
@@ -241,8 +250,8 @@ def plots_MonteCarlo_objective(path,    N_init,    sampling_cost_bias):
     plt.figure(figsize=(10, 5))
     # plot_colortable(mcolors.CSS4_COLORS)
     # mcolors.CSS4_COLORS['blueviolet']
-    plt.plot(x, C_mean, color='r', marker="o", linewidth=3, label='Mean Cost MFBO')  # Thick line for mean
-    plt.fill_between(x, C_mean - C_std, C_mean + C_std, color='r', alpha=0.3, label='±1 Std Cost MFBO')  # Shaded std region
+    plt.plot(x, C_mean, color='r', marker="o", linewidth=3, label='Mean Cost GMFBO')  # Thick line for mean
+    plt.fill_between(x, C_mean - C_std, C_mean + C_std, color='r', alpha=0.3, label='±1 Std Cost GMFBO')  # Shaded std region
     plt.plot(x, C_EIonly_mean, color='b', marker="o", linewidth=3, label='Mean Cost EI only')  # Thick line for mean
     plt.fill_between(x, C_EIonly_mean - C_EIonly_std, C_EIonly_mean + C_EIonly_std, color='b', alpha=0.3,
                      label='±1 Std Cost EI only')  # Shaded std region
@@ -258,11 +267,11 @@ def plots_MonteCarlo_objective(path,    N_init,    sampling_cost_bias):
     plt.show()
 
 
-    costs=np.hstack((np.asarray(costs_init).reshape(20,1)-sampling_cost_bias*N_init,np.stack(costs_all_list)-sampling_cost_bias*4))
+    costs=np.hstack((np.asarray(costs_init).reshape(N_exper,1)-sampling_cost_bias*(N_init_IS1+N_init_IS2),np.stack(costs_all_list)-sampling_cost_bias*4))
     C=np.cumsum(costs, axis=1)
     C_mean=np.mean(C,axis=0)
     C_std=np.std(C,axis=0)
-    costs_EIonly=np.hstack((np.asarray(costs_init).reshape(20,1)-sampling_cost_bias*N_init,np.ones((20,10))*(1)*4))
+    costs_EIonly=np.hstack((np.asarray(costs_init_EIonly).reshape(N_exper,1)-sampling_cost_bias*N_init_IS1,np.ones((N_exper,N_iter))*(1)*4))
     C_EIonly=np.cumsum(costs_EIonly, axis=1)
     C_EIonly_mean=np.mean(C_EIonly,axis=0)
     C_EIonly_std=np.std(C_EIonly,axis=0)
@@ -270,8 +279,8 @@ def plots_MonteCarlo_objective(path,    N_init,    sampling_cost_bias):
     plt.figure(figsize=(10, 5))
     # plot_colortable(mcolors.CSS4_COLORS)
     # mcolors.CSS4_COLORS['blueviolet']
-    plt.plot(x, C_mean, color='r', marker="o", linewidth=3, label='Mean Cost MFBO')  # Thick line for mean
-    plt.fill_between(x, C_mean - C_std, C_mean + C_std, color='r', alpha=0.3, label='±1 Std Cost MFBO')  # Shaded std region
+    plt.plot(x, C_mean, color='r', marker="o", linewidth=3, label='Mean Cost GMFBO')  # Thick line for mean
+    plt.fill_between(x, C_mean - C_std, C_mean + C_std, color='r', alpha=0.3, label='±1 Std Cost GMFBO')  # Shaded std region
     plt.plot(x, C_EIonly_mean, color='b', marker="o", linewidth=3, label='Mean Cost EI only')  # Thick line for mean
     plt.fill_between(x, C_EIonly_mean - C_EIonly_std, C_EIonly_mean + C_EIonly_std, color='b', alpha=0.3,
                      label='±1 Std Cost EI only')  # Shaded std region
@@ -288,11 +297,11 @@ def plots_MonteCarlo_objective(path,    N_init,    sampling_cost_bias):
 
 
 
-    costs=np.hstack((np.asarray(costs_init).reshape(20,1)-sampling_cost_bias*N_init,np.stack(costs_all_list)-sampling_cost_bias*4))
+    costs=np.hstack((np.asarray(costs_init).reshape(N_exper,1)-sampling_cost_bias*(N_init_IS1+N_init_IS2),np.stack(costs_all_list)-sampling_cost_bias*4))
     C=np.cumsum(costs, axis=1)
     C_mean=np.mean(C,axis=0)
     C_std=np.std(C,axis=0)
-    costs_EIonly=np.hstack((np.asarray(costs_init).reshape(20,1)-sampling_cost_bias*N_init,np.ones((20,10))*(1)*4))
+    costs_EIonly=np.hstack((np.asarray(costs_init_EIonly).reshape(N_exper,1)-sampling_cost_bias*(N_init_IS1),np.ones((N_exper,N_iter))*(1)*4))
     C_EIonly=np.cumsum(costs_EIonly, axis=1)
     C_EIonly_mean=np.mean(C_EIonly,axis=0)
     C_EIonly_std=np.std(C_EIonly,axis=0)
@@ -311,7 +320,7 @@ def plots_MonteCarlo_objective(path,    N_init,    sampling_cost_bias):
     J_mean=np.mean(j_min_observed_IS1,axis=1)
     J_std=np.std(j_min_observed_IS1,axis=1)
 
-    DD=-np.stack(train_obj_list_EIonly).squeeze()[:,N_init:].T
+    DD=-np.stack(train_obj_list_EIonly).squeeze()[:,N_init_IS1:].T
     D=np.vstack((np.asarray(min_obj_init_all), DD))
     j_EIonly_min_observed_IS1=np.minimum.accumulate(D, axis=0)
     J_EIonly_mean=np.mean(j_EIonly_min_observed_IS1,axis=1)
@@ -320,12 +329,11 @@ def plots_MonteCarlo_objective(path,    N_init,    sampling_cost_bias):
     plt.figure(figsize=(10, 5))
     # plot_colortable(mcolors.CSS4_COLORS)
     # mcolors.CSS4_COLORS['blueviolet']
-    plt.plot(x, J_mean, color='r', marker="o", linewidth=3, label='Mean MFBO')  # Thick line for mean
-    plt.fill_between(x, J_mean - J_std, J_mean + J_std, color='r', alpha=0.3, label='±1 Std MFBO')  # Shaded std region
+    plt.plot(x, J_mean, color='r', marker="o", linewidth=3, label='Mean GMFBO')  # Thick line for mean
+    plt.fill_between(x, J_mean - J_std, J_mean + J_std, color='r', alpha=0.3, label='±1 Std GMFBO')  # Shaded std region
 
     plt.plot(x_EI_only, J_EIonly_mean, color='b', marker="o", linewidth=3, label='Mean EI only')  # Thick line for mean
     plt.fill_between(x_EI_only, J_EIonly_mean - J_EIonly_std, J_EIonly_mean + J_EIonly_std, color='b', alpha=0.3, label='±1 Std EI only')  # Shaded std region
-
     plt.xlabel('Mean Unbiased Sampling Cost')
     plt.ylabel('$J^{*}$')
     plt.title('Unbiased Cumulative Sampling Cost vs BO Iterations')
@@ -335,6 +343,38 @@ def plots_MonteCarlo_objective(path,    N_init,    sampling_cost_bias):
     # plt.ylim(0.9, 1.05)  # Focus range
     # plt.yticks([0.9, 0.95, 1.0, 1.05])
     plt.savefig(path+"/J_min_obs_IS1_Mean_Unbiased_cost_sampling.png")
+    plt.show()
+
+
+    # Compute statistics
+    mean_values = np.mean(j_min_observed_IS1, axis=1)  # Mean of each element (over 20 vectors)
+    std_values = np.std(j_min_observed_IS1, axis=1, ddof=1)  # Sample standard deviation
+    # Compute 95% confidence interval
+    n = j_min_observed_IS1.shape[1]  # Number of samples (20)
+    t_value = t.ppf(0.975, df=n - 1)  # t-score for 95% CI
+    margin_of_error = t_value * (std_values / np.sqrt(n))  # CI width
+
+    mean_values_EIonly = np.mean(j_EIonly_min_observed_IS1, axis=1)  # Mean of each element (over 20 vectors)
+    std_values_EIonly = np.std(j_EIonly_min_observed_IS1, axis=1, ddof=1)  # Sample standard deviation
+    # Compute 95% confidence interval
+    n = j_EIonly_min_observed_IS1.shape[1]  # Number of samples (20)
+    t_value = t.ppf(0.975, df=n - 1)  # t-score for 95% CI
+    margin_of_error_EIonly = t_value * (std_values_EIonly / np.sqrt(n))  # CI width
+    # Plot
+    plt.figure(figsize=(10, 5))
+    plt.plot(x, mean_values, marker="o", linewidth=3, label="Mean GMFBO", color='r')
+    plt.fill_between(x, mean_values - margin_of_error, mean_values + margin_of_error,
+                     color='r', alpha=0.3, label="95% CI GMFBO")
+    plt.plot(x_EI_only, mean_values_EIonly, marker="o", linewidth=3, label="Mean BO-EI", color='b')
+    plt.fill_between(x_EI_only, mean_values_EIonly - margin_of_error_EIonly, mean_values_EIonly + margin_of_error_EIonly,
+                     color='b', alpha=0.3, label="95% CI BO-EI")
+    plt.xlabel('Mean Unbiased Sampling Cost')
+    plt.ylabel('$J^{*}$')
+    plt.legend()
+    plt.grid(True)
+    plt.ylim(0.9, 1.35)  # Focus range
+    plt.title("Mean with 95% Confidence Interval")
+    plt.savefig(path+"/J_min_obs_IS1_Mean_Unbiased_cost_sampling_95Conf.png")
     plt.show()
 
     print("")
@@ -353,7 +393,23 @@ if __name__ == "__main__":
 
     # plot_kernels()
 
-    path = "/home/nobar/codes/GBO2/logs/test_6_baseline/"
-    N_init=2
-    sampling_cost_bias=5
-    plots_MonteCarlo_objective(path,N_init,sampling_cost_bias)
+    for i in range (10):
+        path="/home/nobar/codes/GBO2/logs/test_6_11_baseline/basExper_{}".format(str(i))
+        train_x_init=np.load(path+"/train_x_init.npy")
+        train_x_obj=np.load(path+"/train_obj_init.npy")
+        path="/home/nobar/codes/GBO2/logs/test_6_11/basExper_{}".format(str(i))
+        train_x_init_b=np.load(path+"/train_x_init.npy")
+        train_x_obj_b=np.load(path+"/train_obj_init.npy")
+
+        print(sum(train_x_init-train_x_init_b))
+        print(sum(train_x_obj-train_x_obj_b))
+
+
+    path = "/home/nobar/codes/GBO2/logs/test_6_11_baseline/"
+    N_init_IS1=2
+    N_init_IS2=0
+    sampling_cost_bias=13
+    N_exper=10
+    N_iter=10
+    plots_MonteCarlo_objective(path,N_init_IS1,N_init_IS2,sampling_cost_bias,N_exper,N_iter)
+

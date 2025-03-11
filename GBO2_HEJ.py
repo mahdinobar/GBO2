@@ -39,6 +39,7 @@ from botorch.optim.optimize import optimize_acqf
 from botorch.acquisition.utils import project_to_target_fidelity
 from botorch.optim.optimize import optimize_acqf_mixed
 from botorch.acquisition import qExpectedImprovement
+from botorch.utils.sampling import draw_sobol_samples  # Quasi-random sampling
 
 def set_seed(seed: int):
     """Set seed for reproducibility in Python, NumPy, and PyTorch."""
@@ -54,9 +55,11 @@ def set_seed(seed: int):
 
 def generate_initial_data(n_IS1,n_IS2):
     n=n_IS1+n_IS2
-    # generate training data
-    train_x = torch.hstack(((bounds[1,0].item()-bounds[0,0].item())*torch.rand(n, 1, **tkwargs)+bounds[0,0].item(),
-                            (bounds[1,1].item()-bounds[0,1].item())*torch.rand(n, 1, **tkwargs)+bounds[0,1].item()))
+    # # generate torch.rand based training data
+    # train_x = torch.hstack(((bounds[1,0].item()-bounds[0,0].item())*torch.rand(n, 1, **tkwargs)+bounds[0,0].item(),
+    #                         (bounds[1,1].item()-bounds[0,1].item())*torch.rand(n, 1, **tkwargs)+bounds[0,1].item()))
+    # generate with sobol latin hypercube initial gains
+    train_x = draw_sobol_samples(bounds=bounds[:,:2], n=n, q=1).squeeze(1)
     # # TODO: uncomment for my idea
     # train_f = fidelities[torch.randint(1,3, (n, 1))]
     # # TODO: uncomment for deterministic initial dataset of just IS1
@@ -121,7 +124,7 @@ def optimize_mfkg_and_get_observation(mfkg_acqf):
     candidates, _ = optimize_acqf_mixed(
         acq_function=mfkg_acqf,
         bounds=bounds,
-        fixed_features_list=[{2: 0.01},{2: 0.1}, {2: 1.0}],
+        fixed_features_list=[{2: 0.05},{2: 0.1}, {2: 1.0}],
         q=BATCH_SIZE,
         num_restarts=NUM_RESTARTS,
         raw_samples=RAW_SAMPLES,
@@ -279,7 +282,7 @@ RAW_SAMPLES = 64 if not SMOKE_TEST else 4
 BATCH_SIZE = 4
 N_init_IS1 = 2 if not SMOKE_TEST else 2
 N_init_IS2=10 if not SMOKE_TEST else 2
-N_ITER = 10 if not SMOKE_TEST else 1
+N_ITER = 1 if not SMOKE_TEST else 1
 
 for exper in range(N_exper):
     print("**********Experiment {}**********".format(exper))
@@ -346,9 +349,8 @@ for exper in range(N_exper):
     # Baseline Single Fidelity BO with EI
     cumulative_cost = 0.0
     costs_all = np.zeros(N_ITER)
-    train_x, train_obj = generate_initial_data(n_IS1=N_init_IS1,n_IS2=0)
-    train_x=train_x_init
-    train_obj = train_obj_init
+    train_x=train_x_init[:N_init_IS1]
+    train_obj = train_obj_init[:N_init_IS1]
 
     for i in range(N_ITER):
         mll, model = initialize_model(train_x, train_obj)
