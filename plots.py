@@ -60,7 +60,7 @@ def plot_colortable(colors, *, ncols=4, sort_colors=True):
     return fig
 def plot_gt():
     # Load the .mat file
-    mat_data = scipy.io.loadmat('/home/nobar/Documents/introductions/simulink_model/ground_truth_1_40by40.mat')
+    mat_data = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/test_6_11_log_mismatch_data/Exper_0/IS3_Exper_0_nIS1_1to4_NO3_10x10.mat')
 
     # Extract the variables
     Kp = mat_data['Kp'].squeeze()  # Ensure it's a 1D array
@@ -69,16 +69,17 @@ def plot_gt():
 
     # Create meshgrid for contour plot
     Kp_grid, Ki_grid = np.meshgrid(Kp, Kd)
-
+    n_grid=10
     # Plot the contour
     plt.figure(figsize=(8, 6))
-    levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
-    contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(40,40),levs)  # Transpose to match dimensions
+    # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
+    # contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(20,20),levs)  # Transpose to match dimensions
+    contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(n_grid,n_grid))  # Transpose to match dimensions
     plt.colorbar(contour, label='True Objective Value')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('True Objective Contour Plot')
-    plt.savefig("/home/nobar/codes/GBO2/logs/test_6/true_objective_contourf_grid40by40.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/test_6_11_log_mismatch_data/Exper_0/IS3_Exper_0_nIS1_1to4_NO3_10x10.png")
     plt.show()
 
 def plot_kernels():
@@ -145,7 +146,7 @@ def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_
     costs_init=[]
     costs_init_EIonly=[]
     for exper in range(N_exper):
-        exp_path = os.path.join(path, f"basExper_{exper}")
+        exp_path = os.path.join(path, f"Exper_{exper}")
         # Load files
         train_x = np.load(os.path.join(exp_path, "train_x.npy"))
         train_obj = np.load(os.path.join(exp_path, "train_obj.npy"))
@@ -345,6 +346,9 @@ def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_
     plt.savefig(path+"/J_min_obs_IS1_Mean_Unbiased_cost_sampling.png")
     plt.show()
 
+    mean_values_baseline=np.load("/home/nobar/codes/GBO2/logs/test_6_11_baseline/mean_values.npy")
+    margin_of_error_baseline=np.load("/home/nobar/codes/GBO2/logs/test_6_11_baseline/margin_of_error.npy")
+    x_baseline=np.load("/home/nobar/codes/GBO2/logs/test_6_11_baseline/x.npy")
 
     # Compute statistics
     mean_values = np.mean(j_min_observed_IS1, axis=1)  # Mean of each element (over 20 vectors)
@@ -365,6 +369,9 @@ def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_
     plt.plot(x, mean_values, marker="o", linewidth=3, label="Mean GMFBO", color='r')
     plt.fill_between(x, mean_values - margin_of_error, mean_values + margin_of_error,
                      color='r', alpha=0.3, label="95% CI GMFBO")
+    # plt.plot(x_baseline, mean_values_baseline, marker="o", linewidth=3, label="Mean MFBO", color='k')
+    # plt.fill_between(x_baseline, mean_values_baseline - margin_of_error_baseline, mean_values_baseline + margin_of_error_baseline,
+    #                  color='k', alpha=0.3, label="95% CI MFBO")
     plt.plot(x_EI_only, mean_values_EIonly, marker="o", linewidth=3, label="Mean BO-EI", color='b')
     plt.fill_between(x_EI_only, mean_values_EIonly - margin_of_error_EIonly, mean_values_EIonly + margin_of_error_EIonly,
                      color='b', alpha=0.3, label="95% CI BO-EI")
@@ -372,43 +379,34 @@ def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_
     plt.ylabel('$J^{*}$')
     plt.legend()
     plt.grid(True)
-    plt.ylim(0.9, 1.35)  # Focus range
+    plt.ylim(0.9, 1.15)  # Focus range
     plt.title("Mean with 95% Confidence Interval")
     plt.savefig(path+"/J_min_obs_IS1_Mean_Unbiased_cost_sampling_95Conf.png")
     plt.show()
-
+    # np.save("/home/nobar/codes/GBO2/logs/test_6_11_baseline/mean_values.npy",mean_values)
+    # np.save("/home/nobar/codes/GBO2/logs/test_6_11_baseline/margin_of_error.npy",margin_of_error)
+    # np.save("/home/nobar/codes/GBO2/logs/test_6_11_baseline/x.npy",x)
     print("")
 
 if __name__ == "__main__":
     # plot_gt()
 
-    # train_x = np.load("/home/nobar/codes/GBO2/logs/test_3/train_x.npy")
-    # train_obj = np.load("/home/nobar/codes/GBO2/logs/test_3/train_obj.npy")
-    # train_x_MFBOonly = np.load("/home/nobar/codes/GBO2/logs/test_3_MFBOonly/train_x.npy")
-    # train_obj_MFBOonly = np.load("/home/nobar/codes/GBO2/logs/test_3_MFBOonly/train_obj.npy")
-    # D1=np.hstack((train_x, train_obj))
-    # D2=np.hstack((train_x_MFBOonly, train_obj_MFBOonly))
-    # print("placeholder")
-
+    # train_x = np.load("/home/nobar/codes/GBO2/logs/test_6_11_log_mismatch_data/Exper_0_old/train_x.npy")
+    # train_obj = np.load("/home/nobar/codes/GBO2/logs/test_6_11_log_mismatch_data/Exper_0_old/train_obj.npy")
+    # # train_x_MFBOonly = np.load("/home/nobar/codes/GBO2/logs/test_3_MFBOonly/train_x.npy")
+    # # train_obj_MFBOonly = np.load("/home/nobar/codes/GBO2/logs/test_3_MFBOonly/train_obj.npy")
+    # # D1=np.hstack((train_x, train_obj))
+    # # D2=np.hstack((train_x_MFBOonly, train_obj_MFBOonly))
+    # # print("placeholder")
+    # np.load("/home/nobar/codes/GBO2/logs/test_6_11_log_mismatch_data/Exper_0_old/X_GP_train_1.npy")
 
     # plot_kernels()
 
-    for i in range (10):
-        path="/home/nobar/codes/GBO2/logs/test_6_11_baseline/basExper_{}".format(str(i))
-        train_x_init=np.load(path+"/train_x_init.npy")
-        train_x_obj=np.load(path+"/train_obj_init.npy")
-        path="/home/nobar/codes/GBO2/logs/test_6_11/basExper_{}".format(str(i))
-        train_x_init_b=np.load(path+"/train_x_init.npy")
-        train_x_obj_b=np.load(path+"/train_obj_init.npy")
 
-        print(sum(train_x_init-train_x_init_b))
-        print(sum(train_x_obj-train_x_obj_b))
-
-
-    path = "/home/nobar/codes/GBO2/logs/test_6_11_baseline/"
+    path = "/home/nobar/codes/GBO2/logs/test_19_6/"
     N_init_IS1=2
     N_init_IS2=0
-    sampling_cost_bias=13
+    sampling_cost_bias=15
     N_exper=10
     N_iter=10
     plots_MonteCarlo_objective(path,N_init_IS1,N_init_IS2,sampling_cost_bias,N_exper,N_iter)

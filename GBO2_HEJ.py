@@ -124,7 +124,7 @@ def optimize_mfkg_and_get_observation(mfkg_acqf):
     candidates, _ = optimize_acqf_mixed(
         acq_function=mfkg_acqf,
         bounds=bounds,
-        fixed_features_list=[{2: 0.05},{2: 0.1}, {2: 1.0}],
+        fixed_features_list=[{2: 0.6},{2: 0.2}, {2: 1.0}],
         q=BATCH_SIZE,
         num_restarts=NUM_RESTARTS,
         raw_samples=RAW_SAMPLES,
@@ -153,7 +153,7 @@ def optimize_mfkg_and_get_observation(mfkg_acqf):
 def plot_GP(model, iter, path):
     # Step 3: Define fidelity levels and create a grid for plotting
     # uncomment for my idea
-    fidelities = [1.0, 0.1, 0.05]  # Three fidelity levels
+    fidelities = [1.0, 0.2, 0.6]  # Three fidelity levels
     # fidelities = [1.0, 0.5]
     x1 = torch.linspace(0, 1, 50)
     x2 = torch.linspace(0, 1, 50)
@@ -276,23 +276,24 @@ set_seed(seed)
 problem = HEJ(negate=True).to(
     **tkwargs)  # Setting negate=True typically multiplies the objective values by -1, transforming a minimization objective (i.e., minimizing f(x)) into a maximization objective (i.e., maximizing −f(x)).
 
-N_exper=20
+N_exper=10
 NUM_RESTARTS = 4 if not SMOKE_TEST else 2
 RAW_SAMPLES = 64 if not SMOKE_TEST else 4
 BATCH_SIZE = 4
 N_init_IS1 = 2 if not SMOKE_TEST else 2
-N_init_IS2=10 if not SMOKE_TEST else 2
-N_ITER = 1 if not SMOKE_TEST else 1
+N_init_IS2=0 if not SMOKE_TEST else 2
+N_ITER = 10 if not SMOKE_TEST else 1
 
 for exper in range(N_exper):
     print("**********Experiment {}**********".format(exper))
-    path = "/home/nobar/codes/GBO2/logs/test_0/Exper_{}".format(str(exper))
+    # /cluster/home/mnobar/code/GBO2
+    path = "/cluster/home/mnobar/code/GBO2/test_20_3/Exper_{}".format(str(exper))
     # Check if the directory exists, if not, create it
     if not os.path.exists(path):
         os.makedirs(path)
 
     # uncomment for my idea
-    fidelities = torch.tensor([0.05, 0.1, 1.0], **tkwargs)
+    fidelities = torch.tensor([0.6, 0.2, 1.0], **tkwargs)
     # fidelities = torch.tensor([0.5, 1.0], **tkwargs)
 
     # Define the bounds
@@ -305,7 +306,7 @@ for exper in range(N_exper):
 
     target_fidelities = {2: 1.0}
 
-    cost_model = AffineFidelityCostModel(fidelity_weights={2: 1.0}, fixed_cost=5)
+    cost_model = AffineFidelityCostModel(fidelity_weights={2: 1.0}, fixed_cost=13)
     cost_aware_utility = InverseCostWeightedUtility(cost_model=cost_model)
 
     torch.set_printoptions(precision=3, sci_mode=False)
@@ -316,6 +317,12 @@ for exper in range(N_exper):
     # print("train_obj_init=",train_obj_init)
     np.save(path+"/train_obj_init.npy", train_obj_init)
     np.save(path+"/train_x_init.npy", train_x_init)
+
+    # path_init = "/home/nobar/codes/GBO2/logs/test_19/Exper_{}".format(str(exper))
+    # train_obj_init=torch.as_tensor(np.load(path_init+"/train_obj_init.npy"))
+    # train_x_init=torch.as_tensor(np.load(path_init+"/train_x_init.npy"))
+    # train_x=train_x_init
+    # train_obj = train_obj_init
 
     cumulative_cost = 0.0
     costs_all = np.zeros(N_ITER)
