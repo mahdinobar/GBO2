@@ -287,10 +287,14 @@ N_ITER = 10 if not SMOKE_TEST else 1
 for exper in range(N_exper):
     print("**********Experiment {}**********".format(exper))
     # /cluster/home/mnobar/code/GBO2
-    path = "/cluster/home/mnobar/code/GBO2/test_20_3/Exper_{}".format(str(exper))
+    path = "/cluster/home/mnobar/code/GBO2/test_20_4/Exper_{}".format(str(exper))
     # Check if the directory exists, if not, create it
     if not os.path.exists(path):
         os.makedirs(path)
+
+    # reset mismatch dataset
+    problem.X_GP_train = None
+    problem.y_GP_train = None
 
     # uncomment for my idea
     fidelities = torch.tensor([0.6, 0.2, 1.0], **tkwargs)
