@@ -287,7 +287,8 @@ N_ITER = 10 if not SMOKE_TEST else 1
 for exper in range(N_exper):
     print("**********Experiment {}**********".format(exper))
     # /cluster/home/mnobar/code/GBO2
-    path = "/cluster/home/mnobar/code/GBO2/logs/test_21_4/Exper_{}".format(str(exper))
+    # /home/nobar/codes/GBO2
+    path = "/cluster/home/mnobar/code/GBO2/logs/test_21_6/Exper_{}".format(str(exper))
     # Check if the directory exists, if not, create it
     if not os.path.exists(path):
         os.makedirs(path)
