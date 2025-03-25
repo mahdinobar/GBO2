@@ -391,23 +391,11 @@ def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_
 if __name__ == "__main__":
     # plot_gt()
 
-    # train_x = np.load("/home/nobar/codes/GBO2/logs/test_6_11_log_mismatch_data/Exper_0_old/train_x.npy")
-    # train_obj = np.load("/home/nobar/codes/GBO2/logs/test_6_11_log_mismatch_data/Exper_0_old/train_obj.npy")
-    # # train_x_MFBOonly = np.load("/home/nobar/codes/GBO2/logs/test_3_MFBOonly/train_x.npy")
-    # # train_obj_MFBOonly = np.load("/home/nobar/codes/GBO2/logs/test_3_MFBOonly/train_obj.npy")
-    # # D1=np.hstack((train_x, train_obj))
-    # # D2=np.hstack((train_x_MFBOonly, train_obj_MFBOonly))
-    # # print("placeholder")
-    # np.load("/home/nobar/codes/GBO2/logs/test_6_11_log_mismatch_data/Exper_0_old/X_GP_train_1.npy")
-
-    # plot_kernels()
-
-
-    path = "/home/nobar/codes/GBO2/logs/test_20_4/"
+    path = "/home/nobar/codes/GBO2/logs/test_21_4/"
     N_init_IS1=2
     N_init_IS2=0
     sampling_cost_bias=13
-    N_exper=10
+    N_exper=2
     N_iter=10
     plots_MonteCarlo_objective(path,N_init_IS1,N_init_IS2,sampling_cost_bias,N_exper,N_iter)
 
