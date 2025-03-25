@@ -53,13 +53,13 @@ def set_seed(seed: int):
     # Set the seed for NumPy
     np.random.seed(seed)
 
-def generate_initial_data(n_IS1,n_IS2):
+def generate_initial_data(n_IS1,n_IS2,seed):
     n=n_IS1+n_IS2
     # # generate torch.rand based training data
     # train_x = torch.hstack(((bounds[1,0].item()-bounds[0,0].item())*torch.rand(n, 1, **tkwargs)+bounds[0,0].item(),
     #                         (bounds[1,1].item()-bounds[0,1].item())*torch.rand(n, 1, **tkwargs)+bounds[0,1].item()))
     # generate with sobol latin hypercube initial gains
-    train_x = draw_sobol_samples(bounds=bounds[:,:2], n=n, q=1).squeeze(1)
+    train_x = draw_sobol_samples(bounds=bounds[:,:2], n=n, q=1, seed=seed).squeeze(1)
     # # TODO: uncomment for my idea
     # train_f = fidelities[torch.randint(1,3, (n, 1))]
     # # TODO: uncomment for deterministic initial dataset of just IS1
@@ -287,12 +287,12 @@ N_ITER = 10 if not SMOKE_TEST else 1
 for exper in range(N_exper):
     print("**********Experiment {}**********".format(exper))
     # /cluster/home/mnobar/code/GBO2
-    path = "/cluster/home/mnobar/code/GBO2/test_20_4/Exper_{}".format(str(exper))
+    path = "/cluster/home/mnobar/code/GBO2/logs/test_21_4/Exper_{}".format(str(exper))
     # Check if the directory exists, if not, create it
     if not os.path.exists(path):
         os.makedirs(path)
 
-    # reset mismatch dataset
+    # reset mismatch dataset per each experiment
     problem.X_GP_train = None
     problem.y_GP_train = None
 
@@ -315,7 +315,7 @@ for exper in range(N_exper):
 
     torch.set_printoptions(precision=3, sci_mode=False)
 
-    train_x_init, train_obj_init = generate_initial_data(n_IS1=N_init_IS1,n_IS2=N_init_IS2)
+    train_x_init, train_obj_init = generate_initial_data(n_IS1=N_init_IS1,n_IS2=N_init_IS2, seed=seed)
     train_x=train_x_init
     train_obj = train_obj_init
     # print("train_obj_init=",train_obj_init)

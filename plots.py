@@ -403,10 +403,10 @@ if __name__ == "__main__":
     # plot_kernels()
 
 
-    path = "/home/nobar/codes/GBO2/logs/test_19_6/"
+    path = "/home/nobar/codes/GBO2/logs/test_20_4/"
     N_init_IS1=2
     N_init_IS2=0
-    sampling_cost_bias=15
+    sampling_cost_bias=13
     N_exper=10
     N_iter=10
     plots_MonteCarlo_objective(path,N_init_IS1,N_init_IS2,sampling_cost_bias,N_exper,N_iter)
