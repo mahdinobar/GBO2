@@ -60,16 +60,30 @@ def plot_colortable(colors, *, ncols=4, sort_colors=True):
     return fig
 def plot_gt():
     # Load the .mat file
-    mat_data = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/test_6_11_log_mismatch_data/Exper_0/IS3_Exper_0_nIS1_1to4_NO3_10x10.mat')
+    mat_data = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/test_6_11_log_mismatch_data/Exper_0/IS1_Exper_0_8x8_metrics.mat')
+    mat_data2 = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/test_6_11_log_mismatch_data/Exper_0/IS2_Exper_0_8x8_metrics.mat')
+    n_grid=8
 
     # Extract the variables
     Kp = mat_data['Kp'].squeeze()  # Ensure it's a 1D array
     Kd = mat_data['Kd'].squeeze()  # Ensure it's a 1D array
+    
     Objective_all = mat_data['Objective_all']  # Should be a 2D array
+    RiseTime_all = mat_data['RiseTime_all']  # Should be a 2D array
+    TransoentTime_all = mat_data['TransientTime_all']  # Should be a 2D array
+    SettlingTime_all = mat_data['SettlingTime_all']  # Should be a 2D array
+    Overshoot_all = mat_data['Overshoot_all']  # Should be a 2D array
+
+    
+    Objective_all_error = mat_data['Objective_all']-mat_data2['Objective_all']  # Should be a 2D array
+    RiseTime_all_error = mat_data['RiseTime_all']-mat_data2['RiseTime_all']  # Should be a 2D array
+    TransoentTime_all_error = mat_data['TransientTime_all']-mat_data2['TransientTime_all']  # Should be a 2D array
+    SettlingTime_all_error = mat_data['SettlingTime_all']-mat_data2['SettlingTime_all']  # Should be a 2D array
+    Overshoot_all_error = mat_data['Overshoot_all']-mat_data2['Overshoot_all']  # Should be a 2D array
+
 
     # Create meshgrid for contour plot
     Kp_grid, Ki_grid = np.meshgrid(Kp, Kd)
-    n_grid=10
     # Plot the contour
     plt.figure(figsize=(8, 6))
     # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
@@ -79,8 +93,113 @@ def plot_gt():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('True Objective Contour Plot')
-    plt.savefig("/home/nobar/codes/GBO2/logs/test_6_11_log_mismatch_data/Exper_0/IS3_Exper_0_nIS1_1to4_NO3_10x10.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/test_6_11_log_mismatch_data/Exper_0/IS1_Exper_0_8x8_metrics.png")
     plt.show()
+
+    plt.figure(figsize=(8, 6))
+    # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
+    # contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(20,20),levs)  # Transpose to match dimensions
+    contour = plt.contourf(Kp_grid, Ki_grid, 5*RiseTime_all.reshape(n_grid,n_grid))  # Transpose to match dimensions
+    plt.colorbar(contour, label='Weighted Rise Time')
+    plt.xlabel('Kp')
+    plt.ylabel('Kd')
+    plt.title('$w.T_{r}$')
+    plt.savefig("/home/nobar/codes/GBO2/logs/test_6_11_log_mismatch_data/Exper_0/IS2_Exper_0_40x40_Rise.png")
+    plt.show()
+
+    plt.figure(figsize=(8, 6))
+    # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
+    # contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(20,20),levs)  # Transpose to match dimensions
+    contour = plt.contourf(Kp_grid, Ki_grid, 1*SettlingTime_all.reshape(n_grid,n_grid))  # Transpose to match dimensions
+    plt.colorbar(contour, label='Weighted Settling Time')
+    plt.xlabel('Kp')
+    plt.ylabel('Kd')
+    plt.title('$w.T_{s}$')
+    plt.savefig("/home/nobar/codes/GBO2/logs/test_6_11_log_mismatch_data/Exper_0/IS2_Exper_0_40x40_Settling.png")
+    plt.show()
+
+    plt.figure(figsize=(8, 6))
+    # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
+    # contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(20,20),levs)  # Transpose to match dimensions
+    contour = plt.contourf(Kp_grid, Ki_grid, 2/100*Overshoot_all.reshape(n_grid,n_grid))  # Transpose to match dimensions
+    plt.colorbar(contour, label='Weighted Overshoot')
+    plt.xlabel('Kp')
+    plt.ylabel('Kd')
+    plt.title('$w.M$')
+    plt.savefig("/home/nobar/codes/GBO2/logs/test_6_11_log_mismatch_data/Exper_0/IS2_Exper_0_40x40_Overshoot.png")
+    plt.show()
+    plt.close()
+    plt.figure(figsize=(8, 6))
+    # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
+    # contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(20,20),levs)  # Transpose to match dimensions
+    contour = plt.contourf(Kp_grid, Ki_grid, 1*TransoentTime_all.reshape(n_grid,n_grid))  # Transpose to match dimensions
+    plt.colorbar(contour, label='Weighted Transient Time')
+    plt.xlabel('Kp')
+    plt.ylabel('Kd')
+    plt.title('$w.T_{tr}$')
+    plt.savefig("/home/nobar/codes/GBO2/logs/test_6_11_log_mismatch_data/Exper_0/IS2_Exper_0_40x40_Transiet.png")
+    plt.show()
+
+
+
+    # Create meshgrid for contour plot
+    Kp_grid, Ki_grid = np.meshgrid(Kp, Kd)
+    n_grid=8
+    # Plot the contour
+    plt.figure(figsize=(8, 6))
+    contour = plt.contourf(Kp_grid, Ki_grid, Objective_all_error.reshape(n_grid,n_grid))  # Transpose to match dimensions
+    plt.colorbar(contour, label='Error Objective Value')
+    plt.xlabel('Kp')
+    plt.ylabel('Kd')
+    plt.title('Error Objective Contour Plot')
+    plt.savefig("/home/nobar/codes/GBO2/logs/test_6_11_log_mismatch_data/Exper_0/IS2_J_error.png")
+    plt.show()
+
+    plt.figure(figsize=(8, 6))
+    contour = plt.contourf(Kp_grid, Ki_grid, 5*RiseTime_all_error.reshape(n_grid,n_grid))  # Transpose to match dimensions
+    plt.colorbar(contour, label='Error Weighted Rise Time')
+    plt.xlabel('Kp')
+    plt.ylabel('Kd')
+    plt.title('$error w.T_{r}$')
+    plt.savefig("/home/nobar/codes/GBO2/logs/test_6_11_log_mismatch_data/Exper_0/IS2_Tr_error.png")
+    plt.show()
+
+    plt.figure(figsize=(8, 6))
+    # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
+    # contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(20,20),levs)  # Transpose to match dimensions
+    contour = plt.contourf(Kp_grid, Ki_grid, 1*SettlingTime_all_error.reshape(n_grid,n_grid))  # Transpose to match dimensions
+    plt.colorbar(contour, label='Error Weighted Settling Time')
+    plt.xlabel('Kp')
+    plt.ylabel('Kd')
+    plt.title('$error w.T_{s}$')
+    plt.savefig("/home/nobar/codes/GBO2/logs/test_6_11_log_mismatch_data/Exper_0/IS2_Ts_error.png")
+    plt.show()
+
+    plt.figure(figsize=(8, 6))
+    # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
+    # contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(20,20),levs)  # Transpose to match dimensions
+    contour = plt.contourf(Kp_grid, Ki_grid, 2/100*Overshoot_all_error.reshape(n_grid,n_grid))  # Transpose to match dimensions
+    plt.colorbar(contour, label='Error Weighted Overshoot')
+    plt.xlabel('Kp')
+    plt.ylabel('Kd')
+    plt.title('$error w.M$')
+    plt.savefig("/home/nobar/codes/GBO2/logs/test_6_11_log_mismatch_data/Exper_0/IS2_Ov_error.png")
+    plt.show()
+    plt.close()
+    plt.figure(figsize=(8, 6))
+    # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
+    # contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(20,20),levs)  # Transpose to match dimensions
+    contour = plt.contourf(Kp_grid, Ki_grid, 1*TransoentTime_all_error.reshape(n_grid,n_grid))  # Transpose to match dimensions
+    plt.colorbar(contour, label='Error Weighted Transient Time')
+    plt.xlabel('Kp')
+    plt.ylabel('Kd')
+    plt.title('$error w.T_{tr}$')
+    plt.savefig("/home/nobar/codes/GBO2/logs/test_6_11_log_mismatch_data/Exper_0/IS2_Ttr_error.png")
+    plt.show()
+
+
+
+    print("")
 
 def plot_kernels():
     from scipy.spatial.distance import cdist
@@ -398,7 +517,7 @@ if __name__ == "__main__":
     # diffx=x-x2[:2,:]
     # diffy=y-y2[:2,:]
 
-    path = "/home/nobar/codes/GBO2/logs/test_21_2b/"
+    path = "/home/nobar/codes/GBO2/logs/test_22/"
     N_init_IS1=2
     N_init_IS2=0
     sampling_cost_bias=10
