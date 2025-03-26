@@ -391,11 +391,18 @@ def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_
 if __name__ == "__main__":
     # plot_gt()
 
-    path = "/home/nobar/codes/GBO2/logs/test_21_4/"
+    # x=np.load("/home/nobar/codes/GBO2/logs/test_21_4/Exper_3/train_x_init.npy")
+    # y=np.load("/home/nobar/codes/GBO2/logs/test_21_4/Exper_3/train_obj_init.npy")
+    # x2=np.load("/home/nobar/codes/GBO2/logs/test_21_5/Exper_3/train_x_init.npy")
+    # y2=np.load("/home/nobar/codes/GBO2/logs/test_21_5/Exper_3/train_obj_init.npy")
+    # diffx=x-x2[:2,:]
+    # diffy=y-y2[:2,:]
+
+    path = "/home/nobar/codes/GBO2/logs/test_21_2b/"
     N_init_IS1=2
     N_init_IS2=0
-    sampling_cost_bias=13
-    N_exper=2
+    sampling_cost_bias=10
+    N_exper=10
     N_iter=10
     plots_MonteCarlo_objective(path,N_init_IS1,N_init_IS2,sampling_cost_bias,N_exper,N_iter)
 

@@ -12,7 +12,7 @@ tkwargs = {
     "device": torch.device("cuda" if torch.cuda.is_available() else "cpu"),
 }
 SMOKE_TEST = os.environ.get("SMOKE_TEST")
-print("SMOKE_TEST is ",SMOKE_TEST)
+print("SMOKE_TEST is ", SMOKE_TEST)
 """Purpose of SMOKE_TEST
 
     Quick Validation: When SMOKE_TEST is set to True, it reduces the computational workload by:
@@ -41,6 +41,7 @@ from botorch.optim.optimize import optimize_acqf_mixed
 from botorch.acquisition import qExpectedImprovement
 from botorch.utils.sampling import draw_sobol_samples  # Quasi-random sampling
 
+
 def set_seed(seed: int):
     """Set seed for reproducibility in Python, NumPy, and PyTorch."""
     # Set the seed for PyTorch
@@ -53,19 +54,21 @@ def set_seed(seed: int):
     # Set the seed for NumPy
     np.random.seed(seed)
 
-def generate_initial_data(n_IS1,n_IS2):
-    n=n_IS1+n_IS2
+
+def generate_initial_data(n_IS1, n_IS2):
+    n = n_IS1 + n_IS2
     # # generate torch.rand based training data
-    # train_x = torch.hstack(((bounds[1,0].item()-bounds[0,0].item())*torch.rand(n, 1, **tkwargs)+bounds[0,0].item(),
-    #                         (bounds[1,1].item()-bounds[0,1].item())*torch.rand(n, 1, **tkwargs)+bounds[0,1].item()))
-    # generate with sobol latin hypercube initial gains
-    train_x = draw_sobol_samples(bounds=bounds[:,:2], n=n, q=1, seed=int(torch.randint(1,10000,(1,)))).squeeze(1)
+    train_x = torch.hstack(
+        ((bounds[1, 0].item() - bounds[0, 0].item()) * torch.rand(n, 1, **tkwargs) + bounds[0, 0].item(),
+         (bounds[1, 1].item() - bounds[0, 1].item()) * torch.rand(n, 1, **tkwargs) + bounds[0, 1].item()))
+    # # generate with sobol latin hypercube initial gains
+    # train_x = draw_sobol_samples(bounds=bounds[:,:2], n=n, q=1, seed=seed).squeeze(1)
     # # TODO: uncomment for my idea
     # train_f = fidelities[torch.randint(1,3, (n, 1))]
     # # TODO: uncomment for deterministic initial dataset of just IS1
     # train_f = fidelities[torch.randint(2,3, (n, 1))]
     # # TODO: uncomment for n_IS1 and n_IS2 data
-    train_f=fidelities[(torch.cat([torch.ones((n_IS1, 1))*2, torch.ones((n_IS2, 1)) * 1])).to(torch.int)]
+    train_f = fidelities[(torch.cat([torch.ones((n_IS1, 1)) * 2, torch.ones((n_IS2, 1)) * 1])).to(torch.int)]
     # train_f = fidelities[torch.randint(2, (n, 1))]
     train_x_full = torch.cat((train_x, train_f), dim=1)
     train_obj = problem(train_x_full).unsqueeze(-1)  # add output dimension
@@ -81,9 +84,11 @@ def initialize_model(train_x, train_obj):
     mll = ExactMarginalLogLikelihood(model.likelihood, model)
     return mll, model
 
+
 # Normalize function
 def normalize(X, lower, upper):
     return (X - lower) / (upper - lower)
+
 
 def project(X):
     return project_to_target_fidelity(X=X, target_fidelities=target_fidelities)
@@ -94,7 +99,7 @@ def get_mfkg(model):
         acq_function=PosteriorMean(model),
         d=3,
         columns=[2],
-        values=[1], # here we fix fidelity to 1.0 (highest fidelity) to compute the current value
+        values=[1],  # here we fix fidelity to 1.0 (highest fidelity) to compute the current value
     )
 
     _, current_value = optimize_acqf(
@@ -124,7 +129,7 @@ def optimize_mfkg_and_get_observation(mfkg_acqf):
     candidates, _ = optimize_acqf_mixed(
         acq_function=mfkg_acqf,
         bounds=bounds,
-        fixed_features_list=[{2: 0.6},{2: 0.2}, {2: 1.0}],
+        fixed_features_list=[{2: 0.2}, {2: 0.1}, {2: 1.0}],
         q=BATCH_SIZE,
         num_restarts=NUM_RESTARTS,
         raw_samples=RAW_SAMPLES,
@@ -150,10 +155,11 @@ def optimize_mfkg_and_get_observation(mfkg_acqf):
     print(f"observations:\n{new_obj}\n\n")
     return new_x, new_obj, cost
 
+
 def plot_GP(model, iter, path):
     # Step 3: Define fidelity levels and create a grid for plotting
     # uncomment for my idea
-    fidelities = [1.0, 0.2, 0.6]  # Three fidelity levels
+    fidelities = [1.0, 0.1, 0.2]  # Three fidelity levels
     # fidelities = [1.0, 0.5]
     x1 = torch.linspace(0, 1, 50)
     x2 = torch.linspace(0, 1, 50)
@@ -188,10 +194,10 @@ def plot_GP(model, iter, path):
         axs[i, 1].set_title(f"Posterior Standard Deviation (s={s_val})")
         fig.colorbar(contour_std, ax=axs[i, 1])
 
-        np.save(path+"/X1_{}.npy".format(str(iter)),X1)
-        np.save(path+"/X2_{}.npy".format(str(iter)),X2)
-        np.save(path+"/mean_{}.npy".format(str(iter)), mean)
-        np.save(path+"/std_{}.npy".format(str(iter)),std)
+        np.save(path + "/X1_{}.npy".format(str(iter)), X1)
+        np.save(path + "/X2_{}.npy".format(str(iter)), X2)
+        np.save(path + "/mean_{}.npy".format(str(iter)), mean)
+        np.save(path + "/std_{}.npy".format(str(iter)), std)
 
         # Axis labels
         for ax in axs[i]:
@@ -200,15 +206,17 @@ def plot_GP(model, iter, path):
 
     plt.tight_layout()
     # plt.savefig(path+"/GP_itr_{}.pdf".format(str(iter)))  # Save as PDF
-    plt.savefig(path+"/GP_itr_{}.png".format(str(iter)))
+    plt.savefig(path + "/GP_itr_{}.png".format(str(iter)))
     # plt.show()
+
 
 def get_recommendation(model, lower, upper):
     rec_acqf = FixedFeatureAcquisitionFunction(
         acq_function=PosteriorMean(model),
         d=3,
         columns=[2],
-        values=[1], # here we fix fidelity to 1.0 (highest fidelity) to have the recommendation based on only target fidelity
+        values=[1],
+        # here we fix fidelity to 1.0 (highest fidelity) to have the recommendation based on only target fidelity
     )
     final_rec, _ = optimize_acqf(
         acq_function=rec_acqf,
@@ -219,11 +227,15 @@ def get_recommendation(model, lower, upper):
         options={"batch_limit": 5, "maxiter": 200},
     )
     final_rec = rec_acqf._construct_X_full(final_rec)
-    objective_value = problem(final_rec) #here final_rec is the normalized states
+    objective_value = problem(final_rec)  # here final_rec is the normalized states
+
     def denormalize(x, lower, upper):
         return x * (upper - lower) + lower
-    print(f"Final posterior optimized recommended point:\n{final_rec}\n\nrecommended point (unnormalized):\n{denormalize(final_rec, lower, upper)}\n\nobjective value:\n{objective_value}")
+
+    print(
+        f"Final posterior optimized recommended point:\n{final_rec}\n\nrecommended point (unnormalized):\n{denormalize(final_rec, lower, upper)}\n\nobjective value:\n{objective_value}")
     return final_rec, objective_value
+
 
 def get_recommendation_max_observed(train_x, train_obj, lower, upper):
     idx_s1 = np.argwhere(train_x[:, 2] == 1).squeeze()
@@ -231,9 +243,12 @@ def get_recommendation_max_observed(train_x, train_obj, lower, upper):
     idx_max = idx_s1[idx_]
     final_rec = train_x[idx_max, :]
     objective_value = train_obj[idx_max]
+
     def denormalize(x, lower, upper):
         return x * (upper - lower) + lower
-    print(f"Max observed recommended point:\n{final_rec}\n\nrecommended point (unnormalized):\n{denormalize(final_rec, lower, upper)}\n\nobjective value:\n{objective_value}")
+
+    print(
+        f"Max observed recommended point:\n{final_rec}\n\nrecommended point (unnormalized):\n{denormalize(final_rec, lower, upper)}\n\nobjective value:\n{objective_value}")
     return final_rec, objective_value
 
 
@@ -244,6 +259,7 @@ def get_ei(model, best_f):
         columns=[2],
         values=[1],
     )
+
 
 def optimize_ei_and_get_observation(ei_acqf):
     """Optimizes EI and returns a new candidate, observation, and cost."""
@@ -268,27 +284,32 @@ def optimize_ei_and_get_observation(ei_acqf):
     print(f"observations:\n{new_obj}\n\n")
     return new_x, new_obj, cost
 
+
 # Set a global seed using torch.rand
 seed = 10
 # reset seed(here is where seed is reset to count 0)
 np.random.seed(seed)
 set_seed(seed)
+
 problem = HEJ(negate=True).to(
     **tkwargs)  # Setting negate=True typically multiplies the objective values by -1, transforming a minimization objective (i.e., minimizing f(x)) into a maximization objective (i.e., maximizing −f(x)).
 
-N_exper=10
+N_exper = 10
 NUM_RESTARTS = 4 if not SMOKE_TEST else 2
 RAW_SAMPLES = 64 if not SMOKE_TEST else 4
 BATCH_SIZE = 4
 N_init_IS1 = 2 if not SMOKE_TEST else 2
-N_init_IS2=0 if not SMOKE_TEST else 2
+N_init_IS2 = 0 if not SMOKE_TEST else 2
 N_ITER = 10 if not SMOKE_TEST else 1
+
+# # generate seed for sobol initial dataset
+# sobol_seeds=torch.randint(1,10000,(N_exper,))
 
 for exper in range(N_exper):
     print("**********Experiment {}**********".format(exper))
     # /cluster/home/mnobar/code/GBO2
     # /home/nobar/codes/GBO2
-    path = "/cluster/home/mnobar/code/GBO2/logs/test_21_6/Exper_{}".format(str(exper))
+    path = "/cluster/home/mnobar/code/GBO2/logs/test_22/Exper_{}".format(str(exper))
     # Check if the directory exists, if not, create it
     if not os.path.exists(path):
         os.makedirs(path)
@@ -298,7 +319,7 @@ for exper in range(N_exper):
     problem.y_GP_train = None
 
     # uncomment for my idea
-    fidelities = torch.tensor([0.6, 0.2, 1.0], **tkwargs)
+    fidelities = torch.tensor([0.2, 0.1, 1.0], **tkwargs)
     # fidelities = torch.tensor([0.5, 1.0], **tkwargs)
 
     # Define the bounds
@@ -316,12 +337,13 @@ for exper in range(N_exper):
 
     torch.set_printoptions(precision=3, sci_mode=False)
 
-    train_x_init, train_obj_init = generate_initial_data(n_IS1=N_init_IS1,n_IS2=N_init_IS2)
-    train_x=train_x_init
+    # train_x_init, train_obj_init = generate_initial_data(n_IS1=N_init_IS1,n_IS2=N_init_IS2, seed=int(sobol_seeds[exper]))
+    train_x_init, train_obj_init = generate_initial_data(n_IS1=N_init_IS1, n_IS2=N_init_IS2)
+    train_x = train_x_init
     train_obj = train_obj_init
     # print("train_obj_init=",train_obj_init)
-    np.save(path+"/train_obj_init.npy", train_obj_init)
-    np.save(path+"/train_x_init.npy", train_x_init)
+    np.save(path + "/train_obj_init.npy", train_obj_init)
+    np.save(path + "/train_x_init.npy", train_x_init)
 
     # path_init = "/home/nobar/codes/GBO2/logs/test_19/Exper_{}".format(str(exper))
     # train_obj_init=torch.as_tensor(np.load(path_init+"/train_obj_init.npy"))
@@ -332,7 +354,7 @@ for exper in range(N_exper):
     cumulative_cost = 0.0
     costs_all = np.zeros(N_ITER)
     for i in range(N_ITER):
-        print("iteration=",i)
+        print("iteration=", i)
         mll, model = initialize_model(train_x, train_obj)
         fit_gpytorch_mll(mll)
         plot_GP(model, i, path)
@@ -341,27 +363,27 @@ for exper in range(N_exper):
         train_x = torch.cat([train_x, new_x])
         train_obj = torch.cat([train_obj, new_obj])
         cumulative_cost += cost
-        costs_all[i]=cost
-        np.save(path+"/costs_all.npy", costs_all)
-        np.save(path+"/train_x.npy", train_x)
-        np.save(path+"/train_obj.npy", train_obj)
+        costs_all[i] = cost
+        np.save(path + "/costs_all.npy", costs_all)
+        np.save(path + "/train_x.npy", train_x)
+        np.save(path + "/train_obj.npy", train_obj)
 
     final_rec, objective_value = get_recommendation(model, lower, upper)
-    np.save(path+"/final_rec.npy", final_rec)
-    np.save(path+"/objective_value.npy", objective_value)
+    np.save(path + "/final_rec.npy", final_rec)
+    np.save(path + "/objective_value.npy", objective_value)
 
-    final_rec_max_observed, objective_value_max_observed = get_recommendation_max_observed(train_x, train_obj, lower, upper)
-    np.save(path+"/final_rec_max_observed.npy", final_rec_max_observed)
-    np.save(path+"/objective_value_max_observed.npy", objective_value_max_observed)
+    final_rec_max_observed, objective_value_max_observed = get_recommendation_max_observed(train_x, train_obj, lower,
+                                                                                           upper)
+    np.save(path + "/final_rec_max_observed.npy", final_rec_max_observed)
+    np.save(path + "/objective_value_max_observed.npy", objective_value_max_observed)
 
     print(f"\nMFBO total cost: {cumulative_cost}\n")
-
 
     # In[1]:
     # Baseline Single Fidelity BO with EI
     cumulative_cost = 0.0
     costs_all = np.zeros(N_ITER)
-    train_x=train_x_init[:N_init_IS1]
+    train_x = train_x_init[:N_init_IS1]
     train_obj = train_obj_init[:N_init_IS1]
 
     for i in range(N_ITER):
@@ -372,17 +394,19 @@ for exper in range(N_exper):
         train_x = torch.cat([train_x, new_x])
         train_obj = torch.cat([train_obj, new_obj])
         cumulative_cost += cost
-        costs_all[i]=cost
-        np.save(path+"/costs_all_EIonly.npy", costs_all)
-        np.save(path+"/train_x_EIonly.npy", train_x)
-        np.save(path+"/train_obj_EIonly.npy", train_obj)
+        costs_all[i] = cost
+        np.save(path + "/costs_all_EIonly.npy", costs_all)
+        np.save(path + "/train_x_EIonly.npy", train_x)
+        np.save(path + "/train_obj_EIonly.npy", train_obj)
 
     final_rec_EIonly, objective_value_EIonly = get_recommendation(model, lower, upper)
-    np.save(path+"/final_rec_EIonly.npy", final_rec_EIonly)
-    np.save(path+"/objective_value_EIonly.npy", objective_value_EIonly)
+    np.save(path + "/final_rec_EIonly.npy", final_rec_EIonly)
+    np.save(path + "/objective_value_EIonly.npy", objective_value_EIonly)
 
-    final_rec_max_observed_EIonly, objective_value_max_observed_EIonly = get_recommendation_max_observed(train_x, train_obj, lower, upper)
-    np.save(path+"/final_rec_max_observed_EIonly.npy", final_rec_max_observed_EIonly)
-    np.save(path+"/objective_value_max_observed_EIonly.npy", objective_value_max_observed_EIonly)
+    final_rec_max_observed_EIonly, objective_value_max_observed_EIonly = get_recommendation_max_observed(train_x,
+                                                                                                         train_obj,
+                                                                                                         lower, upper)
+    np.save(path + "/final_rec_max_observed_EIonly.npy", final_rec_max_observed_EIonly)
+    np.save(path + "/objective_value_max_observed_EIonly.npy", objective_value_max_observed_EIonly)
 
     print(f"\nEI only total cost: {cumulative_cost}\n")
