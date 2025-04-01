@@ -60,8 +60,8 @@ def plot_colortable(colors, *, ncols=4, sort_colors=True):
     return fig
 def plot_gt():
     # Load the .mat file
-    mat_data = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/test_6_11_log_mismatch_data/Exper_0/IS1_Exper_0_8x8_metrics.mat')
-    mat_data2 = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/test_6_11_log_mismatch_data/Exper_0/IS2_Exper_0_8x8_metrics.mat')
+    mat_data = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/test_23_test/Exper_0/IS3_Exper_0_nIS1_1to1_8x8_metrics.mat')
+    mat_data2 = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/test_23_test/Exper_0/IS1_Exper_0_8x8_metrics.mat')
     n_grid=8
 
     # Extract the variables
@@ -93,7 +93,7 @@ def plot_gt():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('True Objective Contour Plot')
-    plt.savefig("/home/nobar/codes/GBO2/logs/test_6_11_log_mismatch_data/Exper_0/IS1_Exper_0_8x8_metrics.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/test_23_test/Exper_0/IS3_Exper_0_8x8_metrics.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
@@ -104,7 +104,7 @@ def plot_gt():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('$w.T_{r}$')
-    plt.savefig("/home/nobar/codes/GBO2/logs/test_6_11_log_mismatch_data/Exper_0/IS2_Exper_0_40x40_Rise.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/test_23_test/Exper_0/IS3_Exper_0_1to1_Rise.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
@@ -115,7 +115,7 @@ def plot_gt():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('$w.T_{s}$')
-    plt.savefig("/home/nobar/codes/GBO2/logs/test_6_11_log_mismatch_data/Exper_0/IS2_Exper_0_40x40_Settling.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/test_23_test/Exper_0/IS3_Exper_0_1to1_Settling.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
@@ -126,7 +126,7 @@ def plot_gt():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('$w.M$')
-    plt.savefig("/home/nobar/codes/GBO2/logs/test_6_11_log_mismatch_data/Exper_0/IS2_Exper_0_40x40_Overshoot.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/test_23_test/Exper_0/IS3_Exper_0_1to1_Overshoot.png")
     plt.show()
     plt.close()
     plt.figure(figsize=(8, 6))
@@ -137,7 +137,7 @@ def plot_gt():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('$w.T_{tr}$')
-    plt.savefig("/home/nobar/codes/GBO2/logs/test_6_11_log_mismatch_data/Exper_0/IS2_Exper_0_40x40_Transiet.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/test_23_test/Exper_0/IS3_Exper_0_1to1_Transiet.png")
     plt.show()
 
 
@@ -152,7 +152,7 @@ def plot_gt():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('Error Objective Contour Plot')
-    plt.savefig("/home/nobar/codes/GBO2/logs/test_6_11_log_mismatch_data/Exper_0/IS2_J_error.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/test_23_test/Exper_0/IS3_J_1to1_error.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
@@ -160,8 +160,8 @@ def plot_gt():
     plt.colorbar(contour, label='Error Weighted Rise Time')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
-    plt.title('$error w.T_{r}$')
-    plt.savefig("/home/nobar/codes/GBO2/logs/test_6_11_log_mismatch_data/Exper_0/IS2_Tr_error.png")
+    plt.title('error $w.T_{r}$')
+    plt.savefig("/home/nobar/codes/GBO2/logs/test_23_test/Exper_0/IS3_Tr_1to1_error.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
@@ -171,8 +171,8 @@ def plot_gt():
     plt.colorbar(contour, label='Error Weighted Settling Time')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
-    plt.title('$error w.T_{s}$')
-    plt.savefig("/home/nobar/codes/GBO2/logs/test_6_11_log_mismatch_data/Exper_0/IS2_Ts_error.png")
+    plt.title('error $w.T_{s}$')
+    plt.savefig("/home/nobar/codes/GBO2/logs/test_23_test/Exper_0/IS3_Ts_1to1_error.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
@@ -182,8 +182,8 @@ def plot_gt():
     plt.colorbar(contour, label='Error Weighted Overshoot')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
-    plt.title('$error w.M$')
-    plt.savefig("/home/nobar/codes/GBO2/logs/test_6_11_log_mismatch_data/Exper_0/IS2_Ov_error.png")
+    plt.title('error $w.M$')
+    plt.savefig("/home/nobar/codes/GBO2/logs/test_23_test/Exper_0/IS3_Ov_1to1_error.png")
     plt.show()
     plt.close()
     plt.figure(figsize=(8, 6))
@@ -193,8 +193,8 @@ def plot_gt():
     plt.colorbar(contour, label='Error Weighted Transient Time')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
-    plt.title('$error w.T_{tr}$')
-    plt.savefig("/home/nobar/codes/GBO2/logs/test_6_11_log_mismatch_data/Exper_0/IS2_Ttr_error.png")
+    plt.title('error $w.T_{tr}$')
+    plt.savefig("/home/nobar/codes/GBO2/logs/test_23_test/Exper_0/IS3_Ttr_1to1_error.png")
     plt.show()
 
 
@@ -242,7 +242,7 @@ def plot_kernels():
     plt.savefig("/home/nobar/codes/GBO2/logs/test_3/C1kernelCoefficient.png")
     plt.show()
 
-def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_bias,N_exper,N_iter):
+def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_bias,N_exper,N_iter, s2, s3):
     costs_all_list = []
     costs_all_list_EIonly = []
     train_x_list = []
@@ -254,6 +254,12 @@ def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_
     idx_IS1_all=[]
     idx_IS1_all_init=[]
     idx_IS1_all_rest=[]
+    idx_IS2_all=[]
+    idx_IS2_all_init=[]
+    idx_IS2_all_rest=[]
+    idx_IS3_all=[]
+    idx_IS3_all_init=[]
+    idx_IS3_all_rest=[]
     idx_ISDTs_all=[]
     idx_ISDTs_all_init=[]
     idx_ISDTs_all_rest=[]
@@ -263,6 +269,7 @@ def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_
     min_obj_init_all=[]
     train_obj_list_rest_modified=[]
     costs_init=[]
+    costs_init_IS1=[]
     costs_init_EIonly=[]
     for exper in range(N_exper):
         exp_path = os.path.join(path, f"Exper_{exper}")
@@ -278,6 +285,13 @@ def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_
         idx_ISDTs_rest=idx_ISDTs[np.argwhere(idx_ISDTs>N_init_IS1+N_init_IS2-1)[:,0]]
         train_x_IS1_init=train_x[idx_IS1_init, :]
         train_obj_IS1_init=train_obj[idx_IS1_init]
+
+        idx_IS2 = np.argwhere(train_x[:, 2] == s2).squeeze()
+        idx_IS2_init=idx_IS2[np.argwhere(idx_IS2<N_init_IS1+N_init_IS2)[:,0]]
+        idx_IS2_rest=idx_IS2[np.argwhere(idx_IS2>N_init_IS1+N_init_IS2-1)[:,0]]
+        idx_IS3 = np.argwhere(train_x[:, 2] == s3).squeeze()
+        idx_IS3_init=idx_IS3[np.argwhere(idx_IS3<N_init_IS1+N_init_IS2)[:,0]]
+        idx_IS3_rest=idx_IS3[np.argwhere(idx_IS3>N_init_IS1+N_init_IS2-1)[:,0]]
 
         # np.save(os.path.join(exp_path, "train_x_IS1_init.npy"),train_x_IS1_init)
         # np.save(os.path.join(exp_path, "train_obj_IS1_init.npy"),train_obj_IS1_init)
@@ -302,11 +316,19 @@ def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_
         # Append to lists
         costs_all_list.append(costs_all)
         costs_init.append(np.sum(train_x[:N_init_IS1+N_init_IS2,2])+sampling_cost_bias*(N_init_IS1+N_init_IS2))
+        costs_init_IS1.append(np.sum(train_x[:N_init_IS1,2])+sampling_cost_bias*(N_init_IS1))
         costs_init_EIonly.append(np.sum(train_x_EIonly[:N_init_IS1,2])+sampling_cost_bias*(N_init_IS1))
 
         idx_IS1_all.append(idx_IS1)
         idx_IS1_all_init.append(idx_IS1_init)
         idx_IS1_all_rest.append(idx_IS1_rest)
+
+        idx_IS2_all.append(idx_IS2)
+        idx_IS2_all_init.append(idx_IS2_init)
+        idx_IS2_all_rest.append(idx_IS2_rest)
+        idx_IS3_all.append(idx_IS3)
+        idx_IS3_all_init.append(idx_IS3_init)
+        idx_IS3_all_rest.append(idx_IS3_rest)
 
         idx_ISDTs_all.append(idx_ISDTs)
         idx_ISDTs_all_init.append(idx_ISDTs_init)
@@ -415,7 +437,19 @@ def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_
     plt.savefig(path+"/Unbiased_cost_sampling_BOiter.png")
     plt.show()
 
+    costs_IS2_all=[]
+    costs_IS3_all=[]
+    for i in range(10):
+        costs_IS2_all_=[]
+        costs_IS3_all_=[]
+        for j in range(10):
+            costs_IS2_all_.append(np.sum((idx_IS2_all_rest[i] < 4 * (j+1)) * (idx_IS2_all_rest[i] > 4 * j)) * s2)
+            costs_IS3_all_.append(np.sum((idx_IS3_all_rest[i] < 4 * (j+1)) * (idx_IS3_all_rest[i] > 4 * j)) * s3)
+        costs_IS2_all.append(costs_IS2_all_)
+        costs_IS3_all.append(costs_IS3_all_)
 
+    old_indices = np.linspace(0, 1, num=11)  # Original index positions
+    new_indices = np.linspace(0, 1, num=41)  # New index positions
 
     costs=np.hstack((np.asarray(costs_init).reshape(N_exper,1)-sampling_cost_bias*(N_init_IS1+N_init_IS2),np.stack(costs_all_list)-sampling_cost_bias*4))
     C=np.cumsum(costs, axis=1)
@@ -426,8 +460,6 @@ def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_
     C_EIonly_mean=np.mean(C_EIonly,axis=0)
     C_EIonly_std=np.std(C_EIonly,axis=0)
     x_ = C_mean #np.arange(0,41,4)
-    old_indices = np.linspace(0, 1, num=11)  # Original index positions
-    new_indices = np.linspace(0, 1, num=41)  # New index positions
     # linear interpolation
     x = np.interp(new_indices, old_indices, x_)
     x_EI_only_ = C_EIonly_mean #np.arange(0,41,4)
@@ -498,7 +530,7 @@ def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_
     plt.ylabel('$J^{*}$')
     plt.legend()
     plt.grid(True)
-    plt.ylim(0.9, 1.15)  # Focus range
+    plt.ylim(0.9, 1.4)  # Focus range
     plt.title("Mean with 95% Confidence Interval")
     plt.savefig(path+"/J_min_obs_IS1_Mean_Unbiased_cost_sampling_95Conf.png")
     plt.show()
@@ -507,21 +539,87 @@ def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_
     # np.save("/home/nobar/codes/GBO2/logs/test_6_11_baseline/x.npy",x)
     print("")
 
+
+    costs_IS1=np.hstack((np.asarray(costs_init_IS1).reshape(N_exper,1)-sampling_cost_bias*(N_init_IS1),np.stack(costs_all_list)-np.stack(costs_IS2_all)-np.stack(costs_IS3_all)-sampling_cost_bias*4))
+    C_IS1=np.cumsum(costs_IS1, axis=1)
+    C_mean_IS1=np.mean(C_IS1,axis=0)
+    x_IS1_ = C_mean_IS1 #np.arange(0,41,4)
+    x_IS1 = np.interp(new_indices, old_indices, x_IS1_)
+    # Plot
+    plt.figure(figsize=(10, 5))
+    plt.plot(x_IS1, mean_values, marker="o", linewidth=3, label="Mean GMFBO", color='r')
+    plt.fill_between(x_IS1, mean_values - margin_of_error, mean_values + margin_of_error,
+                     color='r', alpha=0.3, label="95% CI GMFBO")
+    # plt.plot(x_baseline, mean_values_baseline, marker="o", linewidth=3, label="Mean MFBO", color='k')
+    # plt.fill_between(x_baseline, mean_values_baseline - margin_of_error_baseline, mean_values_baseline + margin_of_error_baseline,
+    #                  color='k', alpha=0.3, label="95% CI MFBO")
+    plt.plot(x_EI_only, mean_values_EIonly, marker="o", linewidth=3, label="Mean BO-EI", color='b')
+    plt.fill_between(x_EI_only, mean_values_EIonly - margin_of_error_EIonly, mean_values_EIonly + margin_of_error_EIonly,
+                     color='b', alpha=0.3, label="95% CI BO-EI")
+    plt.xlabel('Mean IS1 only Sampling Cost')
+    plt.ylabel('$J^{*}$')
+    plt.legend()
+    plt.grid(True)
+    plt.ylim(0.9, 1.4)  # Focus range
+    plt.title("Mean with 95% Confidence Interval")
+    plt.savefig(path+"/J_min_obs_IS1_Mean_IS1onlySamplingCost_95Conf.png")
+    plt.show()
+    # np.save("/home/nobar/codes/GBO2/logs/test_6_11_baseline/mean_values.npy",mean_values)
+    # np.save("/home/nobar/codes/GBO2/logs/test_6_11_baseline/margin_of_error.npy",margin_of_error)
+    # np.save("/home/nobar/codes/GBO2/logs/test_6_11_baseline/x.npy",x)
+    print("")
+
+def plot_cost_coef():
+    import numpy as np
+    import matplotlib.pyplot as plt
+    def f(x):
+        A = 32.82
+        B = 0.657
+        C = -32.82
+
+        if x <= 2:
+            return 0
+        else:
+            return A * np.exp(B * (x - 2)) + C
+    # Generate x values
+    x_values = np.linspace(1, 5, 100)
+    y_values = [f(x) for x in x_values]
+    # Plot
+    plt.figure(figsize=(8, 5))
+    plt.plot(x_values, y_values, label="$f(x)$", color='b')
+    plt.scatter([3, 4, 5], [20, 50, 100], color='red', label="Target Points")
+    plt.xlabel("x")
+    plt.ylabel("f(x)")
+    plt.title("Piecewise Function Plot")
+    plt.legend()
+    plt.grid()
+    plt.show()
+
 if __name__ == "__main__":
     # plot_gt()
 
-    # x=np.load("/home/nobar/codes/GBO2/logs/test_21_4/Exper_3/train_x_init.npy")
-    # y=np.load("/home/nobar/codes/GBO2/logs/test_21_4/Exper_3/train_obj_init.npy")
-    # x2=np.load("/home/nobar/codes/GBO2/logs/test_21_5/Exper_3/train_x_init.npy")
-    # y2=np.load("/home/nobar/codes/GBO2/logs/test_21_5/Exper_3/train_obj_init.npy")
-    # diffx=x-x2[:2,:]
-    # diffy=y-y2[:2,:]
+    # plot_cost_coef()
 
-    path = "/home/nobar/codes/GBO2/logs/test_22/"
+    path = "/home/nobar/codes/GBO2/logs/test_23_7/"
+    path2 = "/home/nobar/codes/GBO2/logs/test_23/"
     N_init_IS1=2
     N_init_IS2=0
-    sampling_cost_bias=10
+    sampling_cost_bias=25
     N_exper=10
     N_iter=10
-    plots_MonteCarlo_objective(path,N_init_IS1,N_init_IS2,sampling_cost_bias,N_exper,N_iter)
+    s2 = 0.1
+    s3 = 0.05
+
+    # validate identical initial dataset
+    for i in range(N_exper):
+        x=np.load(path+"Exper_{}/train_x_init.npy".format(str(i)))
+        y=np.load(path+"Exper_{}/train_obj_init.npy".format(str(i)))
+        x2=np.load(path2+"Exper_{}/train_x_init.npy".format(str(i)))
+        y2=np.load(path+"Exper_{}/train_obj_init.npy".format(str(i)))
+        diffx=x[:2,:]-x2[:2,:]
+        diffy=y[:2,:]-y2[:2,:]
+        if np.sum(diffx)+np.sum(diffy)!=0:
+            ValueError("ERROR: initial dataset not identical across trials!")
+
+    plots_MonteCarlo_objective(path,N_init_IS1,N_init_IS2,sampling_cost_bias,N_exper,N_iter,s2,s3)
 

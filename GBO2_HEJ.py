@@ -111,7 +111,6 @@ def get_mfkg(model):
         options={"batch_limit": 10, "maxiter": 200},
     )
 
-    # model: This is the surrogate GP model representing our current understanding of the objective function based on available data.
     return qMultiFidelityKnowledgeGradient(
         model=model,
         num_fantasies=128 if not SMOKE_TEST else 2,
@@ -129,7 +128,7 @@ def optimize_mfkg_and_get_observation(mfkg_acqf):
     candidates, _ = optimize_acqf_mixed(
         acq_function=mfkg_acqf,
         bounds=bounds,
-        fixed_features_list=[{2: 0.2}, {2: 0.1}, {2: 1.0}],
+        fixed_features_list=[{2: 0.05}, {2: 0.1}, {2: 1.0}],
         q=BATCH_SIZE,
         num_restarts=NUM_RESTARTS,
         raw_samples=RAW_SAMPLES,
@@ -159,7 +158,7 @@ def optimize_mfkg_and_get_observation(mfkg_acqf):
 def plot_GP(model, iter, path):
     # Step 3: Define fidelity levels and create a grid for plotting
     # uncomment for my idea
-    fidelities = [1.0, 0.1, 0.2]  # Three fidelity levels
+    fidelities = [1.0, 0.1, 0.05]  # Three fidelity levels
     # fidelities = [1.0, 0.5]
     x1 = torch.linspace(0, 1, 50)
     x2 = torch.linspace(0, 1, 50)
@@ -208,6 +207,60 @@ def plot_GP(model, iter, path):
     # plt.savefig(path+"/GP_itr_{}.pdf".format(str(iter)))  # Save as PDF
     plt.savefig(path + "/GP_itr_{}.png".format(str(iter)))
     # plt.show()
+    plt.close()
+
+def plot_EIonly_GP(model, iter, path):
+    # Step 3: Define fidelity levels and create a grid for plotting
+    # uncomment for my idea
+    fidelities = [1.0, 0.1, 0.05]  # Three fidelity levels
+    # fidelities = [1.0, 0.5]
+    x1 = torch.linspace(0, 1, 50)
+    x2 = torch.linspace(0, 1, 50)
+    X1, X2 = torch.meshgrid(x1, x2, indexing="ij")
+
+    # Step 4: Prepare the figure with 3x2 subplots
+    fig, axs = plt.subplots(len(fidelities), 2, figsize=(14, 18))
+
+    for i, s_val in enumerate(fidelities):
+        s_fixed = torch.tensor([[s_val]])
+
+        # Flatten the grid and concatenate with the fidelity level
+        X_plot = torch.cat([
+            X1.reshape(-1, 1),
+            X2.reshape(-1, 1),
+            s_fixed.expand(X1.numel(), 1)
+        ], dim=1)
+
+        # Step 5: Evaluate the posterior mean and standard deviation
+        with torch.no_grad():
+            posterior = model.posterior(X_plot)
+            mean = posterior.mean.reshape(50, 50).numpy()
+            std = posterior.variance.sqrt().reshape(50, 50).numpy()
+
+        # Plot the posterior mean
+        contour_mean = axs[i, 0].contourf(X1.numpy(), X2.numpy(), mean, cmap='viridis')
+        axs[i, 0].set_title(f"Posterior Mean (s={s_val})")
+        fig.colorbar(contour_mean, ax=axs[i, 0])
+
+        # Plot the posterior standard deviation
+        contour_std = axs[i, 1].contourf(X1.numpy(), X2.numpy(), std, cmap='viridis')
+        axs[i, 1].set_title(f"Posterior Standard Deviation (s={s_val})")
+        fig.colorbar(contour_std, ax=axs[i, 1])
+
+        np.save(path + "/EIonly_X1_{}.npy".format(str(iter)), X1)
+        np.save(path + "/EIonly_X2_{}.npy".format(str(iter)), X2)
+        np.save(path + "/EIonly_mean_{}.npy".format(str(iter)), mean)
+        np.save(path + "/EIonly_std_{}.npy".format(str(iter)), std)
+
+        # Axis labels
+        for ax in axs[i]:
+            ax.set_xlabel("$x_1$")
+            ax.set_ylabel("$x_2$")
+
+    plt.tight_layout()
+    plt.savefig(path + "/EIonly_GP_itr_{}.png".format(str(iter)))
+    # plt.show()
+    plt.close()
 
 
 def get_recommendation(model, lower, upper):
@@ -299,7 +352,7 @@ NUM_RESTARTS = 4 if not SMOKE_TEST else 2
 RAW_SAMPLES = 64 if not SMOKE_TEST else 4
 BATCH_SIZE = 4
 N_init_IS1 = 2 if not SMOKE_TEST else 2
-N_init_IS2 = 0 if not SMOKE_TEST else 2
+N_init_IS2 = 8 if not SMOKE_TEST else 2
 N_ITER = 10 if not SMOKE_TEST else 1
 
 # # generate seed for sobol initial dataset
@@ -309,7 +362,7 @@ for exper in range(N_exper):
     print("**********Experiment {}**********".format(exper))
     # /cluster/home/mnobar/code/GBO2
     # /home/nobar/codes/GBO2
-    path = "/cluster/home/mnobar/code/GBO2/logs/test_22_4/Exper_{}".format(str(exper))
+    path = "/cluster/home/mnobar/code/GBO2/logs/test_24_2/Exper_{}".format(str(exper))
     # Check if the directory exists, if not, create it
     if not os.path.exists(path):
         os.makedirs(path)
@@ -319,7 +372,7 @@ for exper in range(N_exper):
     problem.y_GP_train = None
 
     # uncomment for my idea
-    fidelities = torch.tensor([0.2, 0.1, 1.0], **tkwargs)
+    fidelities = torch.tensor([0.05, 0.1, 1.0], **tkwargs)
     # fidelities = torch.tensor([0.5, 1.0], **tkwargs)
 
     # Define the bounds
@@ -332,7 +385,7 @@ for exper in range(N_exper):
 
     target_fidelities = {2: 1.0}
 
-    cost_model = AffineFidelityCostModel(fidelity_weights={2: 1.0}, fixed_cost=13)
+    cost_model = AffineFidelityCostModel(fidelity_weights={2: 1.0}, fixed_cost=25)
     cost_aware_utility = InverseCostWeightedUtility(cost_model=cost_model)
 
     torch.set_printoptions(precision=3, sci_mode=False)
@@ -354,7 +407,8 @@ for exper in range(N_exper):
     cumulative_cost = 0.0
     costs_all = np.zeros(N_ITER)
     for i in range(N_ITER):
-        print("iteration=", i)
+        print("batch iteration=", i)
+        cost_model.b_iter=i+1 #batch iteration for adaptive cost
         mll, model = initialize_model(train_x, train_obj)
         fit_gpytorch_mll(mll)
         plot_GP(model, i, path)
@@ -379,7 +433,9 @@ for exper in range(N_exper):
 
     print(f"\nMFBO total cost: {cumulative_cost}\n")
 
-    # In[1]:
+    ####################################################################################################################
+    ####################################################################################################################
+    ####################################################################################################################
     # Baseline Single Fidelity BO with EI
     cumulative_cost = 0.0
     costs_all = np.zeros(N_ITER)
@@ -389,6 +445,7 @@ for exper in range(N_exper):
     for i in range(N_ITER):
         mll, model = initialize_model(train_x, train_obj)
         fit_gpytorch_mll(mll)
+        plot_EIonly_GP(model, i, path)
         ei_acqf = get_ei(model, best_f=train_obj.max())
         new_x, new_obj, cost = optimize_ei_and_get_observation(ei_acqf)
         train_x = torch.cat([train_x, new_x])
