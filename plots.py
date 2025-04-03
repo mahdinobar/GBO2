@@ -8,6 +8,7 @@ import matplotlib.colors as mcolors
 from matplotlib.patches import Rectangle
 import math
 from scipy.stats import t
+import torch
 
 
 def plot_colortable(colors, *, ncols=4, sort_colors=True):
@@ -287,9 +288,11 @@ def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_
         train_obj_IS1_init=train_obj[idx_IS1_init]
 
         idx_IS2 = np.argwhere(train_x[:, 2] == s2).squeeze()
+        idx_IS2 = idx_IS2.reshape(idx_IS2.size, )
         idx_IS2_init=idx_IS2[np.argwhere(idx_IS2<N_init_IS1+N_init_IS2)[:,0]]
         idx_IS2_rest=idx_IS2[np.argwhere(idx_IS2>N_init_IS1+N_init_IS2-1)[:,0]]
         idx_IS3 = np.argwhere(train_x[:, 2] == s3).squeeze()
+        idx_IS3=idx_IS3.reshape(idx_IS3.size, )
         idx_IS3_init=idx_IS3[np.argwhere(idx_IS3<N_init_IS1+N_init_IS2)[:,0]]
         idx_IS3_rest=idx_IS3[np.argwhere(idx_IS3>N_init_IS1+N_init_IS2-1)[:,0]]
 
@@ -574,13 +577,13 @@ def plot_cost_coef():
     import matplotlib.pyplot as plt
     def f(x):
         A = 32.82
-        B = 0.657
+        B = 1.157
         C = -32.82
 
-        if x <= 2:
+        if x <= 3:
             return 0
         else:
-            return A * np.exp(B * (x - 2)) + C
+            return A * np.exp(B * (x - 3)) + C
     # Generate x values
     x_values = np.linspace(1, 5, 100)
     y_values = [f(x) for x in x_values]
@@ -595,20 +598,175 @@ def plot_cost_coef():
     plt.grid()
     plt.show()
 
+
+def plot_EIonly_GP(iter, path, train_x_i,train_obj_i):
+    # Step 3: Define fidelity levels and create a grid for plotting
+    # uncomment for my idea
+    fidelities = [1.0, 0.1, 0.05]  # Three fidelity levels
+    # fidelities = [1.0, 0.5]
+    x1 = torch.linspace(0, 1, 50)
+    x2 = torch.linspace(0, 1, 50)
+    X1, X2 = torch.meshgrid(x1, x2, indexing="ij")
+
+    # Step 4: Prepare the figure with 3x2 subplots
+    fig, axs = plt.subplots(len(fidelities), 2, figsize=(14, 18))
+
+    for i, s_val in enumerate(fidelities):
+        s_fixed = torch.tensor([[s_val]])
+
+        # Flatten the grid and concatenate with the fidelity level
+        X_plot = torch.cat([
+            X1.reshape(-1, 1),
+            X2.reshape(-1, 1),
+            s_fixed.expand(X1.numel(), 1)
+        ], dim=1)
+
+        # # Step 5: Evaluate the posterior mean and standard deviation
+        # with torch.no_grad():
+        #     posterior = model.posterior(X_plot)
+        #     mean = posterior.mean.reshape(50, 50).numpy()
+        #     std = posterior.variance.sqrt().reshape(50, 50).numpy()
+        # mean= np.load(path + "/EIonly_mean_{}.npy".format(str(iter)))
+        # std=np.load(path + "/EIonly_std_{}.npy".format(str(iter)))
+        mean= np.load(path + "/mean_{}.npy".format(str(iter)))
+        std=np.load(path + "/std_{}.npy".format(str(iter)))
+        # Plot the posterior mean
+        contour_mean = axs[i, 0].contourf(X1.numpy(), X2.numpy(), mean.T, cmap='viridis')
+        axs[i, 0].set_title(f"Posterior Mean (s={s_val})")
+        fig.colorbar(contour_mean, ax=axs[i, 0])
+
+        # Plot the posterior standard deviation
+        contour_std = axs[i, 1].contourf(X1.numpy(), X2.numpy(), std.T, cmap='viridis')
+        axs[i, 1].set_title(f"Posterior Standard Deviation (s={s_val})")
+        fig.colorbar(contour_std, ax=axs[i, 1])
+
+        # scatter_train_x = axs[i, 0].scatter(train_x_i[:,0], train_x_i[:,1], c='b',linewidth=15)
+        scatter_train_x = axs[i, 0].scatter(train_x_i[np.argwhere(train_x_i[:,2]==s_val),0], train_x_i[np.argwhere(train_x_i[:,2]==s_val),1], c='r',linewidth=15)
+
+        # np.save(path + "/EIonly_X1_{}.npy".format(str(iter)), X1)
+        # np.save(path + "/EIonly_X2_{}.npy".format(str(iter)), X2)
+        # np.save(path + "/EIonly_mean_{}.npy".format(str(iter)), mean)
+        # np.save(path + "/EIonly_std_{}.npy".format(str(iter)), std)
+
+        # Axis labels
+        for ax in axs[i]:
+            ax.set_xlabel("$x_1$")
+            ax.set_ylabel("$x_2$")
+
+    plt.tight_layout()
+    # plt.savefig(path + "/withTrainData_EIonly_GP_itr_{}.png".format(str(iter)))
+    plt.savefig(path + "/withTrainData_GP_itr_{}.png".format(str(iter)))
+    # plt.show()
+    plt.close()
+
+def plot_EIonly_GP_EIonly(iter, path, train_x_i,train_obj_i):
+    # Step 3: Define fidelity levels and create a grid for plotting
+    # uncomment for my idea
+    fidelities = [1.0, 0.1, 0.05]  # Three fidelity levels
+    # fidelities = [1.0, 0.5]
+    x1 = torch.linspace(0, 1, 50)
+    x2 = torch.linspace(0, 1, 50)
+    X1, X2 = torch.meshgrid(x1, x2, indexing="ij")
+
+    # Step 4: Prepare the figure with 3x2 subplots
+    fig, axs = plt.subplots(len(fidelities), 2, figsize=(14, 18))
+
+    for i, s_val in enumerate(fidelities):
+        s_fixed = torch.tensor([[s_val]])
+
+        # Flatten the grid and concatenate with the fidelity level
+        X_plot = torch.cat([
+            X1.reshape(-1, 1),
+            X2.reshape(-1, 1),
+            s_fixed.expand(X1.numel(), 1)
+        ], dim=1)
+
+        # # Step 5: Evaluate the posterior mean and standard deviation
+        # with torch.no_grad():
+        #     posterior = model.posterior(X_plot)
+        #     mean = posterior.mean.reshape(50, 50).numpy()
+        #     std = posterior.variance.sqrt().reshape(50, 50).numpy()
+        mean= np.load(path + "/EIonly_mean_{}.npy".format(str(iter)))
+        std=np.load(path + "/EIonly_std_{}.npy".format(str(iter)))
+        # Plot the posterior mean
+        contour_mean = axs[i, 0].contourf(X1.numpy(), X2.numpy(), mean.T, cmap='viridis')
+        axs[i, 0].set_title(f"Posterior Mean (s={s_val})")
+        fig.colorbar(contour_mean, ax=axs[i, 0])
+
+        # Plot the posterior standard deviation
+        contour_std = axs[i, 1].contourf(X1.numpy(), X2.numpy(), std.T, cmap='viridis')
+        axs[i, 1].set_title(f"Posterior Standard Deviation (s={s_val})")
+        fig.colorbar(contour_std, ax=axs[i, 1])
+
+        scatter_train_x = axs[i, 0].scatter(train_x_i[:,0], train_x_i[:,1], c='b',linewidth=15)
+        # scatter_train_x = axs[i, 0].scatter(train_x_i[np.argwhere(train_x_i[:,2]==s_val),0], train_x_i[np.argwhere(train_x_i[:,2]==s_val),1], c='r',linewidth=15)
+
+        # np.save(path + "/EIonly_X1_{}.npy".format(str(iter)), X1)
+        # np.save(path + "/EIonly_X2_{}.npy".format(str(iter)), X2)
+        # np.save(path + "/EIonly_mean_{}.npy".format(str(iter)), mean)
+        # np.save(path + "/EIonly_std_{}.npy".format(str(iter)), std)
+
+        # Axis labels
+        for ax in axs[i]:
+            ax.set_xlabel("$x_1$")
+            ax.set_ylabel("$x_2$")
+
+    plt.tight_layout()
+    plt.savefig(path + "/withTrainData_EIonly_GP_itr_{}.png".format(str(iter)))
+    # plt.show()
+    plt.close()
+
+def normalize_objective(obj, min_bound, max_bound):
+    """
+    Normalize obj to a [0,1] scale based on min and max bounds.
+
+    Args:
+        obj (float or array-like): The value(s) to normalize.
+        min_bound (float): The minimum possible value.
+        max_bound (float): The maximum possible value.
+
+    Returns:
+        float or array-like: Normalized value(s) in [0,1].
+    """
+    return (obj - min_bound) / (max_bound - min_bound) if max_bound != min_bound else 0.5
+
 if __name__ == "__main__":
     # plot_gt()
 
     # plot_cost_coef()
 
-    path = "/home/nobar/codes/GBO2/logs/test_23_7/"
-    path2 = "/home/nobar/codes/GBO2/logs/test_23/"
+
+    path = "/home/nobar/codes/GBO2/logs/test_23_8/"
+    path2 = "/home/nobar/codes/GBO2/logs/test_23_6/"
     N_init_IS1=2
     N_init_IS2=0
-    sampling_cost_bias=25
+    sampling_cost_bias=30
     N_exper=10
     N_iter=10
     s2 = 0.1
     s3 = 0.05
+    BATCH_SIZE=4
+
+    # for i in range(N_exper):
+    for i in range(N_exper):
+        print(i)
+        train_x=np.load(path+"Exper_"+str(i)+"/"+"train_x.npy")
+        train_obj=np.load(path+"Exper_"+str(i)+"/"+"train_obj.npy")
+        for  j in range(N_iter):
+            train_x_i=train_x[0:N_init_IS1+N_init_IS2+j*BATCH_SIZE,:]
+            train_obj_i=train_obj[0:N_init_IS1+N_init_IS2+j*BATCH_SIZE,:]
+            plot_EIonly_GP(j, path+"Exper_"+str(i)+"/", train_x_i,train_obj_i)
+
+    # for i in range(N_exper):
+    for i in range(N_exper):
+        print(i)
+        train_x=np.load(path+"Exper_"+str(i)+"/"+"train_x_EIonly.npy")
+        train_obj=np.load(path+"Exper_"+str(i)+"/"+"train_obj_EIonly.npy")
+        for  j in range(N_iter):
+            train_x_i=train_x[0:N_init_IS1+N_init_IS2+j*BATCH_SIZE,:]
+            train_obj_i=train_obj[0:N_init_IS1+N_init_IS2+j*BATCH_SIZE,:]
+            plot_EIonly_GP_EIonly(j, path+"Exper_"+str(i)+"/", train_x_i,train_obj_i)
+
 
     # validate identical initial dataset
     for i in range(N_exper):
@@ -619,7 +777,7 @@ if __name__ == "__main__":
         diffx=x[:2,:]-x2[:2,:]
         diffy=y[:2,:]-y2[:2,:]
         if np.sum(diffx)+np.sum(diffy)!=0:
-            ValueError("ERROR: initial dataset not identical across trials!")
+            print(ValueError("ERROR: initial dataset not identical across trials!"))
 
     plots_MonteCarlo_objective(path,N_init_IS1,N_init_IS2,sampling_cost_bias,N_exper,N_iter,s2,s3)
 

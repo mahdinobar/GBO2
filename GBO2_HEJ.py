@@ -155,7 +155,7 @@ def optimize_mfkg_and_get_observation(mfkg_acqf):
     return new_x, new_obj, cost
 
 
-def plot_GP(model, iter, path):
+def plot_GP(model, iter, path,train_x):
     # Step 3: Define fidelity levels and create a grid for plotting
     # uncomment for my idea
     fidelities = [1.0, 0.1, 0.05]  # Three fidelity levels
@@ -184,14 +184,17 @@ def plot_GP(model, iter, path):
             std = posterior.variance.sqrt().reshape(50, 50).numpy()
 
         # Plot the posterior mean
-        contour_mean = axs[i, 0].contourf(X1.numpy(), X2.numpy(), mean, cmap='viridis')
+        contour_mean = axs[i, 0].contourf(X1.numpy(), X2.numpy(), mean.T, cmap='viridis')
         axs[i, 0].set_title(f"Posterior Mean (s={s_val})")
         fig.colorbar(contour_mean, ax=axs[i, 0])
 
         # Plot the posterior standard deviation
-        contour_std = axs[i, 1].contourf(X1.numpy(), X2.numpy(), std, cmap='viridis')
+        contour_std = axs[i, 1].contourf(X1.numpy(), X2.numpy(), std.T, cmap='viridis')
         axs[i, 1].set_title(f"Posterior Standard Deviation (s={s_val})")
         fig.colorbar(contour_std, ax=axs[i, 1])
+
+        scatter_train_x = axs[i, 0].scatter(train_x[np.argwhere(train_x[:,2]==s_val),0], train_x[np.argwhere(train_x[:,2]==s_val),1], c='r',linewidth=15)
+
 
         np.save(path + "/X1_{}.npy".format(str(iter)), X1)
         np.save(path + "/X2_{}.npy".format(str(iter)), X2)
@@ -209,7 +212,7 @@ def plot_GP(model, iter, path):
     # plt.show()
     plt.close()
 
-def plot_EIonly_GP(model, iter, path):
+def plot_EIonly_GP(model, iter, path,train_x):
     # Step 3: Define fidelity levels and create a grid for plotting
     # uncomment for my idea
     fidelities = [1.0, 0.1, 0.05]  # Three fidelity levels
@@ -238,14 +241,16 @@ def plot_EIonly_GP(model, iter, path):
             std = posterior.variance.sqrt().reshape(50, 50).numpy()
 
         # Plot the posterior mean
-        contour_mean = axs[i, 0].contourf(X1.numpy(), X2.numpy(), mean, cmap='viridis')
+        contour_mean = axs[i, 0].contourf(X1.numpy(), X2.numpy(), mean.T, cmap='viridis')
         axs[i, 0].set_title(f"Posterior Mean (s={s_val})")
         fig.colorbar(contour_mean, ax=axs[i, 0])
 
         # Plot the posterior standard deviation
-        contour_std = axs[i, 1].contourf(X1.numpy(), X2.numpy(), std, cmap='viridis')
+        contour_std = axs[i, 1].contourf(X1.numpy(), X2.numpy(), std.T, cmap='viridis')
         axs[i, 1].set_title(f"Posterior Standard Deviation (s={s_val})")
         fig.colorbar(contour_std, ax=axs[i, 1])
+
+        scatter_train_x = axs[i, 0].scatter(train_x[:,0], train_x[:,1], c='b',linewidth=15)
 
         np.save(path + "/EIonly_X1_{}.npy".format(str(iter)), X1)
         np.save(path + "/EIonly_X2_{}.npy".format(str(iter)), X2)
@@ -352,7 +357,7 @@ NUM_RESTARTS = 4 if not SMOKE_TEST else 2
 RAW_SAMPLES = 64 if not SMOKE_TEST else 4
 BATCH_SIZE = 4
 N_init_IS1 = 2 if not SMOKE_TEST else 2
-N_init_IS2 = 8 if not SMOKE_TEST else 2
+N_init_IS2 = 0 if not SMOKE_TEST else 2
 N_ITER = 10 if not SMOKE_TEST else 1
 
 # # generate seed for sobol initial dataset
@@ -362,7 +367,7 @@ for exper in range(N_exper):
     print("**********Experiment {}**********".format(exper))
     # /cluster/home/mnobar/code/GBO2
     # /home/nobar/codes/GBO2
-    path = "/cluster/home/mnobar/code/GBO2/logs/test_24_2/Exper_{}".format(str(exper))
+    path = "/cluster/home/mnobar/code/GBO2/logs/test_23_8/Exper_{}".format(str(exper))
     # Check if the directory exists, if not, create it
     if not os.path.exists(path):
         os.makedirs(path)
@@ -411,7 +416,7 @@ for exper in range(N_exper):
         cost_model.b_iter=i+1 #batch iteration for adaptive cost
         mll, model = initialize_model(train_x, train_obj)
         fit_gpytorch_mll(mll)
-        plot_GP(model, i, path)
+        plot_GP(model, i, path, train_x)
         mfkg_acqf = get_mfkg(model)
         new_x, new_obj, cost = optimize_mfkg_and_get_observation(mfkg_acqf)
         train_x = torch.cat([train_x, new_x])
@@ -445,7 +450,7 @@ for exper in range(N_exper):
     for i in range(N_ITER):
         mll, model = initialize_model(train_x, train_obj)
         fit_gpytorch_mll(mll)
-        plot_EIonly_GP(model, i, path)
+        plot_EIonly_GP(model, i, path,train_x)
         ei_acqf = get_ei(model, best_f=train_obj.max())
         new_x, new_obj, cost = optimize_ei_and_get_observation(ei_acqf)
         train_x = torch.cat([train_x, new_x])
