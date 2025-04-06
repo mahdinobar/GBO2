@@ -68,7 +68,7 @@ def generate_initial_data(n_IS1, n_IS2):
     # # TODO: uncomment for deterministic initial dataset of just IS1
     # train_f = fidelities[torch.randint(2,3, (n, 1))]
     # # TODO: uncomment for n_IS1 and n_IS2 data
-    train_f = fidelities[(torch.cat([torch.ones((n_IS1, 1)) * 2, torch.ones((n_IS2, 1)) * 1])).to(torch.int)]
+    train_f = fidelities[(torch.cat([torch.ones((n_IS1, 1)) * 1, torch.ones((n_IS2, 1)) * 0])).to(torch.int)]
     # train_f = fidelities[torch.randint(2, (n, 1))]
     train_x_full = torch.cat((train_x, train_f), dim=1)
     train_obj = problem(train_x_full).unsqueeze(-1)  # add output dimension
@@ -128,7 +128,7 @@ def optimize_mfkg_and_get_observation(mfkg_acqf):
     candidates, _ = optimize_acqf_mixed(
         acq_function=mfkg_acqf,
         bounds=bounds,
-        fixed_features_list=[{2: 0.05}, {2: 0.1}, {2: 1.0}],
+        fixed_features_list=[{2: 0.1}, {2: 1.0}],
         q=BATCH_SIZE,
         num_restarts=NUM_RESTARTS,
         raw_samples=RAW_SAMPLES,
@@ -158,7 +158,7 @@ def optimize_mfkg_and_get_observation(mfkg_acqf):
 def plot_GP(model, iter, path,train_x):
     # Step 3: Define fidelity levels and create a grid for plotting
     # uncomment for my idea
-    fidelities = [1.0, 0.1, 0.05]  # Three fidelity levels
+    fidelities = [1.0, 0.1]  # Three fidelity levels
     # fidelities = [1.0, 0.5]
     x1 = torch.linspace(0, 1, 50)
     x2 = torch.linspace(0, 1, 50)
@@ -215,7 +215,7 @@ def plot_GP(model, iter, path,train_x):
 def plot_EIonly_GP(model, iter, path,train_x):
     # Step 3: Define fidelity levels and create a grid for plotting
     # uncomment for my idea
-    fidelities = [1.0, 0.1, 0.05]  # Three fidelity levels
+    fidelities = [1.0, 0.1]  # Three fidelity levels
     # fidelities = [1.0, 0.5]
     x1 = torch.linspace(0, 1, 50)
     x2 = torch.linspace(0, 1, 50)
@@ -367,7 +367,7 @@ for exper in range(N_exper):
     print("**********Experiment {}**********".format(exper))
     # /cluster/home/mnobar/code/GBO2
     # /home/nobar/codes/GBO2
-    path = "/cluster/home/mnobar/code/GBO2/logs/test_23_8/Exper_{}".format(str(exper))
+    path = "/cluster/home/mnobar/code/GBO2/logs/test_29_baseline/Exper_{}".format(str(exper))
     # Check if the directory exists, if not, create it
     if not os.path.exists(path):
         os.makedirs(path)
@@ -377,7 +377,7 @@ for exper in range(N_exper):
     problem.y_GP_train = None
 
     # uncomment for my idea
-    fidelities = torch.tensor([0.05, 0.1, 1.0], **tkwargs)
+    fidelities = torch.tensor([0.1, 1.0], **tkwargs)
     # fidelities = torch.tensor([0.5, 1.0], **tkwargs)
 
     # Define the bounds

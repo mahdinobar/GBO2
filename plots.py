@@ -61,7 +61,7 @@ def plot_colortable(colors, *, ncols=4, sort_colors=True):
     return fig
 def plot_gt():
     # Load the .mat file
-    mat_data = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/test_23_test/Exper_0/IS3_Exper_0_nIS1_1to1_8x8_metrics.mat')
+    mat_data = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/test_23_test/Exper_0/IS2_Exper_0_8x8_metrics.mat')
     mat_data2 = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/test_23_test/Exper_0/IS1_Exper_0_8x8_metrics.mat')
     n_grid=8
 
@@ -71,14 +71,14 @@ def plot_gt():
     
     Objective_all = mat_data['Objective_all']  # Should be a 2D array
     RiseTime_all = mat_data['RiseTime_all']  # Should be a 2D array
-    TransoentTime_all = mat_data['TransientTime_all']  # Should be a 2D array
+    TransientTime_all = mat_data['TransientTime_all']  # Should be a 2D array
     SettlingTime_all = mat_data['SettlingTime_all']  # Should be a 2D array
     Overshoot_all = mat_data['Overshoot_all']  # Should be a 2D array
 
     
     Objective_all_error = mat_data['Objective_all']-mat_data2['Objective_all']  # Should be a 2D array
     RiseTime_all_error = mat_data['RiseTime_all']-mat_data2['RiseTime_all']  # Should be a 2D array
-    TransoentTime_all_error = mat_data['TransientTime_all']-mat_data2['TransientTime_all']  # Should be a 2D array
+    TransientTime_all_error = mat_data['TransientTime_all']-mat_data2['TransientTime_all']  # Should be a 2D array
     SettlingTime_all_error = mat_data['SettlingTime_all']-mat_data2['SettlingTime_all']  # Should be a 2D array
     Overshoot_all_error = mat_data['Overshoot_all']-mat_data2['Overshoot_all']  # Should be a 2D array
 
@@ -89,56 +89,77 @@ def plot_gt():
     plt.figure(figsize=(8, 6))
     # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
     # contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(20,20),levs)  # Transpose to match dimensions
-    contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(n_grid,n_grid))  # Transpose to match dimensions
+    contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(n_grid,n_grid), levels=20)  # Transpose to match dimensions
     plt.colorbar(contour, label='True Objective Value')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('True Objective Contour Plot')
-    plt.savefig("/home/nobar/codes/GBO2/logs/test_23_test/Exper_0/IS3_Exper_0_8x8_metrics.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/test_23_8_test/Exper_0/IS2_Exper_0_8x8_metrics.png")
+    plt.show()
+
+    w1=9
+    w2=1.8/100
+    w3=1.5
+    w4=1.5
+    new_obj=w1*RiseTime_all+w2*Overshoot_all+w4*TransientTime_all+w3*SettlingTime_all
+
+    # np.save("/home/nobar/codes/GBO2/logs/IS2_new_1_obj.npy",new_obj)
+    # Create meshgrid for contour plot
+    Kp_grid, Ki_grid = np.meshgrid(Kp, Kd)
+    # Plot the contour
+    plt.figure(figsize=(8, 6))
+    # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
+    # contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(20,20),levs)  # Transpose to match dimensions
+    contour = plt.contourf(Kp_grid, Ki_grid, new_obj.reshape(n_grid,n_grid), levels=20)  # Transpose to match dimensions
+    plt.colorbar(contour, label='True Objective Value')
+    plt.xlabel('Kp')
+    plt.ylabel('Kd')
+    plt.title('True Objective Contour Plot')
+    plt.savefig("/home/nobar/codes/GBO2/logs/test_23_8_test/Exper_0/IS2_Exper_0_8x8_metrics_NEW.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
     # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
     # contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(20,20),levs)  # Transpose to match dimensions
-    contour = plt.contourf(Kp_grid, Ki_grid, 5*RiseTime_all.reshape(n_grid,n_grid))  # Transpose to match dimensions
+    contour = plt.contourf(Kp_grid, Ki_grid, w1*RiseTime_all.reshape(n_grid,n_grid), levels=20)  # Transpose to match dimensions
     plt.colorbar(contour, label='Weighted Rise Time')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('$w.T_{r}$')
-    plt.savefig("/home/nobar/codes/GBO2/logs/test_23_test/Exper_0/IS3_Exper_0_1to1_Rise.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/test_23_8_test/Exper_0/IS2_Exper_0_1to1_Rise.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
     # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
     # contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(20,20),levs)  # Transpose to match dimensions
-    contour = plt.contourf(Kp_grid, Ki_grid, 1*SettlingTime_all.reshape(n_grid,n_grid))  # Transpose to match dimensions
+    contour = plt.contourf(Kp_grid, Ki_grid, w3*SettlingTime_all.reshape(n_grid,n_grid), levels=20)  # Transpose to match dimensions
     plt.colorbar(contour, label='Weighted Settling Time')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('$w.T_{s}$')
-    plt.savefig("/home/nobar/codes/GBO2/logs/test_23_test/Exper_0/IS3_Exper_0_1to1_Settling.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/test_23_8_test/Exper_0/IS2_Exper_0_1to1_Settling.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
     # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
     # contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(20,20),levs)  # Transpose to match dimensions
-    contour = plt.contourf(Kp_grid, Ki_grid, 2/100*Overshoot_all.reshape(n_grid,n_grid))  # Transpose to match dimensions
+    contour = plt.contourf(Kp_grid, Ki_grid, w2*Overshoot_all.reshape(n_grid,n_grid), levels=20)  # Transpose to match dimensions
     plt.colorbar(contour, label='Weighted Overshoot')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('$w.M$')
-    plt.savefig("/home/nobar/codes/GBO2/logs/test_23_test/Exper_0/IS3_Exper_0_1to1_Overshoot.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/test_23_8_test/Exper_0/IS2_Exper_0_1to1_Overshoot.png")
     plt.show()
     plt.close()
     plt.figure(figsize=(8, 6))
     # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
     # contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(20,20),levs)  # Transpose to match dimensions
-    contour = plt.contourf(Kp_grid, Ki_grid, 1*TransoentTime_all.reshape(n_grid,n_grid))  # Transpose to match dimensions
+    contour = plt.contourf(Kp_grid, Ki_grid, w4*TransientTime_all.reshape(n_grid,n_grid), levels=20)  # Transpose to match dimensions
     plt.colorbar(contour, label='Weighted Transient Time')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('$w.T_{tr}$')
-    plt.savefig("/home/nobar/codes/GBO2/logs/test_23_test/Exper_0/IS3_Exper_0_1to1_Transiet.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/test_23_8_test/Exper_0/IS2_Exper_0_1to1_Transiet.png")
     plt.show()
 
 
@@ -153,49 +174,49 @@ def plot_gt():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('Error Objective Contour Plot')
-    plt.savefig("/home/nobar/codes/GBO2/logs/test_23_test/Exper_0/IS3_J_1to1_error.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/test_23_8_test/Exper_0/IS3_J_1to1_error.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
-    contour = plt.contourf(Kp_grid, Ki_grid, 5*RiseTime_all_error.reshape(n_grid,n_grid))  # Transpose to match dimensions
+    contour = plt.contourf(Kp_grid, Ki_grid, w1*RiseTime_all_error.reshape(n_grid,n_grid))  # Transpose to match dimensions
     plt.colorbar(contour, label='Error Weighted Rise Time')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('error $w.T_{r}$')
-    plt.savefig("/home/nobar/codes/GBO2/logs/test_23_test/Exper_0/IS3_Tr_1to1_error.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/test_23_8_test/Exper_0/IS3_Tr_1to1_error.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
     # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
     # contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(20,20),levs)  # Transpose to match dimensions
-    contour = plt.contourf(Kp_grid, Ki_grid, 1*SettlingTime_all_error.reshape(n_grid,n_grid))  # Transpose to match dimensions
+    contour = plt.contourf(Kp_grid, Ki_grid, w3*SettlingTime_all_error.reshape(n_grid,n_grid))  # Transpose to match dimensions
     plt.colorbar(contour, label='Error Weighted Settling Time')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('error $w.T_{s}$')
-    plt.savefig("/home/nobar/codes/GBO2/logs/test_23_test/Exper_0/IS3_Ts_1to1_error.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/test_23_8_test/Exper_0/IS3_Ts_1to1_error.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
     # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
     # contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(20,20),levs)  # Transpose to match dimensions
-    contour = plt.contourf(Kp_grid, Ki_grid, 2/100*Overshoot_all_error.reshape(n_grid,n_grid))  # Transpose to match dimensions
+    contour = plt.contourf(Kp_grid, Ki_grid, w2*Overshoot_all_error.reshape(n_grid,n_grid))  # Transpose to match dimensions
     plt.colorbar(contour, label='Error Weighted Overshoot')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('error $w.M$')
-    plt.savefig("/home/nobar/codes/GBO2/logs/test_23_test/Exper_0/IS3_Ov_1to1_error.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/test_23_8_test/Exper_0/IS3_Ov_1to1_error.png")
     plt.show()
     plt.close()
     plt.figure(figsize=(8, 6))
     # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
     # contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(20,20),levs)  # Transpose to match dimensions
-    contour = plt.contourf(Kp_grid, Ki_grid, 1*TransoentTime_all_error.reshape(n_grid,n_grid))  # Transpose to match dimensions
+    contour = plt.contourf(Kp_grid, Ki_grid, w4*TransientTime_all_error.reshape(n_grid,n_grid))  # Transpose to match dimensions
     plt.colorbar(contour, label='Error Weighted Transient Time')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('error $w.T_{tr}$')
-    plt.savefig("/home/nobar/codes/GBO2/logs/test_23_test/Exper_0/IS3_Ttr_1to1_error.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/test_23_8_test/Exper_0/IS3_Ttr_1to1_error.png")
     plt.show()
 
 
@@ -533,7 +554,7 @@ def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_
     plt.ylabel('$J^{*}$')
     plt.legend()
     plt.grid(True)
-    plt.ylim(0.9, 1.4)  # Focus range
+    # plt.ylim(0.9, 1.4)  # Focus range
     plt.title("Mean with 95% Confidence Interval")
     plt.savefig(path+"/J_min_obs_IS1_Mean_Unbiased_cost_sampling_95Conf.png")
     plt.show()
@@ -563,7 +584,7 @@ def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_
     plt.ylabel('$J^{*}$')
     plt.legend()
     plt.grid(True)
-    plt.ylim(0.9, 1.4)  # Focus range
+    # plt.ylim(0.9, 1.4)  # Focus range
     plt.title("Mean with 95% Confidence Interval")
     plt.savefig(path+"/J_min_obs_IS1_Mean_IS1onlySamplingCost_95Conf.png")
     plt.show()
@@ -731,24 +752,37 @@ def normalize_objective(obj, min_bound, max_bound):
     return (obj - min_bound) / (max_bound - min_bound) if max_bound != min_bound else 0.5
 
 if __name__ == "__main__":
-    # plot_gt()
+    plot_gt()
+
+    # # check objective scales
+    # IS1 = scipy.io.loadmat("/home/nobar/Documents/introductions/simulink_model/IS1_Exper_0_8x8_metrics.mat")
+    # IS2 = scipy.io.loadmat("/home/nobar/Documents/introductions/simulink_model/IS2_Exper_0_8x8_metrics.mat")
+    # IS3 = scipy.io.loadmat("/home/nobar/codes/GBO2/logs/test_23_8_test/Exper_0/IS3_Exper_0_1to1_8x8.mat")
+    # IS3_1to2 = scipy.io.loadmat("/home/nobar/codes/GBO2/logs/test_23_8_test/Exper_0/IS3_Exper_0_1to2_8x8.mat")
+    # obj_IS3_1to2 = IS3_1to2["Objective_all"]
+    # diff_obj_IS3_1to2=obj_IS3_1to2.max() - obj_IS3_1to2.min()
+    # obj_IS3 = IS3["Objective_all"]
+    # diff_obj_IS3=obj_IS3.max() - obj_IS3.min()
+    # obj_IS2 = IS2["Objective_all"]
+    # diff_obj_IS2=obj_IS2.max() - obj_IS2.min()
+    # obj_IS1 = IS1["Objective_all"]
+    # diff_obj_IS1=obj_IS1.max() - obj_IS1.min()
 
     # plot_cost_coef()
 
-
-    path = "/home/nobar/codes/GBO2/logs/test_23_8/"
-    path2 = "/home/nobar/codes/GBO2/logs/test_23_6/"
+    path = "/home/nobar/codes/GBO2/logs/test_23_8_baseline/"
+    path2 = "/home/nobar/codes/GBO2/logs/test_23_8/"
     N_init_IS1=2
     N_init_IS2=0
-    sampling_cost_bias=30
+    sampling_cost_bias=25
     N_exper=10
     N_iter=10
     s2 = 0.1
     s3 = 0.05
     BATCH_SIZE=4
 
-    # for i in range(N_exper):
-    for i in range(N_exper):
+    # plot GP surrogates
+    for i in range(3):
         print(i)
         train_x=np.load(path+"Exper_"+str(i)+"/"+"train_x.npy")
         train_obj=np.load(path+"Exper_"+str(i)+"/"+"train_obj.npy")
@@ -757,8 +791,7 @@ if __name__ == "__main__":
             train_obj_i=train_obj[0:N_init_IS1+N_init_IS2+j*BATCH_SIZE,:]
             plot_EIonly_GP(j, path+"Exper_"+str(i)+"/", train_x_i,train_obj_i)
 
-    # for i in range(N_exper):
-    for i in range(N_exper):
+    for i in range(3):
         print(i)
         train_x=np.load(path+"Exper_"+str(i)+"/"+"train_x_EIonly.npy")
         train_obj=np.load(path+"Exper_"+str(i)+"/"+"train_obj_EIonly.npy")
