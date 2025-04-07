@@ -367,7 +367,7 @@ for exper in range(N_exper):
     print("**********Experiment {}**********".format(exper))
     # /cluster/home/mnobar/code/GBO2
     # /home/nobar/codes/GBO2
-    path = "/cluster/home/mnobar/code/GBO2/logs/test_29_baseline/Exper_{}".format(str(exper))
+    path = "/cluster/home/mnobar/code/GBO2/logs/test_29_baseline_1/Exper_{}".format(str(exper))
     # Check if the directory exists, if not, create it
     if not os.path.exists(path):
         os.makedirs(path)
@@ -416,7 +416,7 @@ for exper in range(N_exper):
         cost_model.b_iter=i+1 #batch iteration for adaptive cost
         mll, model = initialize_model(train_x, train_obj)
         fit_gpytorch_mll(mll)
-        plot_GP(model, i, path, train_x)
+        # plot_GP(model, i, path, train_x)
         mfkg_acqf = get_mfkg(model)
         new_x, new_obj, cost = optimize_mfkg_and_get_observation(mfkg_acqf)
         train_x = torch.cat([train_x, new_x])
@@ -450,7 +450,7 @@ for exper in range(N_exper):
     for i in range(N_ITER):
         mll, model = initialize_model(train_x, train_obj)
         fit_gpytorch_mll(mll)
-        plot_EIonly_GP(model, i, path,train_x)
+        # plot_EIonly_GP(model, i, path,train_x)
         ei_acqf = get_ei(model, best_f=train_obj.max())
         new_x, new_obj, cost = optimize_ei_and_get_observation(ei_acqf)
         train_x = torch.cat([train_x, new_x])

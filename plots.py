@@ -64,6 +64,10 @@ def plot_gt():
     mat_data = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/test_23_test/Exper_0/IS2_Exper_0_8x8_metrics.mat')
     mat_data2 = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/test_23_test/Exper_0/IS1_Exper_0_8x8_metrics.mat')
     n_grid=8
+    obj_IS2_grid = np.load("/home/nobar/Documents/introductions/simulink_model/IS2_new_1_obj.npy")
+    obj_IS1_grid = np.load("/home/nobar/Documents/introductions/simulink_model/IS1_new_1_obj.npy")
+    def normalize_objective(obj, obj_grid):
+        return (obj - obj_grid.mean()) / (obj_grid.std())
 
     # Extract the variables
     Kp = mat_data['Kp'].squeeze()  # Ensure it's a 1D array
@@ -74,6 +78,11 @@ def plot_gt():
     TransientTime_all = mat_data['TransientTime_all']  # Should be a 2D array
     SettlingTime_all = mat_data['SettlingTime_all']  # Should be a 2D array
     Overshoot_all = mat_data['Overshoot_all']  # Should be a 2D array
+
+    RiseTime2_all = mat_data2['RiseTime_all']  # Should be a 2D array
+    TransientTime2_all = mat_data2['TransientTime_all']  # Should be a 2D array
+    SettlingTime2_all = mat_data2['SettlingTime_all']  # Should be a 2D array
+    Overshoot2_all = mat_data2['Overshoot_all']  # Should be a 2D array
 
     
     Objective_all_error = mat_data['Objective_all']-mat_data2['Objective_all']  # Should be a 2D array
@@ -102,7 +111,7 @@ def plot_gt():
     w3=1.5
     w4=1.5
     new_obj=w1*RiseTime_all+w2*Overshoot_all+w4*TransientTime_all+w3*SettlingTime_all
-
+    new_obj=normalize_objective(new_obj, obj_IS2_grid)
     # np.save("/home/nobar/codes/GBO2/logs/IS2_new_1_obj.npy",new_obj)
     # Create meshgrid for contour plot
     Kp_grid, Ki_grid = np.meshgrid(Kp, Kd)
@@ -115,8 +124,44 @@ def plot_gt():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('True Objective Contour Plot')
-    plt.savefig("/home/nobar/codes/GBO2/logs/test_23_8_test/Exper_0/IS2_Exper_0_8x8_metrics_NEW.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/test_29_baseline/IS2_Exper_0_8x8_metrics_normalized.png")
+    # plt.savefig("/home/nobar/codes/GBO2/logs/test_23_8_test/Exper_0/IS2_Exper_0_8x8_metrics_NEW.png")
     plt.show()
+
+    # new_obj2=w1*RiseTime2_all+w2*Overshoot2_all+w4*TransientTime2_all+w3*SettlingTime2_all
+    # new_obj2=normalize_objective(new_obj2, obj_IS2_grid)
+    # error_new_obj=new_obj2-new_obj
+    # # np.save("/home/nobar/codes/GBO2/logs/IS2_new_1_obj.npy",new_obj)
+    # # Create meshgrid for contour plot
+    # Kp_grid, Ki_grid = np.meshgrid(Kp, Kd)
+    # # Plot the contour
+    # plt.figure(figsize=(8, 6))
+    # # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
+    # # contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(20,20),levs)  # Transpose to match dimensions
+    # contour = plt.contourf(Kp_grid, Ki_grid, error_new_obj.reshape(n_grid,n_grid), levels=20)  # Transpose to match dimensions
+    # plt.colorbar(contour, label='$J_{IS2}-J_{IS1}$')
+    # plt.xlabel('Kp')
+    # plt.ylabel('Kd')
+    # plt.title('Error True Objective Contour Plot')
+    # plt.savefig("/home/nobar/codes/GBO2/logs/test_29_baseline/ERROR_Exper_0_8x8_metrics_normalized.png")
+    # # plt.savefig("/home/nobar/codes/GBO2/logs/test_23_8_test/Exper_0/IS2_Exper_0_8x8_metrics_NEW.png")
+    # plt.show()
+    # error_new_obj=new_obj2-new_obj
+    # # np.save("/home/nobar/codes/GBO2/logs/IS2_new_1_obj.npy",new_obj)
+    # # Create meshgrid for contour plot
+    # Kp_grid, Ki_grid = np.meshgrid(Kp, Kd)
+    # # Plot the contour
+    # plt.figure(figsize=(8, 6))
+    # # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
+    # # contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(20,20),levs)  # Transpose to match dimensions
+    # contour = plt.contourf(Kp_grid, Ki_grid, abs(error_new_obj).reshape(n_grid,n_grid), levels=20)  # Transpose to match dimensions
+    # plt.colorbar(contour, label='|$J_{IS2}-J_{IS1}$|')
+    # plt.xlabel('Kp')
+    # plt.ylabel('Kd')
+    # plt.title('Error True Objective Contour Plot')
+    # plt.savefig("/home/nobar/codes/GBO2/logs/test_29_baseline/ABS_ERROR_Exper_0_8x8_metrics_normalized.png")
+    # # plt.savefig("/home/nobar/codes/GBO2/logs/test_23_8_test/Exper_0/IS2_Exper_0_8x8_metrics_NEW.png")
+    # plt.show()
 
     plt.figure(figsize=(8, 6))
     # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
@@ -463,10 +508,10 @@ def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_
 
     costs_IS2_all=[]
     costs_IS3_all=[]
-    for i in range(10):
+    for i in range(N_exper):
         costs_IS2_all_=[]
         costs_IS3_all_=[]
-        for j in range(10):
+        for j in range(N_iter):
             costs_IS2_all_.append(np.sum((idx_IS2_all_rest[i] < 4 * (j+1)) * (idx_IS2_all_rest[i] > 4 * j)) * s2)
             costs_IS3_all_.append(np.sum((idx_IS3_all_rest[i] < 4 * (j+1)) * (idx_IS3_all_rest[i] > 4 * j)) * s3)
         costs_IS2_all.append(costs_IS2_all_)
@@ -623,14 +668,14 @@ def plot_cost_coef():
 def plot_EIonly_GP(iter, path, train_x_i,train_obj_i):
     # Step 3: Define fidelity levels and create a grid for plotting
     # uncomment for my idea
-    fidelities = [1.0, 0.1, 0.05]  # Three fidelity levels
+    fidelities = [1.0, 0]  # Three fidelity levels
     # fidelities = [1.0, 0.5]
     x1 = torch.linspace(0, 1, 50)
     x2 = torch.linspace(0, 1, 50)
     X1, X2 = torch.meshgrid(x1, x2, indexing="ij")
 
     # Step 4: Prepare the figure with 3x2 subplots
-    fig, axs = plt.subplots(len(fidelities), 2, figsize=(14, 18))
+    fig, axs = plt.subplots(len(fidelities), 2, figsize=(14, 6*fidelities.__len__()))
 
     for i, s_val in enumerate(fidelities):
         s_fixed = torch.tensor([[s_val]])
@@ -683,14 +728,14 @@ def plot_EIonly_GP(iter, path, train_x_i,train_obj_i):
 def plot_EIonly_GP_EIonly(iter, path, train_x_i,train_obj_i):
     # Step 3: Define fidelity levels and create a grid for plotting
     # uncomment for my idea
-    fidelities = [1.0, 0.1, 0.05]  # Three fidelity levels
+    fidelities = [1.0]  # Three fidelity levels
     # fidelities = [1.0, 0.5]
     x1 = torch.linspace(0, 1, 50)
     x2 = torch.linspace(0, 1, 50)
     X1, X2 = torch.meshgrid(x1, x2, indexing="ij")
 
     # Step 4: Prepare the figure with 3x2 subplots
-    fig, axs = plt.subplots(len(fidelities), 2, figsize=(14, 18))
+    fig, axs = plt.subplots(len(fidelities), 2, figsize=(14, 6*fidelities.__len__()))
 
     for i, s_val in enumerate(fidelities):
         s_fixed = torch.tensor([[s_val]])
@@ -710,27 +755,26 @@ def plot_EIonly_GP_EIonly(iter, path, train_x_i,train_obj_i):
         mean= np.load(path + "/EIonly_mean_{}.npy".format(str(iter)))
         std=np.load(path + "/EIonly_std_{}.npy".format(str(iter)))
         # Plot the posterior mean
-        contour_mean = axs[i, 0].contourf(X1.numpy(), X2.numpy(), mean.T, cmap='viridis')
-        axs[i, 0].set_title(f"Posterior Mean (s={s_val})")
-        fig.colorbar(contour_mean, ax=axs[i, 0])
+        contour_mean = axs[i].contourf(X1.numpy(), X2.numpy(), mean.T, cmap='viridis')
+        axs[0].set_title(f"Posterior Mean (s={s_val})")
+        fig.colorbar(contour_mean, ax=axs[0])
 
         # Plot the posterior standard deviation
-        contour_std = axs[i, 1].contourf(X1.numpy(), X2.numpy(), std.T, cmap='viridis')
-        axs[i, 1].set_title(f"Posterior Standard Deviation (s={s_val})")
-        fig.colorbar(contour_std, ax=axs[i, 1])
+        contour_std = axs[1].contourf(X1.numpy(), X2.numpy(), std.T, cmap='viridis')
+        axs[1].set_title(f"Posterior Standard Deviation (s={s_val})")
+        fig.colorbar(contour_std, ax=axs[1])
 
-        scatter_train_x = axs[i, 0].scatter(train_x_i[:,0], train_x_i[:,1], c='b',linewidth=15)
-        # scatter_train_x = axs[i, 0].scatter(train_x_i[np.argwhere(train_x_i[:,2]==s_val),0], train_x_i[np.argwhere(train_x_i[:,2]==s_val),1], c='r',linewidth=15)
+        scatter_train_x = axs[0].scatter(train_x_i[:,0], train_x_i[:,1], c='b',linewidth=15)
+        # scatter_train_x = axs[0].scatter(train_x_i[np.argwhere(train_x_i[:,2]==s_val),0], train_x_i[np.argwhere(train_x_i[:,2]==s_val),1], c='r',linewidth=15)
 
         # np.save(path + "/EIonly_X1_{}.npy".format(str(iter)), X1)
         # np.save(path + "/EIonly_X2_{}.npy".format(str(iter)), X2)
         # np.save(path + "/EIonly_mean_{}.npy".format(str(iter)), mean)
         # np.save(path + "/EIonly_std_{}.npy".format(str(iter)), std)
 
-        # Axis labels
-        for ax in axs[i]:
-            ax.set_xlabel("$x_1$")
-            ax.set_ylabel("$x_2$")
+
+        plt.xlabel("$x_1$")
+        plt.ylabel("$x_2$")
 
     plt.tight_layout()
     plt.savefig(path + "/withTrainData_EIonly_GP_itr_{}.png".format(str(iter)))
@@ -771,34 +815,34 @@ if __name__ == "__main__":
 
     # plot_cost_coef()
 
-    path = "/home/nobar/codes/GBO2/logs/test_29_baseline/"
-    path2 = "/home/nobar/codes/GBO2/logs/test_23_8_baseline/"
+    path = "/home/nobar/codes/GBO2/logs/test_MT_29_baseline/"
+    path2 = "/home/nobar/codes/GBO2/logs/test_29_baseline/"
     N_init_IS1=2
-    N_init_IS2=0
+    N_init_IS2=2
     sampling_cost_bias=25
     N_exper=10
     N_iter=10
-    s2 = 0.1
+    s2 = 0
     s3 = 0.05
     BATCH_SIZE=4
 
-    # plot GP surrogates
-    for i in range(3):
-        print(i)
-        train_x=np.load(path+"Exper_"+str(i)+"/"+"train_x.npy")
-        train_obj=np.load(path+"Exper_"+str(i)+"/"+"train_obj.npy")
-        for  j in range(N_iter):
-            train_x_i=train_x[0:N_init_IS1+N_init_IS2+j*BATCH_SIZE,:]
-            train_obj_i=train_obj[0:N_init_IS1+N_init_IS2+j*BATCH_SIZE,:]
-            plot_EIonly_GP(j, path+"Exper_"+str(i)+"/", train_x_i,train_obj_i)
+    # # plot GP surrogates
+    # for i in range(5):
+    #     print("plotting traning data on surrogate model per iteration... ",i)
+    #     train_x=np.load(path+"Exper_"+str(i)+"/"+"train_x.npy")
+    #     train_obj=np.load(path+"Exper_"+str(i)+"/"+"train_obj.npy")
+    #     for  j in range(N_iter):
+    #         train_x_i=train_x[0:N_init_IS1+N_init_IS2+j*BATCH_SIZE,:]
+    #         train_obj_i=train_obj[0:N_init_IS1+N_init_IS2+j*BATCH_SIZE,:]
+    #         plot_EIonly_GP(j, path+"Exper_"+str(i)+"/", train_x_i,train_obj_i)
 
-    for i in range(3):
-        print(i)
+    for i in range(5):
+        print("plotting traning data on surrogate model per iteration... ",i)
         train_x=np.load(path+"Exper_"+str(i)+"/"+"train_x_EIonly.npy")
         train_obj=np.load(path+"Exper_"+str(i)+"/"+"train_obj_EIonly.npy")
         for  j in range(N_iter):
-            train_x_i=train_x[0:N_init_IS1+N_init_IS2+j*BATCH_SIZE,:]
-            train_obj_i=train_obj[0:N_init_IS1+N_init_IS2+j*BATCH_SIZE,:]
+            train_x_i=train_x[0:N_init_IS1+j*BATCH_SIZE,:]
+            train_obj_i=train_obj[0:N_init_IS1+j*BATCH_SIZE,:]
             plot_EIonly_GP_EIonly(j, path+"Exper_"+str(i)+"/", train_x_i,train_obj_i)
 
 
