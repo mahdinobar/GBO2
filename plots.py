@@ -752,7 +752,8 @@ def normalize_objective(obj, min_bound, max_bound):
     return (obj - min_bound) / (max_bound - min_bound) if max_bound != min_bound else 0.5
 
 if __name__ == "__main__":
-    plot_gt()
+
+    # plot_gt()
 
     # # check objective scales
     # IS1 = scipy.io.loadmat("/home/nobar/Documents/introductions/simulink_model/IS1_Exper_0_8x8_metrics.mat")
@@ -770,8 +771,8 @@ if __name__ == "__main__":
 
     # plot_cost_coef()
 
-    path = "/home/nobar/codes/GBO2/logs/test_23_8_baseline/"
-    path2 = "/home/nobar/codes/GBO2/logs/test_23_8/"
+    path = "/home/nobar/codes/GBO2/logs/test_29_baseline/"
+    path2 = "/home/nobar/codes/GBO2/logs/test_23_8_baseline/"
     N_init_IS1=2
     N_init_IS2=0
     sampling_cost_bias=25
