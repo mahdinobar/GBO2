@@ -61,7 +61,7 @@ def plot_colortable(colors, *, ncols=4, sort_colors=True):
     return fig
 def plot_gt():
     # Load the .mat file
-    mat_data = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/test_23_test/Exper_0/IS1_Exper_0_8x8_metrics.mat')
+    mat_data = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/misc/IS2_8x8_metrics_noise_scale_01.mat')
     mat_data2 = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/test_23_test/Exper_0/IS1_Exper_0_8x8_metrics.mat')
     n_grid=8
     obj_IS2_grid = np.load("/home/nobar/Documents/introductions/simulink_model/IS2_new_1_obj.npy")
@@ -111,8 +111,9 @@ def plot_gt():
     w3=1.5
     w4=1.5
     new_obj=w1*RiseTime_all+w2*Overshoot_all+w4*TransientTime_all+w3*SettlingTime_all
-    new_obj=normalize_objective(new_obj, obj_IS2_grid)
+    # new_obj=normalize_objective(new_obj, obj_IS2_grid)
     # np.save("/home/nobar/codes/GBO2/logs/IS2_new_1_obj.npy",new_obj)
+    np.save("/home/nobar/codes/GBO2/logs/IS2_new_1_obj_noise_scale_01.npy",new_obj)
     # Create meshgrid for contour plot
     Kp_grid, Ki_grid = np.meshgrid(Kp, Kd)
     # Plot the contour
