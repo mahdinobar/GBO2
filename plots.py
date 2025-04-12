@@ -113,7 +113,7 @@ def plot_gt():
     new_obj=w1*RiseTime_all+w2*Overshoot_all+w4*TransientTime_all+w3*SettlingTime_all
     # new_obj=normalize_objective(new_obj, obj_IS2_grid)
     # np.save("/home/nobar/codes/GBO2/logs/IS2_new_1_obj.npy",new_obj)
-    np.save("/home/nobar/codes/GBO2/logs/IS2_new_1_obj_noise_scale_01.npy",new_obj)
+    # np.save("/home/nobar/codes/GBO2/logs/IS2_new_1_obj_noise_scale_01.npy",new_obj)
     # Create meshgrid for contour plot
     Kp_grid, Ki_grid = np.meshgrid(Kp, Kd)
     # Plot the contour
@@ -952,8 +952,8 @@ def plot_real():
 
 if __name__ == "__main__":
 
-    plot_gt()
-    plot_real()
+    # plot_gt()
+    # plot_real()
 
     # # check objective scales
     # IS1 = scipy.io.loadmat("/home/nobar/Documents/introductions/simulink_model/IS1_Exper_0_8x8_metrics.mat")
@@ -971,7 +971,7 @@ if __name__ == "__main__":
 
     # plot_cost_coef()
 
-    path = "/home/nobar/codes/GBO2/logs/test_29_baseline_1/"
+    path = "/home/nobar/codes/GBO2/logs/test_29_baseline_4/"
     path2 = "/home/nobar/codes/GBO2/logs/test_29_baseline/"
     N_init_IS1=2
     N_init_IS2=0
@@ -982,24 +982,24 @@ if __name__ == "__main__":
     s3 = 0.05
     BATCH_SIZE=4
 
-    # plot GP surrogates
-    for i in range(3,N_exper):
-        print("plotting traning data on surrogate model per iteration... ",i)
-        train_x=np.load(path+"Exper_"+str(i)+"/"+"train_x.npy")
-        train_obj=np.load(path+"Exper_"+str(i)+"/"+"train_obj.npy")
-        for  j in range(N_iter):
-            train_x_i=train_x[0:N_init_IS1+N_init_IS2+j*BATCH_SIZE,:]
-            train_obj_i=train_obj[0:N_init_IS1+N_init_IS2+j*BATCH_SIZE,:]
-            plot_GPs(j, path+"Exper_"+str(i)+"/", train_x_i,train_obj_i)
-
-    for i in range(3,N_exper):
-        print("plotting traning data on surrogate model per iteration... ",i)
-        train_x=np.load(path+"Exper_"+str(i)+"/"+"train_x_EIonly.npy")
-        train_obj=np.load(path+"Exper_"+str(i)+"/"+"train_obj_EIonly.npy")
-        for  j in range(N_iter):
-            train_x_i=train_x[0:N_init_IS1+j*BATCH_SIZE,:]
-            train_obj_i=train_obj[0:N_init_IS1+j*BATCH_SIZE,:]
-            plot_EIonly_GP(j, path+"Exper_"+str(i)+"/", train_x_i,train_obj_i)
+    # # plot GP surrogates
+    # for i in range(3):
+    #     print("plotting traning data on surrogate model per iteration... ",i)
+    #     train_x=np.load(path+"Exper_"+str(i)+"/"+"train_x.npy")
+    #     train_obj=np.load(path+"Exper_"+str(i)+"/"+"train_obj.npy")
+    #     for  j in range(N_iter):
+    #         train_x_i=train_x[0:N_init_IS1+N_init_IS2+j*BATCH_SIZE,:]
+    #         train_obj_i=train_obj[0:N_init_IS1+N_init_IS2+j*BATCH_SIZE,:]
+    #         plot_GPs(j, path+"Exper_"+str(i)+"/", train_x_i,train_obj_i)
+    #
+    # for i in range(3):
+    #     print("plotting traning data on surrogate model per iteration... ",i)
+    #     train_x=np.load(path+"Exper_"+str(i)+"/"+"train_x_EIonly.npy")
+    #     train_obj=np.load(path+"Exper_"+str(i)+"/"+"train_obj_EIonly.npy")
+    #     for  j in range(N_iter):
+    #         train_x_i=train_x[0:N_init_IS1+j*BATCH_SIZE,:]
+    #         train_obj_i=train_obj[0:N_init_IS1+j*BATCH_SIZE,:]
+    #         plot_EIonly_GP(j, path+"Exper_"+str(i)+"/", train_x_i,train_obj_i)
 
 
     # validate identical initial dataset

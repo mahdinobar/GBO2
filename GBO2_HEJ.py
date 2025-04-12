@@ -165,7 +165,7 @@ def plot_GP(model, iter, path,train_x):
     X1, X2 = torch.meshgrid(x1, x2, indexing="ij")
 
     # Step 4: Prepare the figure with 3x2 subplots
-    fig, axs = plt.subplots(len(fidelities), 2, figsize=(14, 18))
+    fig, axs = plt.subplots(len(fidelities), 2, figsize=(14, 6*fidelities.__len__()))
 
     for i, s_val in enumerate(fidelities):
         s_fixed = torch.tensor([[s_val]])
@@ -222,7 +222,7 @@ def plot_EIonly_GP(model, iter, path,train_x):
     X1, X2 = torch.meshgrid(x1, x2, indexing="ij")
 
     # Step 4: Prepare the figure with 3x2 subplots
-    fig, axs = plt.subplots(len(fidelities), 2, figsize=(14, 18))
+    fig, axs = plt.subplots(len(fidelities), 2, figsize=(14, 6*fidelities.__len__()))
 
     for i, s_val in enumerate(fidelities):
         s_fixed = torch.tensor([[s_val]])
@@ -367,7 +367,7 @@ for exper in range(N_exper):
     print("**********Experiment {}**********".format(exper))
     # /cluster/home/mnobar/code/GBO2
     # /home/nobar/codes/GBO2
-    path = "/cluster/home/mnobar/code/GBO2/logs/test_29_baseline_3/Exper_{}".format(str(exper))
+    path = "/cluster/home/mnobar/code/GBO2/logs/test_29_baseline_2/Exper_{}".format(str(exper))
     # Check if the directory exists, if not, create it
     if not os.path.exists(path):
         os.makedirs(path)
@@ -417,7 +417,7 @@ for exper in range(N_exper):
         mll, model = initialize_model(train_x, train_obj)
         # train the GP model
         fit_gpytorch_mll(mll)
-        # plot_GP(model, i, path, train_x)
+        plot_GP(model, i, path, train_x)
         mfkg_acqf = get_mfkg(model)
         new_x, new_obj, cost = optimize_mfkg_and_get_observation(mfkg_acqf)
         train_x = torch.cat([train_x, new_x])
@@ -451,7 +451,7 @@ for exper in range(N_exper):
     for i in range(N_ITER):
         mll, model = initialize_model(train_x, train_obj)
         fit_gpytorch_mll(mll)
-        # plot_EIonly_GP(model, i, path,train_x)
+        plot_EIonly_GP(model, i, path,train_x)
         ei_acqf = get_ei(model, best_f=train_obj.max())
         new_x, new_obj, cost = optimize_ei_and_get_observation(ei_acqf)
         train_x = torch.cat([train_x, new_x])
