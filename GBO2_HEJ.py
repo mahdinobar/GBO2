@@ -38,9 +38,11 @@ from botorch.acquisition.fixed_feature import FixedFeatureAcquisitionFunction
 from botorch.optim.optimize import optimize_acqf
 from botorch.acquisition.utils import project_to_target_fidelity
 from botorch.optim.optimize import optimize_acqf_mixed
-from botorch.acquisition import qExpectedImprovement, AnalyticAcquisitionFunction, ExpectedImprovement, AcquisitionFunction
+from botorch.acquisition import qExpectedImprovement, AnalyticAcquisitionFunction, ExpectedImprovement, \
+    AcquisitionFunction
 from botorch.utils.sampling import draw_sobol_samples  # Quasi-random sampling
 from botorch.utils import t_batch_mode_transform
+
 
 def set_seed(seed: int):
     """Set seed for reproducibility in Python, NumPy, and PyTorch."""
@@ -126,31 +128,45 @@ class ExpectedImprovementWithCost(AcquisitionFunction):
     factor that reduces or increases the emphasis of the cost model c(x).
     """
 
-    def __init__(self, model, best_f, cost_model, alpha=1):
+    def __init__(self, model, cost_model, best_f_s1, best_f_s2, alpha=1):
         super().__init__(model=model)
         self.model = model
         self.cost_model = cost_model
-        self.ei = qExpectedImprovement(model=model, best_f=best_f)
+        # self.ei_s1 = qExpectedImprovement(model=model, best_f=best_f_s1)
+        # self.ei_s2 = qExpectedImprovement(model=model, best_f=best_f_s2)
+        self.best_f_s1 = best_f_s1
+        self.best_f_s2 = best_f_s2
         self.alpha = alpha
         self.X_pending = None
 
     @t_batch_mode_transform()
     def forward(self, X):
+        # for i in range(X[:, :, -1].__len__()):
+        fidelities = X[:, :, -1].squeeze(-1)
+        best_f_s = torch.where(fidelities == 1, self.best_f_s1, self.best_f_s2)
+        # # Chain torch.where for more than 2 IS
+        # A = torch.where(fidelities == s1, best_f_s1,
+        #                 torch.where(fidelities == s2, best_f_s2, best_f_s3))
+        self.ei = qExpectedImprovement(model=model, best_f=best_f_s)
         return self.ei(X) / torch.pow(self.cost_model(X)[:, 0], self.alpha).squeeze()
 
-def get_cost_aware_ei(model, best_f, cost_model, alpha):
+
+def get_cost_aware_ei(model, cost_model, best_f_s1, best_f_s2, alpha):
     eipu = ExpectedImprovementWithCost(
         model=model,
-        best_f=best_f,
         cost_model=cost_model,
+        best_f_s1=best_f_s1,
+        best_f_s2=best_f_s2,
         alpha=alpha,
     )
     return eipu
 
 
 def optimize_caEI_and_get_observation(caEI):
-    candidates, _ = optimize_acqf_mixed(acq_function=caEI, bounds=bounds, fixed_features_list=[{2: 0.1}, {2: 1.0}], q=BATCH_SIZE,
-                            num_restarts=NUM_RESTARTS, raw_samples=RAW_SAMPLES,         options={"batch_limit": 4, "maxiter": 50}, )
+    candidates, _ = optimize_acqf_mixed(acq_function=caEI, bounds=bounds, fixed_features_list=[{2: 0.1}, {2: 1.0}],
+                                        q=BATCH_SIZE,
+                                        num_restarts=NUM_RESTARTS, raw_samples=RAW_SAMPLES,
+                                        options={"batch_limit": 4, "maxiter": 50}, )
     # observe new values
     cost = cost_model(candidates).sum()
     new_x = candidates.detach()
@@ -158,6 +174,7 @@ def optimize_caEI_and_get_observation(caEI):
     print(f"candidates:\n{new_x}\n")
     print(f"observations:\n{new_obj}\n\n")
     return new_x, new_obj, cost
+
 
 def optimize_mfkg_and_get_observation(mfkg_acqf):
     """Optimizes MFKG and returns a new candidate, observation, and cost."""
@@ -184,8 +201,7 @@ def optimize_mfkg_and_get_observation(mfkg_acqf):
     return new_x, new_obj, cost
 
 
-
-def plot_GP(model, iter, path,train_x):
+def plot_GP(model, iter, path, train_x):
     # Step 3: Define fidelity levels and create a grid for plotting
     # uncomment for my idea
     fidelities = [1.0, 0.1]  # Three fidelity levels
@@ -195,7 +211,7 @@ def plot_GP(model, iter, path,train_x):
     X1, X2 = torch.meshgrid(x1, x2, indexing="ij")
 
     # Step 4: Prepare the figure with 3x2 subplots
-    fig, axs = plt.subplots(len(fidelities), 2, figsize=(14, 6*fidelities.__len__()))
+    fig, axs = plt.subplots(len(fidelities), 2, figsize=(14, 6 * fidelities.__len__()))
 
     for i, s_val in enumerate(fidelities):
         s_fixed = torch.tensor([[s_val]])
@@ -223,8 +239,8 @@ def plot_GP(model, iter, path,train_x):
         axs[i, 1].set_title(f"Posterior Standard Deviation (s={s_val})")
         fig.colorbar(contour_std, ax=axs[i, 1])
 
-        scatter_train_x = axs[i, 0].scatter(train_x[np.argwhere(train_x[:,2]==s_val),0], train_x[np.argwhere(train_x[:,2]==s_val),1], c='r',linewidth=15)
-
+        scatter_train_x = axs[i, 0].scatter(train_x[np.argwhere(train_x[:, 2] == s_val), 0],
+                                            train_x[np.argwhere(train_x[:, 2] == s_val), 1], c='r', linewidth=15)
 
         np.save(path + "/X1_{}.npy".format(str(iter)), X1)
         np.save(path + "/X2_{}.npy".format(str(iter)), X2)
@@ -242,7 +258,8 @@ def plot_GP(model, iter, path,train_x):
     # plt.show()
     plt.close()
 
-def plot_EIonly_GP(model, iter, path,train_x):
+
+def plot_EIonly_GP(model, iter, path, train_x):
     # Step 3: Define fidelity levels and create a grid for plotting
     # uncomment for my idea
     fidelities = [1.0, 0.1]  # Three fidelity levels
@@ -252,7 +269,7 @@ def plot_EIonly_GP(model, iter, path,train_x):
     X1, X2 = torch.meshgrid(x1, x2, indexing="ij")
 
     # Step 4: Prepare the figure with 3x2 subplots
-    fig, axs = plt.subplots(len(fidelities), 2, figsize=(14, 6*fidelities.__len__()))
+    fig, axs = plt.subplots(len(fidelities), 2, figsize=(14, 6 * fidelities.__len__()))
 
     for i, s_val in enumerate(fidelities):
         s_fixed = torch.tensor([[s_val]])
@@ -280,7 +297,7 @@ def plot_EIonly_GP(model, iter, path,train_x):
         axs[i, 1].set_title(f"Posterior Standard Deviation (s={s_val})")
         fig.colorbar(contour_std, ax=axs[i, 1])
 
-        scatter_train_x = axs[i, 0].scatter(train_x[:,0], train_x[:,1], c='b',linewidth=15)
+        scatter_train_x = axs[i, 0].scatter(train_x[:, 0], train_x[:, 1], c='b', linewidth=15)
 
         np.save(path + "/EIonly_X1_{}.npy".format(str(iter)), X1)
         np.save(path + "/EIonly_X2_{}.npy".format(str(iter)), X2)
@@ -397,7 +414,7 @@ for exper in range(N_exper):
     print("**********Experiment {}**********".format(exper))
     # /cluster/home/mnobar/code/GBO2
     # /home/nobar/codes/GBO2
-    path = "/cluster/home/mnobar/code/GBO2/logs/test_31_b_2/Exper_{}".format(str(exper))
+    path = "/cluster/home/mnobar/code/GBO2/logs/test_31_b_4/Exper_{}".format(str(exper))
     # Check if the directory exists, if not, create it
     if not os.path.exists(path):
         os.makedirs(path)
@@ -420,7 +437,7 @@ for exper in range(N_exper):
 
     target_fidelities = {2: 1.0}
 
-    cost_model = AffineFidelityCostModel(fidelity_weights={2: 1.0}, fixed_cost=1)
+    cost_model = AffineFidelityCostModel(fidelity_weights={2: 1.0}, fixed_cost=5)
     cost_aware_utility = InverseCostWeightedUtility(cost_model=cost_model)
 
     torch.set_printoptions(precision=3, sci_mode=False)
@@ -443,7 +460,7 @@ for exper in range(N_exper):
     costs_all = np.zeros(N_ITER)
     for i in range(N_ITER):
         print("batch iteration=", i)
-        cost_model.b_iter=i+1 #batch iteration for adaptive cost
+        cost_model.b_iter = i + 1  # batch iteration for adaptive cost
         mll, model = initialize_model(train_x, train_obj)
         # train the GP model
         fit_gpytorch_mll(mll)
@@ -451,7 +468,9 @@ for exper in range(N_exper):
         # mfkg_acqf = get_mfkg(model)
         # new_x, new_obj, cost = optimize_mfkg_and_get_observation(mfkg_acqf)
 
-        caEI=get_cost_aware_ei(model, train_obj.max(), cost_model, alpha=1)
+        caEI = get_cost_aware_ei(model, cost_model,
+                                 best_f_s1=train_obj[np.argwhere(train_x[:, 2] == 1)].squeeze().max(),
+                                 best_f_s2=train_obj[np.argwhere(train_x[:, 2] == 0.1)].squeeze().max(), alpha=1)
         new_x, new_obj, cost = optimize_caEI_and_get_observation(caEI)
 
         # fixed_features_list = [
@@ -493,7 +512,7 @@ for exper in range(N_exper):
     for i in range(N_ITER):
         mll, model = initialize_model(train_x, train_obj)
         fit_gpytorch_mll(mll)
-        plot_EIonly_GP(model, i, path,train_x)
+        plot_EIonly_GP(model, i, path, train_x)
         ei_acqf = get_ei(model, best_f=train_obj.max())
         new_x, new_obj, cost = optimize_ei_and_get_observation(ei_acqf)
         train_x = torch.cat([train_x, new_x])

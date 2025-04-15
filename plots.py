@@ -313,7 +313,7 @@ def plot_kernels():
     plt.savefig("/home/nobar/codes/GBO2/logs/test_3/C1kernelCoefficient.png")
     plt.show()
 
-def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_bias,N_exper,N_iter, s2, s3):
+def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_bias,N_exper,N_iter, s2, s3, BATCH_SIZE):
     costs_all_list = []
     costs_all_list_EIonly = []
     train_x_list = []
@@ -457,11 +457,11 @@ def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_
     C=np.cumsum(costs, axis=1)
     C_mean=np.mean(C,axis=0)
     C_std=np.std(C,axis=0)
-    costs_EIonly=np.hstack((np.asarray(costs_init_EIonly).reshape(N_exper,1),np.ones((N_exper,N_iter))*(sampling_cost_bias+1)*4))
+    costs_EIonly=np.hstack((np.asarray(costs_init_EIonly).reshape(N_exper,1),np.ones((N_exper,N_iter))*(sampling_cost_bias+1)*BATCH_SIZE))
     C_EIonly=np.cumsum(costs_EIonly, axis=1)
     C_EIonly_mean=np.mean(C_EIonly,axis=0)
     C_EIonly_std=np.std(C_EIonly,axis=0)
-    x = np.arange(0,41,4)
+    x = np.arange(0,41,BATCH_SIZE)
     plt.figure(figsize=(10, 5))
     # plot_colortable(mcolors.CSS4_COLORS)
     # mcolors.CSS4_COLORS['blueviolet']
@@ -482,15 +482,15 @@ def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_
     plt.show()
 
 
-    costs=np.hstack((np.asarray(costs_init).reshape(N_exper,1)-sampling_cost_bias*(N_init_IS1+N_init_IS2),np.stack(costs_all_list)-sampling_cost_bias*4))
+    costs=np.hstack((np.asarray(costs_init).reshape(N_exper,1)-sampling_cost_bias*(N_init_IS1+N_init_IS2),np.stack(costs_all_list)-sampling_cost_bias*BATCH_SIZE))
     C=np.cumsum(costs, axis=1)
     C_mean=np.mean(C,axis=0)
     C_std=np.std(C,axis=0)
-    costs_EIonly=np.hstack((np.asarray(costs_init_EIonly).reshape(N_exper,1)-sampling_cost_bias*N_init_IS1,np.ones((N_exper,N_iter))*(1)*4))
+    costs_EIonly=np.hstack((np.asarray(costs_init_EIonly).reshape(N_exper,1)-sampling_cost_bias*N_init_IS1,np.ones((N_exper,N_iter))*(1)*BATCH_SIZE))
     C_EIonly=np.cumsum(costs_EIonly, axis=1)
     C_EIonly_mean=np.mean(C_EIonly,axis=0)
     C_EIonly_std=np.std(C_EIonly,axis=0)
-    x = np.arange(0,41,4)
+    x = np.arange(0,41,BATCH_SIZE)
     plt.figure(figsize=(10, 5))
     # plot_colortable(mcolors.CSS4_COLORS)
     # mcolors.CSS4_COLORS['blueviolet']
@@ -516,26 +516,26 @@ def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_
         costs_IS2_all_=[]
         costs_IS3_all_=[]
         for j in range(N_iter):
-            costs_IS2_all_.append(np.sum((idx_IS2_all_rest[i] < 4 * (j+1)) * (idx_IS2_all_rest[i] > 4 * j)) * s2)
-            costs_IS3_all_.append(np.sum((idx_IS3_all_rest[i] < 4 * (j+1)) * (idx_IS3_all_rest[i] > 4 * j)) * s3)
+            costs_IS2_all_.append(np.sum((idx_IS2_all_rest[i] < BATCH_SIZE * (j+1)) * (idx_IS2_all_rest[i] > BATCH_SIZE * j)) * s2)
+            costs_IS3_all_.append(np.sum((idx_IS3_all_rest[i] < BATCH_SIZE * (j+1)) * (idx_IS3_all_rest[i] > BATCH_SIZE * j)) * s3)
         costs_IS2_all.append(costs_IS2_all_)
         costs_IS3_all.append(costs_IS3_all_)
 
-    old_indices = np.linspace(0, 1, num=11)  # Original index positions
-    new_indices = np.linspace(0, 1, num=41)  # New index positions
+    old_indices = np.linspace(0, 1, num=1+N_iter)  # Original index positions
+    new_indices = np.linspace(0, 1, num=1+BATCH_SIZE*N_iter)  # New index positions
 
-    costs=np.hstack((np.asarray(costs_init).reshape(N_exper,1)-sampling_cost_bias*(N_init_IS1+N_init_IS2),np.stack(costs_all_list)-sampling_cost_bias*4))
+    costs=np.hstack((np.asarray(costs_init).reshape(N_exper,1)-sampling_cost_bias*(N_init_IS1+N_init_IS2),np.stack(costs_all_list)-sampling_cost_bias*BATCH_SIZE))
     C=np.cumsum(costs, axis=1)
     C_mean=np.mean(C,axis=0)
     C_std=np.std(C,axis=0)
-    costs_EIonly=np.hstack((np.asarray(costs_init_EIonly).reshape(N_exper,1)-sampling_cost_bias*(N_init_IS1),np.ones((N_exper,N_iter))*(1)*4))
+    costs_EIonly=np.hstack((np.asarray(costs_init_EIonly).reshape(N_exper,1)-sampling_cost_bias*(N_init_IS1),np.ones((N_exper,N_iter))*(1)*BATCH_SIZE))
     C_EIonly=np.cumsum(costs_EIonly, axis=1)
     C_EIonly_mean=np.mean(C_EIonly,axis=0)
     C_EIonly_std=np.std(C_EIonly,axis=0)
-    x_ = C_mean #np.arange(0,41,4)
+    x_ = C_mean #np.arange(0,41,BATCH_SIZE)
     # linear interpolation
     x = np.interp(new_indices, old_indices, x_)
-    x_EI_only_ = C_EIonly_mean #np.arange(0,41,4)
+    x_EI_only_ = C_EIonly_mean #np.arange(0,41,BATCH_SIZE)
     # linear interpolation
     x_EI_only = np.interp(new_indices, old_indices, x_EI_only_)
 
@@ -603,7 +603,7 @@ def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_
     plt.ylabel('$J^{*}$')
     plt.legend()
     plt.grid(True)
-    # plt.ylim(0.9, 1.4)  # Focus range
+    # plt.ylim(0.9, 1.BATCH_SIZE)  # Focus range
     plt.title("Mean with 95% Confidence Interval")
     plt.savefig(path+"/J_min_obs_IS1_Mean_Unbiased_cost_sampling_95Conf.png")
     plt.show()
@@ -613,10 +613,10 @@ def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_
     print("")
 
 
-    costs_IS1=np.hstack((np.asarray(costs_init_IS1).reshape(N_exper,1)-sampling_cost_bias*(N_init_IS1),np.stack(costs_all_list)-np.stack(costs_IS2_all)-np.stack(costs_IS3_all)-sampling_cost_bias*4))
+    costs_IS1=np.hstack((np.asarray(costs_init_IS1).reshape(N_exper,1)-sampling_cost_bias*(N_init_IS1),np.stack(costs_all_list)-np.stack(costs_IS2_all)-np.stack(costs_IS3_all)-sampling_cost_bias*BATCH_SIZE))
     C_IS1=np.cumsum(costs_IS1, axis=1)
     C_mean_IS1=np.mean(C_IS1,axis=0)
-    x_IS1_ = C_mean_IS1 #np.arange(0,41,4)
+    x_IS1_ = C_mean_IS1 #np.arange(0,41,BATCH_SIZE)
     x_IS1 = np.interp(new_indices, old_indices, x_IS1_)
     # Plot
     plt.figure(figsize=(10, 5))
@@ -971,16 +971,16 @@ if __name__ == "__main__":
 
     # plot_cost_coef()
 
-    path = "/home/nobar/codes/GBO2/logs/test_29_baseline_4/"
-    path2 = "/home/nobar/codes/GBO2/logs/test_29_baseline/"
+    path = "/home/nobar/codes/GBO2/logs/test_31_b_1/"
+    path2 = "/home/nobar/codes/GBO2/logs/test_29_baseline_6/"
     N_init_IS1=2
     N_init_IS2=0
-    sampling_cost_bias=25
+    sampling_cost_bias=5
     N_exper=10
-    N_iter=10
-    s2 = 0
+    N_iter=40
+    s2 = 0.1
     s3 = 0.05
-    BATCH_SIZE=4
+    BATCH_SIZE=1
 
     # # plot GP surrogates
     # for i in range(3):
@@ -1013,5 +1013,5 @@ if __name__ == "__main__":
         if np.sum(diffx)+np.sum(diffy)!=0:
             print(ValueError("ERROR: initial dataset not identical across trials!"))
 
-    plots_MonteCarlo_objective(path,N_init_IS1,N_init_IS2,sampling_cost_bias,N_exper,N_iter,s2,s3)
+    plots_MonteCarlo_objective(path,N_init_IS1,N_init_IS2,sampling_cost_bias,N_exper,N_iter,s2,s3, BATCH_SIZE)
 
