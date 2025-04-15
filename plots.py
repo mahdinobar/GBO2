@@ -971,10 +971,10 @@ if __name__ == "__main__":
 
     # plot_cost_coef()
 
-    path = "/home/nobar/codes/GBO2/logs/test_31_b_1/"
-    path2 = "/home/nobar/codes/GBO2/logs/test_29_baseline_6/"
+    path = "/home/nobar/codes/GBO2/logs/test_31_b_3/"
+    path2 = "/home/nobar/codes/GBO2/logs/test_31_b_1/"
     N_init_IS1=2
-    N_init_IS2=0
+    N_init_IS2=10
     sampling_cost_bias=5
     N_exper=10
     N_iter=40

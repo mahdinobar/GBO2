@@ -404,7 +404,7 @@ NUM_RESTARTS = 4 if not SMOKE_TEST else 2
 RAW_SAMPLES = 64 if not SMOKE_TEST else 4
 BATCH_SIZE = 1
 N_init_IS1 = 2 if not SMOKE_TEST else 2
-N_init_IS2 = 0 if not SMOKE_TEST else 2
+N_init_IS2 = 2 if not SMOKE_TEST else 2
 N_ITER = 40 if not SMOKE_TEST else 1
 
 # # generate seed for sobol initial dataset
