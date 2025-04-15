@@ -38,9 +38,9 @@ from botorch.acquisition.fixed_feature import FixedFeatureAcquisitionFunction
 from botorch.optim.optimize import optimize_acqf
 from botorch.acquisition.utils import project_to_target_fidelity
 from botorch.optim.optimize import optimize_acqf_mixed
-from botorch.acquisition import qExpectedImprovement
+from botorch.acquisition import qExpectedImprovement, AnalyticAcquisitionFunction, ExpectedImprovement, AcquisitionFunction
 from botorch.utils.sampling import draw_sobol_samples  # Quasi-random sampling
-
+from botorch.utils import t_batch_mode_transform
 
 def set_seed(seed: int):
     """Set seed for reproducibility in Python, NumPy, and PyTorch."""
@@ -120,6 +120,45 @@ def get_mfkg(model):
     )
 
 
+class ExpectedImprovementWithCost(AcquisitionFunction):
+    """
+    This is the acquisition function EI(x) / c(x) ^ alpha, where alpha is a decay
+    factor that reduces or increases the emphasis of the cost model c(x).
+    """
+
+    def __init__(self, model, best_f, cost_model, alpha=1):
+        super().__init__(model=model)
+        self.model = model
+        self.cost_model = cost_model
+        self.ei = qExpectedImprovement(model=model, best_f=best_f)
+        self.alpha = alpha
+        self.X_pending = None
+
+    @t_batch_mode_transform()
+    def forward(self, X):
+        return self.ei(X) / torch.pow(self.cost_model(X)[:, 0], self.alpha).squeeze()
+
+def get_cost_aware_ei(model, best_f, cost_model, alpha):
+    eipu = ExpectedImprovementWithCost(
+        model=model,
+        best_f=best_f,
+        cost_model=cost_model,
+        alpha=alpha,
+    )
+    return eipu
+
+
+def optimize_caEI_and_get_observation(caEI):
+    candidates, _ = optimize_acqf_mixed(acq_function=caEI, bounds=bounds, fixed_features_list=[{2: 0.1}, {2: 1.0}], q=BATCH_SIZE,
+                            num_restarts=NUM_RESTARTS, raw_samples=RAW_SAMPLES,         options={"batch_limit": 4, "maxiter": 50}, )
+    # observe new values
+    cost = cost_model(candidates).sum()
+    new_x = candidates.detach()
+    new_obj = problem(new_x).unsqueeze(-1)
+    print(f"candidates:\n{new_x}\n")
+    print(f"observations:\n{new_obj}\n\n")
+    return new_x, new_obj, cost
+
 def optimize_mfkg_and_get_observation(mfkg_acqf):
     """Optimizes MFKG and returns a new candidate, observation, and cost."""
 
@@ -135,16 +174,6 @@ def optimize_mfkg_and_get_observation(mfkg_acqf):
         # batch_initial_conditions=X_init,
         options={"batch_limit": 4, "maxiter": 50},
     )
-    # candidates, _ = optimize_acqf_mixed(
-    #     acq_function=mfkg_acqf,
-    #     bounds=bounds,
-    #     fixed_features_list=[{2: 0.5}, {2: 1.0}],
-    #     q=BATCH_SIZE,
-    #     num_restarts=NUM_RESTARTS,
-    #     raw_samples=RAW_SAMPLES,
-    #     # batch_initial_conditions=X_init,
-    #     options={"batch_limit": 4, "maxiter": 50},
-    # )
 
     # observe new values
     cost = cost_model(candidates).sum()
@@ -153,6 +182,7 @@ def optimize_mfkg_and_get_observation(mfkg_acqf):
     print(f"candidates:\n{new_x}\n")
     print(f"observations:\n{new_obj}\n\n")
     return new_x, new_obj, cost
+
 
 
 def plot_GP(model, iter, path,train_x):
@@ -355,10 +385,10 @@ problem = HEJ(negate=True).to(
 N_exper = 10
 NUM_RESTARTS = 4 if not SMOKE_TEST else 2
 RAW_SAMPLES = 64 if not SMOKE_TEST else 4
-BATCH_SIZE = 4
+BATCH_SIZE = 1
 N_init_IS1 = 2 if not SMOKE_TEST else 2
 N_init_IS2 = 0 if not SMOKE_TEST else 2
-N_ITER = 10 if not SMOKE_TEST else 1
+N_ITER = 40 if not SMOKE_TEST else 1
 
 # # generate seed for sobol initial dataset
 # sobol_seeds=torch.randint(1,10000,(N_exper,))
@@ -367,7 +397,7 @@ for exper in range(N_exper):
     print("**********Experiment {}**********".format(exper))
     # /cluster/home/mnobar/code/GBO2
     # /home/nobar/codes/GBO2
-    path = "/cluster/home/mnobar/code/GBO2/logs/test_29_baseline_6/Exper_{}".format(str(exper))
+    path = "/cluster/home/mnobar/code/GBO2/logs/test_31_b_2/Exper_{}".format(str(exper))
     # Check if the directory exists, if not, create it
     if not os.path.exists(path):
         os.makedirs(path)
@@ -390,7 +420,7 @@ for exper in range(N_exper):
 
     target_fidelities = {2: 1.0}
 
-    cost_model = AffineFidelityCostModel(fidelity_weights={2: 1.0}, fixed_cost=5)
+    cost_model = AffineFidelityCostModel(fidelity_weights={2: 1.0}, fixed_cost=1)
     cost_aware_utility = InverseCostWeightedUtility(cost_model=cost_model)
 
     torch.set_printoptions(precision=3, sci_mode=False)
@@ -418,8 +448,20 @@ for exper in range(N_exper):
         # train the GP model
         fit_gpytorch_mll(mll)
         plot_GP(model, i, path, train_x)
-        mfkg_acqf = get_mfkg(model)
-        new_x, new_obj, cost = optimize_mfkg_and_get_observation(mfkg_acqf)
+        # mfkg_acqf = get_mfkg(model)
+        # new_x, new_obj, cost = optimize_mfkg_and_get_observation(mfkg_acqf)
+
+        caEI=get_cost_aware_ei(model, train_obj.max(), cost_model, alpha=1)
+        new_x, new_obj, cost = optimize_caEI_and_get_observation(caEI)
+
+        # fixed_features_list = [
+        #     {2: 1.0},  # Fix fidelity s = 1.0 (real)
+        #     {2: 2.0},  # Fix fidelity s = 2.0 (simulation)
+        # ]
+        # a, b = optimize_acqf_mixed(acq_function=caEI, bounds=bounds, fixed_features_list=fixed_features_list,
+        #                            q=BATCH_SIZE,
+        #                            num_restarts=10, raw_samples=512, options={"batch_limit": 5, "maxiter": 200}, )
+
         train_x = torch.cat([train_x, new_x])
         train_obj = torch.cat([train_obj, new_obj])
         cumulative_cost += cost
