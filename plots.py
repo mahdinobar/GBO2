@@ -61,8 +61,9 @@ def plot_colortable(colors, *, ncols=4, sort_colors=True):
     return fig
 def plot_gt():
     # Load the .mat file
-    mat_data = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/misc/IS2_8x8_metrics_noise_scale_01.mat')
-    mat_data2 = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/test_23_test/Exper_0/IS1_Exper_0_8x8_metrics.mat')
+    mat_data = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/misc/IS1_metrics_8x8.mat')
+    # mat_data = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/misc/IS1_Exper_0_8x8_metrics.mat')
+    mat_data2 = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/misc/IS2_Exper_0_8x8_metrics.mat')
     n_grid=8
     obj_IS2_grid = np.load("/home/nobar/Documents/introductions/simulink_model/IS2_new_1_obj.npy")
     obj_IS1_grid = np.load("/home/nobar/Documents/introductions/simulink_model/IS1_new_1_obj.npy")
@@ -75,8 +76,10 @@ def plot_gt():
     
     Objective_all = mat_data['Objective_all']  # Should be a 2D array
     RiseTime_all = mat_data['RiseTime_all']  # Should be a 2D array
+    PeakTime_all = mat_data['PeakTime_all']  # Should be a 2D array
     TransientTime_all = mat_data['TransientTime_all']  # Should be a 2D array
     SettlingTime_all = mat_data['SettlingTime_all']  # Should be a 2D array
+    SettlingMin_all = mat_data['SettlingMin_all']  # Should be a 2D array
     Overshoot_all = mat_data['Overshoot_all']  # Should be a 2D array
 
     RiseTime2_all = mat_data2['RiseTime_all']  # Should be a 2D array
@@ -106,11 +109,13 @@ def plot_gt():
     # plt.savefig("/home/nobar/codes/GBO2/logs/test_23_8_test/Exper_0/IS2_Exper_0_8x8_metrics.png")
     # plt.show()
 
-    w1=9
-    w2=1.8/100
-    w3=1.5
-    w4=1.5
-    new_obj=w1*RiseTime_all+w2*Overshoot_all+w4*TransientTime_all+w3*SettlingTime_all
+    w1 = 40
+    w2 = 2.3 / 100
+    w3 = 3.8
+    w4 = 3.5
+    w5 = 0
+    w6 = 0
+    new_obj=w1*RiseTime_all+w2*Overshoot_all+w4*TransientTime_all+w3*SettlingTime_all+w5*PeakTime_all+w6*SettlingMin_all
     # new_obj=normalize_objective(new_obj, obj_IS2_grid)
     # np.save("/home/nobar/codes/GBO2/logs/IS2_new_1_obj.npy",new_obj)
     # np.save("/home/nobar/codes/GBO2/logs/IS2_new_1_obj_noise_scale_01.npy",new_obj)
@@ -121,15 +126,11 @@ def plot_gt():
     # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
     # contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(20,20),levs)  # Transpose to match dimensions
     contour = plt.contourf(Kp_grid, Ki_grid, new_obj.reshape(n_grid,n_grid), levels=20)  # Transpose to match dimensions
-    plt.colorbar(contour, label='True Objective Value')
+    plt.colorbar(contour, label='J')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('True Objective Contour Plot')
-    # plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/IS1_numerical.png")
-    # np.save("/home/nobar/codes/GBO2/logs/50x50_dataset/Kp_IS1_numerical.npy",Kp_grid)
-    # np.save("/home/nobar/codes/GBO2/logs/50x50_dataset/Kd_IS1_numerical.npy",Kp_grid)
-    # np.save("/home/nobar/codes/GBO2/logs/50x50_dataset/obj_IS1_numerical.npy",new_obj.reshape(n_grid,n_grid))
-    # plt.savefig("/home/nobar/codes/GBO2/logs/test_23_8_test/Exper_0/IS2_Exper_0_8x8_metrics_NEW.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/misc/tests/IS1_J_test.png")
     plt.show()
 
     # new_obj2=w1*RiseTime2_all+w2*Overshoot2_all+w4*TransientTime2_all+w3*SettlingTime2_all
@@ -170,12 +171,34 @@ def plot_gt():
     plt.figure(figsize=(8, 6))
     # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
     # contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(20,20),levs)  # Transpose to match dimensions
+    contour = plt.contourf(Kp_grid, Ki_grid, w5*PeakTime_all.reshape(n_grid,n_grid), levels=20)  # Transpose to match dimensions
+    plt.colorbar(contour, label='Weighted Peak Time')
+    plt.xlabel('Kp')
+    plt.ylabel('Kd')
+    plt.title('$w.T_{p}$')
+    plt.savefig("/home/nobar/codes/GBO2/logs/misc/tests/IS1_Tp_test.png")
+    plt.show()
+
+    plt.figure(figsize=(8, 6))
+    # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
+    # contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(20,20),levs)  # Transpose to match dimensions
+    contour = plt.contourf(Kp_grid, Ki_grid, w6*SettlingMin_all.reshape(n_grid,n_grid), levels=20)  # Transpose to match dimensions
+    plt.colorbar(contour, label='Weighted SettlingMin')
+    plt.xlabel('Kp')
+    plt.ylabel('Kd')
+    plt.title('$w.SettlingMin$')
+    plt.savefig("/home/nobar/codes/GBO2/logs/misc/tests/IS1_SettlingMin_test.png")
+    plt.show()
+
+    plt.figure(figsize=(8, 6))
+    # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
+    # contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(20,20),levs)  # Transpose to match dimensions
     contour = plt.contourf(Kp_grid, Ki_grid, w1*RiseTime_all.reshape(n_grid,n_grid), levels=20)  # Transpose to match dimensions
     plt.colorbar(contour, label='Weighted Rise Time')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('$w.T_{r}$')
-    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/IS1_numeric_Rise.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/misc/tests/IS1_Tr_test.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
@@ -186,7 +209,7 @@ def plot_gt():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('$w.T_{s}$')
-    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/IS1_numeric_Settling.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/misc/tests/IS1_Ts_test.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
@@ -197,7 +220,7 @@ def plot_gt():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('$w.M$')
-    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/IS1_numeric_Overshoot.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/misc/tests/IS1_Ov_test.png")
     plt.show()
     plt.close()
     plt.figure(figsize=(8, 6))
@@ -208,7 +231,7 @@ def plot_gt():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('$w.T_{tr}$')
-    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/IS1_numeric_Transiet.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/misc/tests/IS1_Ttr_test.png")
     plt.show()
 
 
@@ -952,7 +975,7 @@ def plot_real():
 
 if __name__ == "__main__":
 
-    # plot_gt()
+    plot_gt()
     # plot_real()
 
     # # check objective scales
@@ -971,10 +994,10 @@ if __name__ == "__main__":
 
     # plot_cost_coef()
 
-    path = "/home/nobar/codes/GBO2/logs/test_31_b_3/"
+    path = "/home/nobar/codes/GBO2/logs/test_31_b_4/"
     path2 = "/home/nobar/codes/GBO2/logs/test_31_b_1/"
     N_init_IS1=2
-    N_init_IS2=10
+    N_init_IS2=2
     sampling_cost_bias=5
     N_exper=10
     N_iter=40
