@@ -404,7 +404,7 @@ NUM_RESTARTS = 4 if not SMOKE_TEST else 2
 RAW_SAMPLES = 64 if not SMOKE_TEST else 4
 BATCH_SIZE = 1
 N_init_IS1 = 2 if not SMOKE_TEST else 2
-N_init_IS2 = 4 if not SMOKE_TEST else 2
+N_init_IS2 = 2 if not SMOKE_TEST else 2
 N_ITER = 40 if not SMOKE_TEST else 1
 
 # # generate seed for sobol initial dataset
@@ -414,7 +414,7 @@ for exper in range(N_exper):
     print("**********Experiment {}**********".format(exper))
     # /cluster/home/mnobar/code/GBO2
     # /home/nobar/codes/GBO2
-    path = "/cluster/home/mnobar/code/GBO2/logs/test_31_b_6/Exper_{}".format(str(exper))
+    path = "/cluster/home/mnobar/code/GBO2/logs/test_32_b_1/Exper_{}".format(str(exper))
     # Check if the directory exists, if not, create it
     if not os.path.exists(path):
         os.makedirs(path)
@@ -449,12 +449,6 @@ for exper in range(N_exper):
     # print("train_obj_init=",train_obj_init)
     np.save(path + "/train_obj_init.npy", train_obj_init)
     np.save(path + "/train_x_init.npy", train_x_init)
-
-    # path_init = "/home/nobar/codes/GBO2/logs/test_19/Exper_{}".format(str(exper))
-    # train_obj_init=torch.as_tensor(np.load(path_init+"/train_obj_init.npy"))
-    # train_x_init=torch.as_tensor(np.load(path_init+"/train_x_init.npy"))
-    # train_x=train_x_init
-    # train_obj = train_obj_init
 
     cumulative_cost = 0.0
     costs_all = np.zeros(N_ITER)
