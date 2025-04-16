@@ -1328,14 +1328,14 @@ if __name__ == "__main__":
 
     # plot_cost_coef()
 
-    path = "/home/nobar/codes/GBO2/logs/test_31_b_8/"
+    path = "/home/nobar/codes/GBO2/logs/test_31_b_5/"
     path2 = "/home/nobar/codes/GBO2/logs/test_0_BO_2/"
     N_init_IS1=2
-    N_init_IS2=16
+    N_init_IS2=10
     sampling_cost_bias=5
-    N_exper=4
+    N_exper=10
     N_iter=40
-    s2 = 0.2
+    s2 = 0.1
     s3 = 0.05
     BATCH_SIZE=1
 

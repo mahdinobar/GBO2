@@ -404,7 +404,7 @@ NUM_RESTARTS = 4 if not SMOKE_TEST else 2
 RAW_SAMPLES = 64 if not SMOKE_TEST else 4
 BATCH_SIZE = 1
 N_init_IS1 = 2 if not SMOKE_TEST else 2
-N_init_IS2 = 2 if not SMOKE_TEST else 2
+N_init_IS2 = 16 if not SMOKE_TEST else 2
 N_ITER = 40 if not SMOKE_TEST else 1
 
 # # generate seed for sobol initial dataset
@@ -414,7 +414,7 @@ for exper in range(N_exper):
     print("**********Experiment {}**********".format(exper))
     # /cluster/home/mnobar/code/GBO2
     # /home/nobar/codes/GBO2
-    path = "/cluster/home/mnobar/code/GBO2/logs/test_32_b_1/Exper_{}".format(str(exper))
+    path = "/cluster/home/mnobar/code/GBO2/logs/test_31_b_9/Exper_{}".format(str(exper))
     # Check if the directory exists, if not, create it
     if not os.path.exists(path):
         os.makedirs(path)
