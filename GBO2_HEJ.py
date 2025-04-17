@@ -490,7 +490,7 @@ for exper in range(N_exper):
     fidelities = torch.tensor([0.05, 0.1, 1.0], **tkwargs)
 
     # Define the bounds
-    original_bounds = torch.tensor([[30, 2, 0.0], [200, 10, 1.0]], **tkwargs)
+    original_bounds = torch.tensor([[70, 2, 0.0], [120, 5, 1.0]], **tkwargs)
     lower, upper = original_bounds[0], original_bounds[1]
     # Example input data
     X_original = torch.stack([lower, upper]).to(**tkwargs)
