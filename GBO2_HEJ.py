@@ -38,7 +38,7 @@ from botorch.acquisition.fixed_feature import FixedFeatureAcquisitionFunction
 from botorch.optim.optimize import optimize_acqf
 from botorch.acquisition.utils import project_to_target_fidelity
 from botorch.optim.optimize import optimize_acqf_mixed
-from botorch.acquisition import qExpectedImprovement, AnalyticAcquisitionFunction, ExpectedImprovement, \
+from botorch.acquisition import qUpperConfidenceBound, qExpectedImprovement, AnalyticAcquisitionFunction, ExpectedImprovement, \
     AcquisitionFunction
 from botorch.utils.sampling import draw_sobol_samples  # Quasi-random sampling
 from botorch.utils import t_batch_mode_transform
@@ -314,6 +314,61 @@ def plot_EIonly_GP(model, iter, path, train_x):
     # plt.show()
     plt.close()
 
+def plot_UCBonly_GP(model, iter, path, train_x):
+    # Step 3: Define fidelity levels and create a grid for plotting
+    # uncomment for my idea
+    fidelities = [1.0, 0.1]  # Three fidelity levels
+    # fidelities = [1.0, 0.5]
+    x1 = torch.linspace(0, 1, 50)
+    x2 = torch.linspace(0, 1, 50)
+    X1, X2 = torch.meshgrid(x1, x2, indexing="ij")
+
+    # Step 4: Prepare the figure with 3x2 subplots
+    fig, axs = plt.subplots(len(fidelities), 2, figsize=(14, 6 * fidelities.__len__()))
+
+    for i, s_val in enumerate(fidelities):
+        s_fixed = torch.tensor([[s_val]])
+
+        # Flatten the grid and concatenate with the fidelity level
+        X_plot = torch.cat([
+            X1.reshape(-1, 1),
+            X2.reshape(-1, 1),
+            s_fixed.expand(X1.numel(), 1)
+        ], dim=1)
+
+        # Step 5: Evaluate the posterior mean and standard deviation
+        with torch.no_grad():
+            posterior = model.posterior(X_plot)
+            mean = posterior.mean.reshape(50, 50).numpy()
+            std = posterior.variance.sqrt().reshape(50, 50).numpy()
+
+        # Plot the posterior mean
+        contour_mean = axs[i, 0].contourf(X1.numpy(), X2.numpy(), mean.T, cmap='viridis')
+        axs[i, 0].set_title(f"Posterior Mean (s={s_val})")
+        fig.colorbar(contour_mean, ax=axs[i, 0])
+
+        # Plot the posterior standard deviation
+        contour_std = axs[i, 1].contourf(X1.numpy(), X2.numpy(), std.T, cmap='viridis')
+        axs[i, 1].set_title(f"Posterior Standard Deviation (s={s_val})")
+        fig.colorbar(contour_std, ax=axs[i, 1])
+
+        scatter_train_x = axs[i, 0].scatter(train_x[:, 0], train_x[:, 1], c='b', linewidth=15)
+
+        np.save(path + "/UCBonly_X1_{}.npy".format(str(iter)), X1)
+        np.save(path + "/UCBonly_X2_{}.npy".format(str(iter)), X2)
+        np.save(path + "/UCBonly_mean_{}.npy".format(str(iter)), mean)
+        np.save(path + "/UCBonly_std_{}.npy".format(str(iter)), std)
+
+        # Axis labels
+        for ax in axs[i]:
+            ax.set_xlabel("$x_1$")
+            ax.set_ylabel("$x_2$")
+
+    plt.tight_layout()
+    plt.savefig(path + "/UCBonly_GP_itr_{}.png".format(str(iter)))
+    # plt.show()
+    plt.close()
+
 
 def get_recommendation(model, lower, upper):
     rec_acqf = FixedFeatureAcquisitionFunction(
@@ -365,6 +420,13 @@ def get_ei(model, best_f):
         values=[1],
     )
 
+def get_ucb(model, beta: float = 0.1):
+    return FixedFeatureAcquisitionFunction(
+        acq_function=qUpperConfidenceBound(model=model, beta=beta),
+        d=3,                      # total dimension (2 params + 1 fidelity)
+        columns=[2],              # fix the fidelity dimension
+        values=[1.0],             # use full fidelity for UCB acquisition
+    )
 
 def optimize_ei_and_get_observation(ei_acqf):
     """Optimizes EI and returns a new candidate, observation, and cost."""
@@ -399,13 +461,13 @@ set_seed(seed)
 problem = HEJ(negate=True).to(
     **tkwargs)  # Setting negate=True typically multiplies the objective values by -1, transforming a minimization objective (i.e., minimizing f(x)) into a maximization objective (i.e., maximizing −f(x)).
 
-N_exper = 10
+N_exper = 5
 NUM_RESTARTS = 4 if not SMOKE_TEST else 2
 RAW_SAMPLES = 64 if not SMOKE_TEST else 4
 BATCH_SIZE = 1
 N_init_IS1 = 2 if not SMOKE_TEST else 2
-N_init_IS2 = 16 if not SMOKE_TEST else 2
-N_ITER = 40 if not SMOKE_TEST else 1
+N_init_IS2 = 10 if not SMOKE_TEST else 2
+N_ITER = 20 if not SMOKE_TEST else 1
 
 # # generate seed for sobol initial dataset
 # sobol_seeds=torch.randint(1,10000,(N_exper,))
@@ -414,7 +476,7 @@ for exper in range(N_exper):
     print("**********Experiment {}**********".format(exper))
     # /cluster/home/mnobar/code/GBO2
     # /home/nobar/codes/GBO2
-    path = "/cluster/home/mnobar/code/GBO2/logs/test_31_b_9/Exper_{}".format(str(exper))
+    path = "/cluster/home/mnobar/code/GBO2/logs/test_33_b_1/Exper_{}".format(str(exper))
     # Check if the directory exists, if not, create it
     if not os.path.exists(path):
         os.makedirs(path)
@@ -428,7 +490,7 @@ for exper in range(N_exper):
     # fidelities = torch.tensor([0.5, 1.0], **tkwargs)
 
     # Define the bounds
-    original_bounds = torch.tensor([[70, 2, 0.0], [120, 5, 1.0]], **tkwargs)
+    original_bounds = torch.tensor([[30, 2, 0.0], [200, 10, 1.0]], **tkwargs)
     lower, upper = original_bounds[0], original_bounds[1]
     # Example input data
     X_original = torch.stack([lower, upper]).to(**tkwargs)
@@ -503,6 +565,14 @@ for exper in range(N_exper):
     train_x = train_x_init[:N_init_IS1]
     train_obj = train_obj_init[:N_init_IS1]
 
+    # path2="/home/nobar/codes/GBO2/logs/test_31_b_5*/Exper_{}".format(str(exper))
+    # train_obj_init=np.load(path2 + "/train_obj_init.npy")
+    # train_x_init=np.load(path2 + "/train_x_init.npy")
+    # cumulative_cost = 0.0
+    # costs_all = np.zeros(N_ITER)
+    # train_x = torch.as_tensor(train_x_init[:N_init_IS1])
+    # train_obj = torch.as_tensor(train_obj_init[:N_init_IS1])
+
     for i in range(N_ITER):
         mll, model = initialize_model(train_x, train_obj)
         fit_gpytorch_mll(mll)
@@ -528,3 +598,33 @@ for exper in range(N_exper):
     np.save(path + "/objective_value_max_observed_EIonly.npy", objective_value_max_observed_EIonly)
 
     print(f"\nEI only total cost: {cumulative_cost}\n")
+
+
+    ####################################################################################################################
+    # Baseline Single Fidelity BO with UCB
+    cumulative_cost = 0.0
+    costs_all = np.zeros(N_ITER)
+    train_x = train_x_init[:N_init_IS1]
+    train_obj = train_obj_init[:N_init_IS1]
+
+    # path2="/home/nobar/codes/GBO2/logs/test_31_b_5*/Exper_{}".format(str(exper))
+    # train_obj_init=np.load(path2 + "/train_obj_init.npy")
+    # train_x_init=np.load(path2 + "/train_x_init.npy")
+    # cumulative_cost = 0.0
+    # costs_all = np.zeros(N_ITER)
+    # train_x = torch.as_tensor(train_x_init[:N_init_IS1])
+    # train_obj = torch.as_tensor(train_obj_init[:N_init_IS1])
+
+    for i in range(N_ITER):
+        mll, model = initialize_model(train_x, train_obj)
+        fit_gpytorch_mll(mll)
+        plot_UCBonly_GP(model, i, path, train_x)
+        ucb_acqf = get_ucb(model, beta=0.2)  # Tune beta as needed
+        new_x, new_obj, cost = optimize_ei_and_get_observation(ucb_acqf)
+        train_x = torch.cat([train_x, new_x])
+        train_obj = torch.cat([train_obj, new_obj])
+        cumulative_cost += cost
+        costs_all[i] = cost
+        np.save(path + "/costs_all_UCBonly.npy", costs_all)
+        np.save(path + "/train_x_UCBonly.npy", train_x)
+        np.save(path + "/train_obj_UCBonly.npy", train_obj)
