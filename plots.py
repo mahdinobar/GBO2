@@ -64,7 +64,8 @@ def plot_gt():
     mat_data = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/misc/IS1_metrics_8x8_FeasSet2.mat')
     # mat_data = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/misc/IS1_Exper_0_8x8_metrics.mat')
     # mat_data2 = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/misc/IS2_Exper_0_8x8_metrics.mat')
-    mat_data2 = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/misc/IS2_metrics_8x8_FeasSet2.mat')
+    # mat_data2 = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/misc/IS2_metrics_8x8_FeasSet2.mat')
+    mat_data2 = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/misc/IS3_1to1_metrics_8x8_FeasSet2.mat')
     n_grid=8
     obj_IS2_grid = np.load("/home/nobar/Documents/introductions/simulink_model/IS1_FeasSet2_obj.npy")
     obj_IS1_grid = np.load("/home/nobar/Documents/introductions/simulink_model/IS2_FeasSet2_obj.npy")
@@ -157,11 +158,11 @@ def plot_gt():
     # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
     # contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(20,20),levs)  # Transpose to match dimensions
     contour = plt.contourf(Kp_grid, Ki_grid, new_obj2.reshape(n_grid,n_grid), levels=20)  # Transpose to match dimensions
-    plt.colorbar(contour, label='$J_{IS2}$')
+    plt.colorbar(contour, label='$J_{IS3_1to1}$')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('Estimated Objective Contour Plot')
-    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS2_J_normalized_test_FeasSet2.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to1_J_normalized_test_FeasSet2.png")
     plt.show()
 
     error_new_obj=new_obj2-new_obj
@@ -174,7 +175,7 @@ def plot_gt():
     # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
     # contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(20,20),levs)  # Transpose to match dimensions
     contour = plt.contourf(Kp_grid, Ki_grid, error_new_obj.reshape(n_grid,n_grid), levels=20)  # Transpose to match dimensions
-    plt.colorbar(contour, label='$J_{IS2}-J_{IS1}$')
+    plt.colorbar(contour, label='$J_{IS3_1to1}-J_{IS1}$')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('Error True Objective Contour Plot')
@@ -191,7 +192,7 @@ def plot_gt():
     # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
     # contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(20,20),levs)  # Transpose to match dimensions
     contour = plt.contourf(Kp_grid, Ki_grid, abs(error_new_obj).reshape(n_grid,n_grid), levels=20)  # Transpose to match dimensions
-    plt.colorbar(contour, label='|$J_{IS2}-J_{IS1}$|')
+    plt.colorbar(contour, label='|$J_{IS3_1to1}-J_{IS1}$|')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('Error True Objective Contour Plot')
@@ -287,7 +288,7 @@ def plot_gt():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('error $w.T_{r}$')
-    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS1_Tr_error.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to1_Tr_error.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
@@ -298,7 +299,7 @@ def plot_gt():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('error $w.T_{s}$')
-    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS1_Ts_error.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to1_Ts_error.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
@@ -309,7 +310,7 @@ def plot_gt():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('error $w.M$')
-    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS1_Ov_error.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to1_Ov_error.png")
     plt.show()
     plt.close()
     plt.figure(figsize=(8, 6))
@@ -320,7 +321,7 @@ def plot_gt():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('error $w.T_{tr}$')
-    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS1_Ttr_error.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to1_Ttr_error.png")
     plt.show()
 
     print("")
@@ -1613,7 +1614,7 @@ def plot_real():
 
 if __name__ == "__main__":
 
-    # plot_gt()
+    plot_gt()
     # plot_real()
 
     # # check objective scales

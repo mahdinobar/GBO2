@@ -287,16 +287,16 @@ def plot_EIonly_GP(model, iter, path, train_x):
             std = posterior.variance.sqrt().reshape(50, 50).numpy()
 
         # Plot the posterior mean
-        contour_mean = axs[i, 0].contourf(X1.numpy(), X2.numpy(), mean.T, cmap='viridis')
-        axs[i, 0].set_title(f"Posterior Mean (s={s_val})")
-        fig.colorbar(contour_mean, ax=axs[i, 0])
+        contour_mean = axs[0].contourf(X1.numpy(), X2.numpy(), mean.T, cmap='viridis')
+        axs[0].set_title(f"Posterior Mean (s={s_val})")
+        fig.colorbar(contour_mean, ax=axs[0])
 
         # Plot the posterior standard deviation
-        contour_std = axs[i, 1].contourf(X1.numpy(), X2.numpy(), std.T, cmap='viridis')
-        axs[i, 1].set_title(f"Posterior Standard Deviation (s={s_val})")
-        fig.colorbar(contour_std, ax=axs[i, 1])
+        contour_std = axs[1].contourf(X1.numpy(), X2.numpy(), std.T, cmap='viridis')
+        axs[1].set_title(f"Posterior Standard Deviation (s={s_val})")
+        fig.colorbar(contour_std, ax=axs[1])
 
-        scatter_train_x = axs[i, 0].scatter(train_x[:, 0], train_x[:, 1], c='b', linewidth=15)
+        scatter_train_x = axs[0].scatter(train_x[:, 0], train_x[:, 1], c='b', linewidth=15)
 
         np.save(path + "/EIonly_X1_{}.npy".format(str(iter)), X1)
         np.save(path + "/EIonly_X2_{}.npy".format(str(iter)), X2)
@@ -342,16 +342,16 @@ def plot_UCBonly_GP(model, iter, path, train_x):
             std = posterior.variance.sqrt().reshape(50, 50).numpy()
 
         # Plot the posterior mean
-        contour_mean = axs[i, 0].contourf(X1.numpy(), X2.numpy(), mean.T, cmap='viridis')
-        axs[i, 0].set_title(f"Posterior Mean (s={s_val})")
-        fig.colorbar(contour_mean, ax=axs[i, 0])
+        contour_mean = axs[0].contourf(X1.numpy(), X2.numpy(), mean.T, cmap='viridis')
+        axs[0].set_title(f"Posterior Mean (s={s_val})")
+        fig.colorbar(contour_mean, ax=axs[0])
 
         # Plot the posterior standard deviation
-        contour_std = axs[i, 1].contourf(X1.numpy(), X2.numpy(), std.T, cmap='viridis')
-        axs[i, 1].set_title(f"Posterior Standard Deviation (s={s_val})")
-        fig.colorbar(contour_std, ax=axs[i, 1])
+        contour_std = axs[1].contourf(X1.numpy(), X2.numpy(), std.T, cmap='viridis')
+        axs[1].set_title(f"Posterior Standard Deviation (s={s_val})")
+        fig.colorbar(contour_std, ax=axs[1])
 
-        scatter_train_x = axs[i, 0].scatter(train_x[:, 0], train_x[:, 1], c='b', linewidth=15)
+        scatter_train_x = axs[0].scatter(train_x[:, 0], train_x[:, 1], c='b', linewidth=15)
 
         np.save(path + "/UCBonly_X1_{}.npy".format(str(iter)), X1)
         np.save(path + "/UCBonly_X2_{}.npy".format(str(iter)), X2)
