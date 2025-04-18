@@ -304,9 +304,8 @@ def plot_EIonly_GP(model, iter, path, train_x):
         np.save(path + "/EIonly_std_{}.npy".format(str(iter)), std)
 
         # Axis labels
-        for ax in axs[i]:
-            ax.set_xlabel("$x_1$")
-            ax.set_ylabel("$x_2$")
+        plt.xlabel("$x_1$")
+        plt.ylabel("$x_2$")
 
     plt.tight_layout()
     plt.savefig(path + "/EIonly_GP_itr_{}.png".format(str(iter)))
@@ -358,10 +357,8 @@ def plot_UCBonly_GP(model, iter, path, train_x):
         np.save(path + "/UCBonly_mean_{}.npy".format(str(iter)), mean)
         np.save(path + "/UCBonly_std_{}.npy".format(str(iter)), std)
 
-        # Axis labels
-        for ax in axs[i]:
-            ax.set_xlabel("$x_1$")
-            ax.set_ylabel("$x_2$")
+        plt.xlabel("$x_1$")
+        plt.ylabel("$x_2$")
 
     plt.tight_layout()
     plt.savefig(path + "/UCBonly_GP_itr_{}.png".format(str(iter)))
