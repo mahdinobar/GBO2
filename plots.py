@@ -65,10 +65,11 @@ def plot_gt():
     # mat_data = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/misc/IS1_Exper_0_8x8_metrics.mat')
     # mat_data2 = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/misc/IS2_Exper_0_8x8_metrics.mat')
     # mat_data2 = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/misc/IS2_metrics_8x8_FeasSet2.mat')
-    mat_data2 = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/misc/IS3_1to1_metrics_8x8_FeasSet2.mat')
+    mat_data2 = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/misc/IS3_1to2_metrics_8x8_FeasSet2.mat')
     n_grid=8
-    obj_IS2_grid = np.load("/home/nobar/Documents/introductions/simulink_model/IS1_FeasSet2_obj.npy")
-    obj_IS1_grid = np.load("/home/nobar/Documents/introductions/simulink_model/IS2_FeasSet2_obj.npy")
+    obj_IS2_grid = np.load("/home/nobar/codes/GBO2/logs/IS3_FeasSet2OLD_obj.npy")
+    # obj_IS2_grid = np.load("/home/nobar/Documents/introductions/simulink_model/IS2_FeasSet2OLD_obj.npy")
+    obj_IS1_grid = np.load("/home/nobar/Documents/introductions/simulink_model/IS1_FeasSet2OLD_obj.npy")
     def normalize_objective(obj, obj_grid):
         return (obj - obj_grid.mean()) / (obj_grid.std())
 
@@ -130,8 +131,8 @@ def plot_gt():
     w2 = 3. / 100 / 0.11156
     w3 = 1.5 / 0.519466
     w4 = 1.5 / 0.519468
-    w5 = 1.2 / 0.3619
-    w6 = 1.1 / 0.6739
+    w5 = 0 / 0.3619
+    w6 = 0 / 0.6739
     new_obj=w1*RiseTime_all+w2*Overshoot_all+w4*TransientTime_all+w3*SettlingTime_all+w5*PeakTime_all+w6*SettlingMin_all
     new_obj=normalize_objective(new_obj, obj_IS1_grid)
     # np.save("/home/nobar/codes/GBO2/logs/IS2_new_1_obj.npy",new_obj)
@@ -153,16 +154,18 @@ def plot_gt():
 
     new_obj2=w1*RiseTime2_all+w2*Overshoot2_all+w4*TransientTime2_all+w3*SettlingTime2_all+w5*PeakTime2_all+w6*SettlingMin2_all
     new_obj2=normalize_objective(new_obj2, obj_IS2_grid)
+    # np.save("/home/nobar/codes/GBO2/logs/IS3_FeasSet2OLD_obj.npy",new_obj2)
+
     # Plot the contour
     plt.figure(figsize=(8, 6))
     # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
     # contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(20,20),levs)  # Transpose to match dimensions
     contour = plt.contourf(Kp_grid, Ki_grid, new_obj2.reshape(n_grid,n_grid), levels=20)  # Transpose to match dimensions
-    plt.colorbar(contour, label='$J_{IS3_1to1}$')
+    plt.colorbar(contour, label='$J_{IS3_1to2}$')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('Estimated Objective Contour Plot')
-    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to1_J_normalized_test_FeasSet2.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to2_J_normalized_test_FeasSet2.png")
     plt.show()
 
     error_new_obj=new_obj2-new_obj
@@ -175,11 +178,11 @@ def plot_gt():
     # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
     # contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(20,20),levs)  # Transpose to match dimensions
     contour = plt.contourf(Kp_grid, Ki_grid, error_new_obj.reshape(n_grid,n_grid), levels=20)  # Transpose to match dimensions
-    plt.colorbar(contour, label='$J_{IS3_1to1}-J_{IS1}$')
+    plt.colorbar(contour, label='$J_{IS3_1to2}-J_{IS1}$')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('Error True Objective Contour Plot')
-    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/Error_normalized_FeasSet2.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to2_Error_normalized_FeasSet2.png")
     # plt.savefig("/home/nobar/codes/GBO2/logs/test_29_baseline/ERROR_Exper_0_8x8_metrics_normalized.png")
     # plt.savefig("/home/nobar/codes/GBO2/logs/test_23_8_test/Exper_0/IS2_Exper_0_8x8_metrics_NEW.png")
     plt.show()
@@ -192,11 +195,11 @@ def plot_gt():
     # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
     # contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(20,20),levs)  # Transpose to match dimensions
     contour = plt.contourf(Kp_grid, Ki_grid, abs(error_new_obj).reshape(n_grid,n_grid), levels=20)  # Transpose to match dimensions
-    plt.colorbar(contour, label='|$J_{IS3_1to1}-J_{IS1}$|')
+    plt.colorbar(contour, label='|$J_{IS3_1to2}-J_{IS1}$|')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('Error True Objective Contour Plot')
-    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/ABSError_normalized_FeasSet2.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to2_ABSError_normalized_FeasSet2.png")
     # plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/ABS_ERROR_Exper_8x8_metrics_normalized.png")
     # plt.savefig("/home/nobar/codes/GBO2/logs/test_23_8_test/Exper_0/IS2_Exper_0_8x8_metrics_NEW.png")
     plt.show()
@@ -288,7 +291,7 @@ def plot_gt():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('error $w.T_{r}$')
-    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to1_Tr_error.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to2_Tr_error.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
@@ -299,7 +302,7 @@ def plot_gt():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('error $w.T_{s}$')
-    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to1_Ts_error.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to2_Ts_error.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
@@ -310,7 +313,7 @@ def plot_gt():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('error $w.M$')
-    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to1_Ov_error.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to2_Ov_error.png")
     plt.show()
     plt.close()
     plt.figure(figsize=(8, 6))
@@ -321,7 +324,7 @@ def plot_gt():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('error $w.T_{tr}$')
-    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to1_Ttr_error.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to2_Ttr_error.png")
     plt.show()
 
     print("")
@@ -1678,5 +1681,5 @@ if __name__ == "__main__":
 
     # plots_MonteCarlo_objective(path,N_init_IS1,N_init_IS2,sampling_cost_bias,N_exper,N_iter,s2,s3, BATCH_SIZE)
     # plots_MonteCarlo_objectiveEI(path,path2,N_init_IS1,N_init_IS2,sampling_cost_bias,N_exper,N_iter,s2,s3, BATCH_SIZE)
-    plots_MonteCarlo_objectiveUCB(path,path,N_init_IS1,N_init_IS2,sampling_cost_bias,N_exper,N_iter,s2,s3, BATCH_SIZE)
+    plots_MonteCarlo_objectiveUCB(path,path2,N_init_IS1,N_init_IS2,sampling_cost_bias,N_exper,N_iter,s2,s3, BATCH_SIZE)
 

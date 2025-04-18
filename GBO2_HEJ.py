@@ -520,13 +520,14 @@ for exper in range(N_exper):
         # mfkg_acqf = get_mfkg(model)
         # new_x, new_obj, cost = optimize_mfkg_and_get_observation(mfkg_acqf)
         best_f_s1 = train_obj[np.argwhere(train_x[:, 2] == 1)].squeeze().max()
+        # Attention set initial best_f when no data in IS is still available
         if sum(train_x[:, 2] == 0.1) == 0:
-            best_f_s2 = torch.tensor([10e5], dtype=torch.float64)
+            best_f_s2 = torch.tensor([0], dtype=torch.float64)
         else:
             best_f_s2 = train_obj[np.argwhere(train_x[:, 2] == 0.1)].squeeze().max()
-
+        # Attention set initial best_f when no data in IS is still available
         if sum(train_x[:, 2] == 0.05) == 0:
-            best_f_s3 = torch.tensor([10e5], dtype=torch.float64)
+            best_f_s3 = torch.tensor([0], dtype=torch.float64)
         else:
             best_f_s3 = train_obj[np.argwhere(train_x[:, 2] == 0.05)].squeeze().max()
 
