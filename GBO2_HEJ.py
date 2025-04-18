@@ -523,13 +523,15 @@ for exper in range(N_exper):
         # Attention set initial best_f when no data in IS is still available
         if sum(train_x[:, 2] == 0.1) == 0:
             best_f_s2 = torch.tensor([0], dtype=torch.float64)
-        else:
-            best_f_s2 = train_obj[np.argwhere(train_x[:, 2] == 0.1)].squeeze().max()
-        # Attention set initial best_f when no data in IS is still available
-        if sum(train_x[:, 2] == 0.05) == 0:
             best_f_s3 = torch.tensor([0], dtype=torch.float64)
         else:
-            best_f_s3 = train_obj[np.argwhere(train_x[:, 2] == 0.05)].squeeze().max()
+            best_f_s2 = train_obj[np.argwhere(train_x[:, 2] == 0.1)].squeeze().max()
+            # Attention set initial best_f when no data in IS is still available
+            if sum(train_x[:, 2] == 0.05) == 0:
+                best_f_s3 = torch.tensor([best_f_s2], dtype=torch.float64)
+            else:
+                best_f_s3 = train_obj[np.argwhere(train_x[:, 2] == 0.05)].squeeze().max()
+
 
         caEI = get_cost_aware_ei(model, cost_model,
                                 best_f_s1=best_f_s1,
