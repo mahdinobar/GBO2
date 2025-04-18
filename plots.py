@@ -1632,13 +1632,13 @@ if __name__ == "__main__":
 
     # plot_cost_coef()
 
-    path = "/home/nobar/codes/GBO2/logs/test_31_b_5*/"
+    path = "/home/nobar/codes/GBO2/logs/test_31_1/"
     # path2 = "/home/nobar/codes/GBO2/logs/test_31_b_UCB_1/"
-    path2 = "/home/nobar/codes/GBO2/logs/test_EI_FeasSet2/"
+    path2 = "/home/nobar/codes/GBO2/logs/test_31_b_5*/"
     N_init_IS1=2
     N_init_IS2=10
     sampling_cost_bias=5
-    N_exper=5
+    N_exper=10
     N_iter=20
     s2 = 0.1
     s3 = 0.05
@@ -1664,18 +1664,18 @@ if __name__ == "__main__":
     #         plot_EIonly_GP(j, path+"Exper_"+str(i)+"/", train_x_i,train_obj_i)
 
 
-    # # validate identical initial dataset
-    # for i in range(N_exper):
-    #     x=np.load(path+"Exper_{}/train_x_init.npy".format(str(i)))
-    #     y=np.load(path+"Exper_{}/train_obj_init.npy".format(str(i)))
-    #     x2=np.load(path2+"Exper_{}/train_x_init.npy".format(str(i)))
-    #     y2=np.load(path+"Exper_{}/train_obj_init.npy".format(str(i)))
-    #     diffx=x[:2,:]-x2[:2,:]
-    #     diffy=y[:2,:]-y2[:2,:]
-    #     if np.sum(diffx)+np.sum(diffy)!=0:
-    #         print(ValueError("ERROR: initial dataset not identical across trials!"))
+    # validate identical initial dataset
+    for i in range(N_exper):
+        x=np.load(path+"Exper_{}/train_x_init.npy".format(str(i)))
+        y=np.load(path+"Exper_{}/train_obj_init.npy".format(str(i)))
+        x2=np.load(path2+"Exper_{}/train_x_init.npy".format(str(i)))
+        y2=np.load(path+"Exper_{}/train_obj_init.npy".format(str(i)))
+        diffx=x[:2,:]-x2[:2,:]
+        diffy=y[:2,:]-y2[:2,:]
+        if np.sum(diffx)+np.sum(diffy)!=0:
+            print("Experiment i=",i,ValueError("ERROR: initial dataset not identical across trials!"))
 
     # plots_MonteCarlo_objective(path,N_init_IS1,N_init_IS2,sampling_cost_bias,N_exper,N_iter,s2,s3, BATCH_SIZE)
-    plots_MonteCarlo_objectiveEI(path,path2,N_init_IS1,N_init_IS2,sampling_cost_bias,N_exper,N_iter,s2,s3, BATCH_SIZE)
-    # plots_MonteCarlo_objectiveUCB(path,path2,N_init_IS1,N_init_IS2,sampling_cost_bias,N_exper,N_iter,s2,s3, BATCH_SIZE)
+    # plots_MonteCarlo_objectiveEI(path,path2,N_init_IS1,N_init_IS2,sampling_cost_bias,N_exper,N_iter,s2,s3, BATCH_SIZE)
+    plots_MonteCarlo_objectiveUCB(path,path,N_init_IS1,N_init_IS2,sampling_cost_bias,N_exper,N_iter,s2,s3, BATCH_SIZE)
 
