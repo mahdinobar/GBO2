@@ -65,7 +65,7 @@ def plot_gt():
     # mat_data = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/misc/IS1_Exper_0_8x8_metrics.mat')
     # mat_data2 = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/misc/IS2_Exper_0_8x8_metrics.mat')
     # mat_data2 = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/misc/IS2_metrics_8x8_FeasSet2.mat')
-    mat_data2 = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/misc/IS3_1to1_metrics_8x8_FeasSet2.mat')
+    mat_data2 = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_s_01/IS3_1to1_metrics_8x8_FeasSet2.mat')
     n_grid=8
     # obj_IS2_grid = np.load("/home/nobar/codes/GBO2/logs/IS3_FeasSet2OLD_obj.npy")
     obj_IS2_grid = np.load("/home/nobar/Documents/introductions/simulink_model/IS2_FeasSet2OLD_obj.npy")
@@ -149,7 +149,7 @@ def plot_gt():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('True Objective Contour Plot')
-    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS1_J_normalized_test_FeasSet2.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_s_01/IS1_J_normalized_test_FeasSet2.png")
     plt.show()
 
     new_obj2=w1*RiseTime2_all+w2*Overshoot2_all+w4*TransientTime2_all+w3*SettlingTime2_all+w5*PeakTime2_all+w6*SettlingMin2_all
@@ -165,7 +165,7 @@ def plot_gt():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('Estimated Objective Contour Plot')
-    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to1_J_normalized_test_FeasSet2.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_s_01/IS3_1to1_J_normalized_test_FeasSet2.png")
     plt.show()
 
     error_new_obj=new_obj2-new_obj
@@ -182,7 +182,7 @@ def plot_gt():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('Error True Objective Contour Plot')
-    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to1_Error_normalized_FeasSet2.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_s_01/IS3_1to1_Error_normalized_FeasSet2.png")
     # plt.savefig("/home/nobar/codes/GBO2/logs/test_29_baseline/ERROR_Exper_0_8x8_metrics_normalized.png")
     # plt.savefig("/home/nobar/codes/GBO2/logs/test_23_8_test/Exper_0/IS2_Exper_0_8x8_metrics_NEW.png")
     plt.show()
@@ -199,8 +199,8 @@ def plot_gt():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('Error True Objective Contour Plot')
-    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to1_ABSError_normalized_FeasSet2.png")
-    # plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/ABS_ERROR_Exper_8x8_metrics_normalized.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_s_01/IS3_1to1_ABSError_normalized_FeasSet2.png")
+    # plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_s_01/ABS_ERROR_Exper_8x8_metrics_normalized.png")
     # plt.savefig("/home/nobar/codes/GBO2/logs/test_23_8_test/Exper_0/IS2_Exper_0_8x8_metrics_NEW.png")
     plt.show()
 
@@ -212,7 +212,7 @@ def plot_gt():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('$w.T_{p}$')
-    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS1_Tp_test.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_s_01/IS1_Tp_test.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
@@ -223,7 +223,7 @@ def plot_gt():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('$w.SettlingMin$')
-    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS1_SettlingMin_test.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_s_01/IS1_SettlingMin_test.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
@@ -234,7 +234,7 @@ def plot_gt():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('$w.T_{r}$')
-    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS1_Tr_test.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_s_01/IS1_Tr_test.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
@@ -245,7 +245,7 @@ def plot_gt():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('$w.T_{s}$')
-    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS1_Ts_test.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_s_01/IS1_Ts_test.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
@@ -256,7 +256,7 @@ def plot_gt():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('$w.M$')
-    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS1_Ov_test.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_s_01/IS1_Ov_test.png")
     plt.show()
     plt.close()
     plt.figure(figsize=(8, 6))
@@ -267,7 +267,7 @@ def plot_gt():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('$w.T_{tr}$')
-    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS1_Ttr_test.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_s_01/IS1_Ttr_test.png")
     plt.show()
 
 
@@ -291,7 +291,7 @@ def plot_gt():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('error $w.T_{r}$')
-    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to1_Tr_error.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_s_01/IS3_1to1_Tr_error.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
@@ -302,7 +302,7 @@ def plot_gt():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('error $w.T_{s}$')
-    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to1_Ts_error.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_s_01/IS3_1to1_Ts_error.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
@@ -313,7 +313,7 @@ def plot_gt():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('error $w.M$')
-    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to1_Ov_error.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_s_01/IS3_1to1_Ov_error.png")
     plt.show()
     plt.close()
     plt.figure(figsize=(8, 6))
@@ -324,7 +324,7 @@ def plot_gt():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('error $w.T_{tr}$')
-    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to1_Ttr_error.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_s_01/IS3_1to1_Ttr_error.png")
     plt.show()
 
     print("")
@@ -1621,7 +1621,7 @@ def plot_real():
 
 if __name__ == "__main__":
 
-    # plot_gt()
+    plot_gt()
     # plot_real()
 
     # # check objective scales

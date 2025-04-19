@@ -475,6 +475,7 @@ for exper in range(N_exper):
     print("**********Experiment {}**********".format(exper))
     # /cluster/home/mnobar/code/GBO2
     # /home/nobar/codes/GBO2
+    # path = "/home/nobar/codes/GBO2/logs/test_34_2_analysisOnGTplots/Exper_{}".format(str(exper))
     path = "/cluster/home/mnobar/code/GBO2/logs/test_34_2/Exper_{}".format(str(exper))
     # Check if the directory exists, if not, create it
     if not os.path.exists(path):
@@ -508,7 +509,7 @@ for exper in range(N_exper):
     # train_x_init, train_obj_init = generate_initial_data(n_IS1=N_init_IS1, n_IS2=N_init_IS2)
     path_data_init = "/cluster/home/mnobar/code/GBO2/logs/test_33_b_1/Exper_{}".format(str(exper))
     train_x_init = torch.as_tensor(np.load(path_data_init+"/train_x_init.npy"))
-    train_obj_init = torch.as_tensor(np.load(path_data_init+"/train_obj_init.npy"))
+    train_obj_init =  problem(train_x_init).unsqueeze(-1)
     train_x = train_x_init
     train_obj = train_obj_init
     # print("train_obj_init=",train_obj_init)
