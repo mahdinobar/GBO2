@@ -483,6 +483,7 @@ for exper in range(N_exper):
     # reset mismatch dataset per each experiment
     problem.X_GP_train = None
     problem.y_GP_train = None
+    problem.t_GP_train = None
 
     # uncomment for my idea
     # fidelities = torch.tensor([0.05, 0.1, 1.0], **tkwargs)
@@ -504,12 +505,15 @@ for exper in range(N_exper):
     torch.set_printoptions(precision=3, sci_mode=False)
 
     # train_x_init, train_obj_init = generate_initial_data(n_IS1=N_init_IS1,n_IS2=N_init_IS2, seed=int(sobol_seeds[exper]))
-    train_x_init, train_obj_init = generate_initial_data(n_IS1=N_init_IS1, n_IS2=N_init_IS2)
+    # train_x_init, train_obj_init = generate_initial_data(n_IS1=N_init_IS1, n_IS2=N_init_IS2)
+    path_data_init = "/cluster/home/mnobar/code/GBO2/logs/test_33_b_1/Exper_{}".format(str(exper))
+    train_x_init = torch.as_tensor(np.load(path_data_init+"/train_x_init.npy"))
+    train_obj_init = torch.as_tensor(np.load(path_data_init+"/train_obj_init.npy"))
     train_x = train_x_init
     train_obj = train_obj_init
     # print("train_obj_init=",train_obj_init)
-    np.save(path + "/train_obj_init.npy", train_obj_init)
-    np.save(path + "/train_x_init.npy", train_x_init)
+    # np.save(path + "/train_obj_init.npy", train_obj_init)
+    # np.save(path + "/train_x_init.npy", train_x_init)
 
     # add IS3 estimations to GP dataset
     for i in range(train_x_init.__len__()):
