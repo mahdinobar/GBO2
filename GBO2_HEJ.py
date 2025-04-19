@@ -517,6 +517,7 @@ for exper in range(N_exper):
             IS3_new_x = train_x_init[i,:].reshape(1,3)
             IS3_new_x[:, 2] = 0.05
             IS3_obj_new_x = problem(IS3_new_x).unsqueeze(-1)
+            IS3_new_x[:, 2] = 0.1
             train_x = torch.cat([train_x, IS3_new_x])
             train_obj = torch.cat([train_obj, IS3_obj_new_x])
 
@@ -576,6 +577,7 @@ for exper in range(N_exper):
             IS3_new_x=new_x
             IS3_new_x[:,2]=0.05
             IS3_obj_new_x=problem(IS3_new_x).unsqueeze(-1)
+            IS3_new_x[:, 2] = 0.1
             train_x = torch.cat([train_x, IS3_new_x])
             train_obj = torch.cat([train_obj, IS3_obj_new_x])
 
