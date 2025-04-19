@@ -70,7 +70,7 @@ def generate_initial_data(n_IS1, n_IS2):
     # # TODO: uncomment for deterministic initial dataset of just IS1
     # train_f = fidelities[torch.randint(2,3, (n, 1))]
     # # TODO: uncomment for n_IS1 and n_IS2 data
-    train_f = fidelities[(torch.cat([torch.ones((n_IS1, 1)) * 2, torch.ones((n_IS2, 1)) * 1])).to(torch.int)]
+    train_f = fidelities[(torch.cat([torch.ones((n_IS1, 1)) * 1, torch.ones((n_IS2, 1)) * 0])).to(torch.int)] #Attention correct wrt fidelity dims
     # train_f = fidelities[torch.randint(2, (n, 1))]
     train_x_full = torch.cat((train_x, train_f), dim=1)
     train_obj = problem(train_x_full).unsqueeze(-1)  # add output dimension
@@ -128,7 +128,7 @@ class ExpectedImprovementWithCost(AcquisitionFunction):
     factor that reduces or increases the emphasis of the cost model c(x).
     """
 
-    def __init__(self, model, cost_model, best_f_s1, best_f_s2,best_f_s3, alpha=1):
+    def __init__(self, model, cost_model, best_f_s1, best_f_s2, alpha=1):
         super().__init__(model=model)
         self.model = model
         self.cost_model = cost_model
@@ -136,7 +136,6 @@ class ExpectedImprovementWithCost(AcquisitionFunction):
         # self.ei_s2 = qExpectedImprovement(model=model, best_f=best_f_s2)
         self.best_f_s1 = best_f_s1
         self.best_f_s2 = best_f_s2
-        self.best_f_s3 = best_f_s3
         self.alpha = alpha
         self.X_pending = None
 
@@ -144,25 +143,29 @@ class ExpectedImprovementWithCost(AcquisitionFunction):
     def forward(self, X):
         # for i in range(X[:, :, -1].__len__()):
         fidelities = X[:, :, -1].squeeze(-1)
-        best_f_s = torch.where(fidelities == 1, self.best_f_s1, torch.where(fidelities == 0.1, self.best_f_s2, self.best_f_s3))
+        # best_f_s = torch.where(fidelities == 1, self.best_f_s1, torch.where(fidelities == 0.1, self.best_f_s2, self.best_f_s3))
+        best_f_s = torch.where(fidelities == 1, self.best_f_s1, self.best_f_s2)
         self.ei = qExpectedImprovement(model=model, best_f=best_f_s)
         return self.ei(X) / torch.pow(self.cost_model(X)[:, 0], self.alpha).squeeze()
 
 
-def get_cost_aware_ei(model, cost_model, best_f_s1, best_f_s2, best_f_s3, alpha):
+def get_cost_aware_ei(model, cost_model, best_f_s1, best_f_s2, alpha):
     eipu = ExpectedImprovementWithCost(
         model=model,
         cost_model=cost_model,
         best_f_s1=best_f_s1,
         best_f_s2=best_f_s2,
-        best_f_s3=best_f_s3,
         alpha=alpha,
     )
     return eipu
 
 
 def optimize_caEI_and_get_observation(caEI):
-    candidates, _ = optimize_acqf_mixed(acq_function=caEI, bounds=bounds, fixed_features_list=[{2: 0.05},{2: 0.1}, {2: 1.0}],
+    # candidates, _ = optimize_acqf_mixed(acq_function=caEI, bounds=bounds, fixed_features_list=[{2: 0.05},{2: 0.1}, {2: 1.0}],
+    #                                     q=BATCH_SIZE,
+    #                                     num_restarts=NUM_RESTARTS, raw_samples=RAW_SAMPLES,
+    #                                     options={"batch_limit": 4, "maxiter": 50}, )
+    candidates, _ = optimize_acqf_mixed(acq_function=caEI, bounds=bounds, fixed_features_list=[{2: 0.1}, {2: 1.0}],
                                         q=BATCH_SIZE,
                                         num_restarts=NUM_RESTARTS, raw_samples=RAW_SAMPLES,
                                         options={"batch_limit": 4, "maxiter": 50}, )
@@ -183,7 +186,7 @@ def optimize_mfkg_and_get_observation(mfkg_acqf):
     candidates, _ = optimize_acqf_mixed(
         acq_function=mfkg_acqf,
         bounds=bounds,
-        fixed_features_list=[{2: 0.05},{2: 0.1}, {2: 1.0}],
+        fixed_features_list=[{2: 0.1}, {2: 1.0}],
         q=BATCH_SIZE,
         num_restarts=NUM_RESTARTS,
         raw_samples=RAW_SAMPLES,
@@ -203,7 +206,7 @@ def optimize_mfkg_and_get_observation(mfkg_acqf):
 def plot_GP(model, iter, path, train_x):
     # Step 3: Define fidelity levels and create a grid for plotting
     # uncomment for my idea
-    fidelities = [1.0, 0.1, 0.05]  # Three fidelity levels
+    fidelities = [1.0, 0.1]  # Three fidelity levels
     # fidelities = [1.0, 0.5]
     x1 = torch.linspace(0, 1, 50)
     x2 = torch.linspace(0, 1, 50)
@@ -472,7 +475,7 @@ for exper in range(N_exper):
     print("**********Experiment {}**********".format(exper))
     # /cluster/home/mnobar/code/GBO2
     # /home/nobar/codes/GBO2
-    path = "/cluster/home/mnobar/code/GBO2/logs/test_33_2/Exper_{}".format(str(exper))
+    path = "/cluster/home/mnobar/code/GBO2/logs/test_34_1/Exper_{}".format(str(exper))
     # Check if the directory exists, if not, create it
     if not os.path.exists(path):
         os.makedirs(path)
@@ -482,8 +485,8 @@ for exper in range(N_exper):
     problem.y_GP_train = None
 
     # uncomment for my idea
-    fidelities = torch.tensor([0.05, 0.1, 1.0], **tkwargs)
-    # fidelities = torch.tensor([0.5, 1.0], **tkwargs)
+    # fidelities = torch.tensor([0.05, 0.1, 1.0], **tkwargs)
+    fidelities = torch.tensor([0.1, 1.0], **tkwargs)
 
     # Define the bounds
     original_bounds = torch.tensor([[30, 2, 0.0], [200, 10, 1.0]], **tkwargs)
@@ -508,6 +511,15 @@ for exper in range(N_exper):
     np.save(path + "/train_obj_init.npy", train_obj_init)
     np.save(path + "/train_x_init.npy", train_x_init)
 
+    # add IS3 estimations to GP dataset
+    for i in range(train_x_init.__len__()):
+        if train_x_init[i,2]==1:
+            IS3_new_x = train_x_init[i,:].reshape(1,3)
+            IS3_new_x[:, 2] = 0.05
+            IS3_obj_new_x = problem(IS3_new_x).unsqueeze(-1)
+            train_x = torch.cat([train_x, IS3_new_x])
+            train_obj = torch.cat([train_obj, IS3_obj_new_x])
+
     cumulative_cost = 0.0
     costs_all = np.zeros(N_ITER)
     for i in range(N_ITER):
@@ -521,24 +533,31 @@ for exper in range(N_exper):
         # new_x, new_obj, cost = optimize_mfkg_and_get_observation(mfkg_acqf)
         best_f_s1 = train_obj[np.argwhere(train_x[:, 2] == 1)].squeeze().max()
         # Attention set initial best_f when no data in IS is still available
+        # if sum(train_x[:, 2] == 0.1) == 0:
+        #     best_f_s2 = torch.tensor([0], dtype=torch.float64)
+        #     best_f_s3 = torch.tensor([0], dtype=torch.float64)
+        # else:
+        #     best_f_s2 = train_obj[np.argwhere(train_x[:, 2] == 0.1)].squeeze().max()
+        #     # Attention set initial best_f when no data in IS is still available
+        #     if sum(train_x[:, 2] == 0.05) == 0:
+        #         best_f_s3 = torch.tensor([best_f_s2], dtype=torch.float64)
+        #     else:
+        #         best_f_s3 = train_obj[np.argwhere(train_x[:, 2] == 0.05)].squeeze().max()
+        #
+        # caEI = get_cost_aware_ei(model, cost_model,
+        #                         best_f_s1=best_f_s1,
+        #                         best_f_s2=best_f_s2,
+        #                         best_f_s3=best_f_s3,
+        #                         alpha=1)
         if sum(train_x[:, 2] == 0.1) == 0:
             best_f_s2 = torch.tensor([0], dtype=torch.float64)
-            best_f_s3 = torch.tensor([0], dtype=torch.float64)
         else:
             best_f_s2 = train_obj[np.argwhere(train_x[:, 2] == 0.1)].squeeze().max()
-            # Attention set initial best_f when no data in IS is still available
-            if sum(train_x[:, 2] == 0.05) == 0:
-                best_f_s3 = torch.tensor([best_f_s2], dtype=torch.float64)
-            else:
-                best_f_s3 = train_obj[np.argwhere(train_x[:, 2] == 0.05)].squeeze().max()
-
 
         caEI = get_cost_aware_ei(model, cost_model,
                                 best_f_s1=best_f_s1,
                                 best_f_s2=best_f_s2,
-                                best_f_s3=best_f_s3,
                                 alpha=1)
-
         new_x, new_obj, cost = optimize_caEI_and_get_observation(caEI)
 
         # fixed_features_list = [
@@ -551,6 +570,15 @@ for exper in range(N_exper):
 
         train_x = torch.cat([train_x, new_x])
         train_obj = torch.cat([train_obj, new_obj])
+
+        # add IS3 estimations to GP dataset
+        if new_x[:,-1]==1:
+            IS3_new_x=new_x
+            IS3_new_x[:,2]=0.05
+            IS3_obj_new_x=problem(IS3_new_x).unsqueeze(-1)
+            train_x = torch.cat([train_x, IS3_new_x])
+            train_obj = torch.cat([train_obj, IS3_obj_new_x])
+
         cumulative_cost += cost
         costs_all[i] = cost
         np.save(path + "/costs_all.npy", costs_all)
