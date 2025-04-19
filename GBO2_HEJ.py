@@ -475,7 +475,7 @@ for exper in range(N_exper):
     print("**********Experiment {}**********".format(exper))
     # /cluster/home/mnobar/code/GBO2
     # /home/nobar/codes/GBO2
-    path = "/cluster/home/mnobar/code/GBO2/logs/test_34_3/Exper_{}".format(str(exper))
+    path = "/cluster/home/mnobar/code/GBO2/logs/test_34_2/Exper_{}".format(str(exper))
     # Check if the directory exists, if not, create it
     if not os.path.exists(path):
         os.makedirs(path)
@@ -483,7 +483,7 @@ for exper in range(N_exper):
     # reset mismatch dataset per each experiment
     problem.X_GP_train = None
     problem.y_GP_train = None
-    # problem.t_GP_train = None
+    problem.t_GP_train = None
 
     # uncomment for my idea
     # fidelities = torch.tensor([0.05, 0.1, 1.0], **tkwargs)
