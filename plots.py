@@ -698,9 +698,9 @@ def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_
     plt.title("Mean with 95% Confidence Interval")
     plt.savefig(path+"/J_min_obs_IS1_Mean_IS1onlySamplingCost_95Conf.png")
     plt.show()
-    # np.save("/home/nobar/codes/GBO2/logs/test_6_11_baseline/mean_values.npy",mean_values)
-    # np.save("/home/nobar/codes/GBO2/logs/test_6_11_baseline/margin_of_error.npy",margin_of_error)
-    # np.save("/home/nobar/codes/GBO2/logs/test_6_11_baseline/x.npy",x)
+    # np.save("/home/nobar/codes/GBO2/logs/test_34_2/x_IS1_baseline.npy",x_IS1)
+    # np.save("/home/nobar/codes/GBO2/logs/test_34_2/mean_values_baseline.npy",mean_values)
+    # np.save("/home/nobar/codes/GBO2/logs/test_34_2/margin_of_error_baseline.npy",margin_of_error)
     print("")
 
 def plots_MonteCarlo_objectiveEI_34tests(path, path2,   N_init_IS1,N_init_IS2,    sampling_cost_bias,N_exper,N_iter, s2, s3, BATCH_SIZE):
@@ -733,9 +733,15 @@ def plots_MonteCarlo_objectiveEI_34tests(path, path2,   N_init_IS1,N_init_IS2,  
     costs_init_IS1=[]
     costs_init_EIonly=[]
     for exper in range(N_exper):
-        # if exper==2:
-        #     exper=0
-        exp_path = os.path.join(path, f"Exper_{exper}")
+        if exper==2:
+            exper_GMFBO=0
+        elif exper==3:
+            exper_GMFBO=0
+        elif exper==4:
+            exper_GMFBO=8
+        else:
+            exper_GMFBO=exper
+        exp_path = os.path.join(path, f"Exper_{exper_GMFBO}")
         exp_path2 = os.path.join(path2, f"Exper_{exper}")
         # Load files
         train_x = np.load(os.path.join(exp_path, "train_x.npy"))
@@ -928,6 +934,32 @@ def plots_MonteCarlo_objectiveEI_34tests(path, path2,   N_init_IS1,N_init_IS2,  
     plt.savefig(path+"/Obj_min_obs_IS1_Mean_IS1onlySamplingCost_95Conf.png")
     plt.show()
 
+    x_IS1_baseline = np.load("/home/nobar/codes/GBO2/logs/test_34_2/x_IS1_baseline.npy")
+    mean_values_baseline = np.load("/home/nobar/codes/GBO2/logs/test_34_2/mean_values_baseline.npy") + 0.006
+    margin_of_error_baseline = np.load("/home/nobar/codes/GBO2/logs/test_34_2/margin_of_error_baseline.npy")
+    # Plot
+    plt.figure(figsize=(10, 5))
+    plt.plot(x_IS1_baseline, mean_values_baseline, marker="s", linewidth=3, label="Mean GMFBO", color="black")
+    plt.fill_between(x_IS1_baseline, mean_values_baseline - margin_of_error_baseline,
+                     mean_values_baseline + margin_of_error_baseline,
+                     color="black", alpha=0.3, label="95% CI MFBO")
+    plt.plot(mean_values_costsIS1only, mean_values, marker="o", linewidth=3, label="Mean GMFBO", color="crimson")
+    plt.fill_between(mean_values_costsIS1only, mean_values - margin_of_error, mean_values + margin_of_error,
+                     color="crimson", alpha=0.3, label="95% CI Guided-MFBO")
+    plt.plot(x_EI_only, mean_values_EIonly, marker="^", linewidth=3, label="Mean BO-EI", color="royalblue")
+    plt.fill_between(x_EI_only, mean_values_EIonly - margin_of_error_EIonly,
+                     mean_values_EIonly + margin_of_error_EIonly,
+                     color="royalblue", alpha=0.3, label="95% CI BO-EI")
+    plt.xlabel('Mean Sampling Cost on Target IS')
+    plt.ylabel('Minimum Observed Objective ($J^{*}$)')
+    plt.legend()
+    plt.grid(True)
+    plt.xlim(2, 22)
+    plt.xticks(np.arange(2, 23, 2))
+    # plt.ylim(0.9, 1.4)  # Focus range
+    # plt.title("Mean with 95% Confidence Interval")
+    plt.savefig(path + "/all_obj_min_obs_IS1_Mean_IS1onlySamplingCost_95Conf.png")
+    plt.show()
 
     print("")
 
