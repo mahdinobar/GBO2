@@ -128,7 +128,7 @@ class ExpectedImprovementWithCost(AcquisitionFunction):
     factor that reduces or increases the emphasis of the cost model c(x).
     """
 
-    def __init__(self, model, cost_model, best_f_s1, best_f_s2,best_f_s3, alpha=1):
+    def __init__(self, model, cost_model, best_f_s1, best_f_s2, alpha=1):
         super().__init__(model=model)
         self.model = model
         self.cost_model = cost_model
@@ -136,7 +136,7 @@ class ExpectedImprovementWithCost(AcquisitionFunction):
         # self.ei_s2 = qExpectedImprovement(model=model, best_f=best_f_s2)
         self.best_f_s1 = best_f_s1
         self.best_f_s2 = best_f_s2
-        self.best_f_s3 = best_f_s3
+        # self.best_f_s3 = best_f_s3
         self.alpha = alpha
         self.X_pending = None
 
@@ -144,19 +144,18 @@ class ExpectedImprovementWithCost(AcquisitionFunction):
     def forward(self, X):
         # for i in range(X[:, :, -1].__len__()):
         fidelities = X[:, :, -1].squeeze(-1)
-        best_f_s = torch.where(fidelities == 1, self.best_f_s1, torch.where(fidelities == 0.1, self.best_f_s2, self.best_f_s3))
-        # best_f_s = torch.where(fidelities == 1, self.best_f_s1, self.best_f_s2)
+        # best_f_s = torch.where(fidelities == 1, self.best_f_s1, torch.where(fidelities == 0.1, self.best_f_s2, self.best_f_s3))
+        best_f_s = torch.where(fidelities == 1, self.best_f_s1, self.best_f_s2)
         self.ei = qExpectedImprovement(model=model, best_f=best_f_s)
         return self.ei(X) / torch.pow(self.cost_model(X)[:, 0], self.alpha).squeeze()
 
 
-def get_cost_aware_ei(model, cost_model, best_f_s1, best_f_s2,best_f_s3, alpha):
+def get_cost_aware_ei(model, cost_model, best_f_s1, best_f_s2, alpha):
     eipu = ExpectedImprovementWithCost(
         model=model,
         cost_model=cost_model,
         best_f_s1=best_f_s1,
         best_f_s2=best_f_s2,
-        best_f_s3=best_f_s3,
         alpha=alpha,
     )
     return eipu
