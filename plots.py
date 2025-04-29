@@ -1784,7 +1784,8 @@ def normalize_objective(obj, min_bound, max_bound):
 
 def plot_real():
     # Load the .mat file
-    mat_data = scipy.io.loadmat("/home/nobar/codes/GBO2/logs/50x50_dataset/metrics_all.mat")
+    # mat_data = scipy.io.loadmat("/home/nobar/codes/GBO2/logs/50x50_dataset/metrics_all.mat")
+    mat_data = scipy.io.loadmat("/home/nobar/codes/GBO2/logs/50x50_dataset/metrics_all_corrected_2.mat")
     mat_data_sim = scipy.io.loadmat("/home/nobar/codes/GBO2/logs/50x50_dataset/plots/simulation_metrics_all.mat")
 
     # obj_IS1_grid = Objective_all.squeeze()
@@ -1795,7 +1796,7 @@ def plot_real():
     # TransientTime_all = mat_data['TransientTime_all']  # Should be a 2D array
     # SettlingTime_all = mat_data['SettlingTime_all']  # Should be a 2D array
     # Overshoot_all = mat_data['Overshoot_all']  # Should be a 2D array
-    #
+    # 
     # # Objective_all_sim = mat_data_sim['Objective_all']  # Should be a 2D array
     # RiseTime_all_sim = mat_data_sim['RiseTime_all']  # Should be a 2D array
     # TransientTime_all_sim = mat_data_sim['TransientTime_all']  # Should be a 2D array
@@ -1829,7 +1830,7 @@ def plot_real():
     # plt.figure(figsize=(8, 6))
     # # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
     # # contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(20,20),levs)  # Transpose to match dimensions
-    # contour = plt.contourf(Kp, Kd, Objective_all.reshape(n_grid, n_grid), levels=20)  # Transpose to match dimensions
+    # contour = plt.contourf(Kp[::-1], Kd[::-1], Objective_all.reshape(n_grid, n_grid), levels=20)  # Transpose to match dimensions
     # plt.colorbar(contour, label='Objective')
     # plt.xlabel('Kp')
     # plt.ylabel('Kd')
@@ -1837,10 +1838,10 @@ def plot_real():
     # plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots/real_objective_old_weights.png")
     # plt.show()
     #
-    w1 = 0.5
-    w2 = 0.2
-    w3 = 0.1
-    w4 = 0.1
+    w1 = 1
+    w2 = 1 / 100
+    w3 = 0.3
+    w4 = 0.3
     # w1 = 2. / 0.07760332331784746
     # w2 = 3. / 100 / 1.333916097560976
     # w3 = 1.5 / 0.31516471869918694
@@ -1855,38 +1856,38 @@ def plot_real():
     plt.figure(figsize=(8, 6))
     # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
     # contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(20,20),levs)  # Transpose to match dimensions
-    contour = plt.contourf(Kp, Kd, Objective_all.reshape(n_grid, n_grid), levels=20)  # Transpose to match dimensions
+    contour = plt.contourf(Kp[::-1], Kd[::-1], Objective_all.reshape(n_grid, n_grid), levels=20)  # Transpose to match dimensions
     plt.colorbar(contour, label='Objective')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('True Objective Contour Plot')
-    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots/normalized_Objective_all.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Objective_all.png")
     plt.show()
 
     Objective_all_sim = w1 * RiseTime_all_sim + w2 * Overshoot_all_sim + w4 * TransientTime_all_sim + w3 * SettlingTime_all_sim
     plt.figure(figsize=(8, 6))
-    contour = plt.contourf(Kp, Kd, Objective_all_sim.reshape(n_grid, n_grid), levels=20)  # Transpose to match dimensions
+    contour = plt.contourf(Kp[::-1], Kd[::-1], Objective_all_sim.reshape(n_grid, n_grid), levels=20)  # Transpose to match dimensions
     plt.colorbar(contour, label='Objective')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('Simulation Objective Contour Plot')
-    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots/normalized_Objective_all_sim.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Objective_all_sim.png")
     plt.show()
 
-
-    np.save("/home/nobar/codes/GBO2/logs/50x50_dataset/plots/Kp_50_v1.npy",Kp)
-    np.save("/home/nobar/codes/GBO2/logs/50x50_dataset/plots/Kd_50_v1.npy",Kd)
-    np.save("/home/nobar/codes/GBO2/logs/50x50_dataset/plots/IS1_50x50_objectives_v1.npy",Objective_all.reshape(n_grid, n_grid))
-    np.save("/home/nobar/codes/GBO2/logs/50x50_dataset/plots/IS2_50x50_objectives_v1.npy",Objective_all_sim.reshape(n_grid, n_grid))
-
     plt.figure(figsize=(8, 6))
-    contour = plt.contourf(Kp, Kd, (Objective_all_sim-Objective_all).reshape(n_grid, n_grid), levels=20)  # Transpose to match dimensions
+    contour = plt.contourf(Kp[::-1], Kd[::-1], (Objective_all_sim-Objective_all).reshape(n_grid, n_grid), levels=20)  # Transpose to match dimensions
     plt.colorbar(contour, label='$J_{sim}-J')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('Error Objective Contour Plot')
-    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots/normalized_Objective_all_err.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Objective_all_err.png")
     plt.show()
+
+    np.save("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Kp_50_v1.npy",Kp)
+    np.save("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Kd_50_v1.npy",Kd)
+    np.save("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_IS1_50x50_objectives_v1.npy",Objective_all.reshape(n_grid, n_grid))
+    np.save("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_IS2_50x50_objectives_v1.npy",Objective_all_sim.reshape(n_grid, n_grid))
+
 
     # from scipy.interpolate import RegularGridInterpolator
     # # Create the interpolator
@@ -1929,120 +1930,120 @@ def plot_real():
     # plt.xlabel('Kp')
     # plt.ylabel('Kd')
     # plt.title('Absolute Error Objective Contour Plot')
-    # plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots/IS1_numerical.png")
+    # plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_IS1_numerical.png")
     # # plt.savefig("/home/nobar/codes/GBO2/logs/test_23_8_test/Exper_0/IS2_Exper_0_8x8_metrics_NEW.png")
     # plt.show()
 
     plt.figure(figsize=(8, 6))
-    contour = plt.contourf(Kp, Kd, RiseTime_all.reshape(n_grid, n_grid), levels=30)  # Transpose to match dimensions
+    contour = plt.contourf(Kp[::-1], Kd[::-1], RiseTime_all.reshape(n_grid, n_grid), levels=30)  # Transpose to match dimensions
     plt.colorbar(contour, label='Rise Time')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title("Rise Time")
-    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots/normalized_RiseTime_all.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_RiseTime_all.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
-    contour = plt.contourf(Kp, Kd, TransientTime_all.reshape(n_grid, n_grid), levels=30)  # Transpose to match dimensions
+    contour = plt.contourf(Kp[::-1], Kd[::-1], TransientTime_all.reshape(n_grid, n_grid), levels=30)  # Transpose to match dimensions
     plt.colorbar(contour, label='Transient Time')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title("Transient Time")
-    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots/normalized_TransientTime_all.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_TransientTime_all.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
-    contour = plt.contourf(Kp, Kd, SettlingTime_all.reshape(n_grid, n_grid), levels=30)  # Transpose to match dimensions
+    contour = plt.contourf(Kp[::-1], Kd[::-1], SettlingTime_all.reshape(n_grid, n_grid), levels=30)  # Transpose to match dimensions
     plt.colorbar(contour, label='Settling Time')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title("Settling Time")
-    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots/normalized_SettlingTime_all.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_SettlingTime_all.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
-    contour = plt.contourf(Kp, Kd, Overshoot_all.reshape(n_grid, n_grid), levels=30)  # Transpose to match dimensions
+    contour = plt.contourf(Kp[::-1], Kd[::-1], Overshoot_all.reshape(n_grid, n_grid), levels=30)  # Transpose to match dimensions
     plt.colorbar(contour, label='Overshoot')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title("Overshoot")
-    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots/normalized_Overshoot_all.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Overshoot_all.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
-    contour = plt.contourf(Kp, Kd, RiseTime_all_sim.reshape(n_grid, n_grid), levels=30)  # Transpose to match dimensions
+    contour = plt.contourf(Kp[::-1], Kd[::-1], RiseTime_all_sim.reshape(n_grid, n_grid), levels=30)  # Transpose to match dimensions
     plt.colorbar(contour, label='Rise Time')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title("Rise Time")
-    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots/normalized_RiseTime_all_sim.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_RiseTime_all_sim.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
-    contour = plt.contourf(Kp, Kd, TransientTime_all_sim.reshape(n_grid, n_grid), levels=30)  # Transpose to match dimensions
+    contour = plt.contourf(Kp[::-1], Kd[::-1], TransientTime_all_sim.reshape(n_grid, n_grid), levels=30)  # Transpose to match dimensions
     plt.colorbar(contour, label='Transient Time')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title("Transient Time")
-    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots/normalized_TransientTime_all_sim.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_TransientTime_all_sim.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
-    contour = plt.contourf(Kp, Kd, SettlingTime_all_sim.reshape(n_grid, n_grid), levels=30)  # Transpose to match dimensions
+    contour = plt.contourf(Kp[::-1], Kd[::-1], SettlingTime_all_sim.reshape(n_grid, n_grid), levels=30)  # Transpose to match dimensions
     plt.colorbar(contour, label='Settling Time')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title("Settling Time")
-    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots/normalized_SettlingTime_all_sim.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_SettlingTime_all_sim.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
-    contour = plt.contourf(Kp, Kd, Overshoot_all_sim.reshape(n_grid, n_grid), levels=30)  # Transpose to match dimensions
+    contour = plt.contourf(Kp[::-1], Kd[::-1], Overshoot_all_sim.reshape(n_grid, n_grid), levels=30)  # Transpose to match dimensions
     plt.colorbar(contour, label='Overshoot')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title("Overshoot")
-    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots/normalized_Overshoot_all_sim.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Overshoot_all_sim.png")
     plt.show()
 
 
     plt.figure(figsize=(8, 6))
-    contour = plt.contourf(Kp, Kd, (RiseTime_all-RiseTime_all_sim).reshape(n_grid, n_grid), levels=30)  # Transpose to match dimensions
+    contour = plt.contourf(Kp[::-1], Kd[::-1], (RiseTime_all-RiseTime_all_sim).reshape(n_grid, n_grid), levels=30)  # Transpose to match dimensions
     plt.colorbar(contour, label='$Tr-Tr_{sim}$')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title("Rise Time Error")
-    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots/normalized_RiseTime_all_err.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_RiseTime_all_err.png")
     plt.show()
     plt.figure(figsize=(8, 6))
-    contour = plt.contourf(Kp, Kd, (SettlingTime_all-SettlingTime_all_sim).reshape(n_grid, n_grid), levels=30)  # Transpose to match dimensions
+    contour = plt.contourf(Kp[::-1], Kd[::-1], (SettlingTime_all-SettlingTime_all_sim).reshape(n_grid, n_grid), levels=30)  # Transpose to match dimensions
     plt.colorbar(contour, label='$Ts-Ts_{sim}$')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title("Settling Time Error")
-    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots/normalized_SettlingTime_all_err.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_SettlingTime_all_err.png")
     plt.show()
     plt.figure(figsize=(8, 6))
-    contour = plt.contourf(Kp, Kd, (TransientTime_all-TransientTime_all_sim).reshape(n_grid, n_grid), levels=30)  # Transpose to match dimensions
+    contour = plt.contourf(Kp[::-1], Kd[::-1], (TransientTime_all-TransientTime_all_sim).reshape(n_grid, n_grid), levels=30)  # Transpose to match dimensions
     plt.colorbar(contour, label='$Ttr-Ttr_{sim}$')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title("Transient Time Error")
-    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots/normalized_TransientTime_all_err.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_TransientTime_all_err.png")
     plt.show()
     plt.figure(figsize=(8, 6))
-    contour = plt.contourf(Kp, Kd, (Overshoot_all-Overshoot_all_sim).reshape(n_grid, n_grid), levels=30)  # Transpose to match dimensions
+    contour = plt.contourf(Kp[::-1], Kd[::-1], (Overshoot_all-Overshoot_all_sim).reshape(n_grid, n_grid), levels=30)  # Transpose to match dimensions
     plt.colorbar(contour, label='$M-M_{sim}$')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title("Overshoot Error")
-    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots/normalized_Overshoot_all_err.png")
+    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Overshoot_all_err.png")
     plt.show()
     # # Plot the contour
     # plt.figure(figsize=(8, 6))
     # # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
     # # contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(20,20),levs)  # Transpose to match dimensions
-    # contour = plt.contourf(Kp, Kd, w1*RiseTime_all.reshape(n_grid, n_grid), levels=20)  # Transpose to match dimensions
+    # contour = plt.contourf(Kp[::-1], Kd[::-1], w1*RiseTime_all.reshape(n_grid, n_grid), levels=20)  # Transpose to match dimensions
     # plt.colorbar(contour, label='Weighted Rise Time')
     # plt.xlabel('Kp')
     # plt.ylabel('Kd')
@@ -2054,7 +2055,7 @@ def plot_real():
     # plt.figure(figsize=(8, 6))
     # # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
     # # contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(20,20),levs)  # Transpose to match dimensions
-    # contour = plt.contourf(Kp, Kd, w4*TransientTime_all.reshape(n_grid, n_grid), levels=20)  # Transpose to match dimensions
+    # contour = plt.contourf(Kp[::-1], Kd[::-1], w4*TransientTime_all.reshape(n_grid, n_grid), levels=20)  # Transpose to match dimensions
     # plt.colorbar(contour, label='Weighted Transient Time')
     # plt.xlabel('Kp')
     # plt.ylabel('Kd')
@@ -2066,7 +2067,7 @@ def plot_real():
     # plt.figure(figsize=(8, 6))
     # # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
     # # contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(20,20),levs)  # Transpose to match dimensions
-    # contour = plt.contourf(Kp, Kd, w3*SettlingTime_all.reshape(n_grid, n_grid), levels=20)  # Transpose to match dimensions
+    # contour = plt.contourf(Kp[::-1], Kd[::-1], w3*SettlingTime_all.reshape(n_grid, n_grid), levels=20)  # Transpose to match dimensions
     # plt.colorbar(contour, label='Weighted Settling Time')
     # plt.xlabel('Kp')
     # plt.ylabel('Kd')
@@ -2078,7 +2079,7 @@ def plot_real():
     # plt.figure(figsize=(8, 6))
     # # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
     # # contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(20,20),levs)  # Transpose to match dimensions
-    # contour = plt.contourf(Kp, Kd, w2*Overshoot_all.reshape(n_grid, n_grid), levels=20)  # Transpose to match dimensions
+    # contour = plt.contourf(Kp[::-1], Kd[::-1], w2*Overshoot_all.reshape(n_grid, n_grid), levels=20)  # Transpose to match dimensions
     # plt.colorbar(contour, label='Weighted Overshoot')
     # plt.xlabel('Kp')
     # plt.ylabel('Kd')
@@ -2091,7 +2092,7 @@ def plot_real():
 if __name__ == "__main__":
 
     # plot_gt()
-    # plot_real()
+    plot_real()
 
     # # check objective scales
     # IS1 = scipy.io.loadmat("/home/nobar/Documents/introductions/simulink_model/IS1_Exper_0_8x8_metrics.mat")
