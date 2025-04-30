@@ -476,7 +476,7 @@ for exper in range(N_exper):
     print("**********Experiment {}**********".format(exper))
     # /cluster/home/mnobar/code/GBO2
     # /home/nobar/codes/GBO2
-    path = "/home/nobar/codes/GBO2/logs/test_35_b_3_3/Exper_{}".format(str(exper))
+    path = "/home/nobar/codes/GBO2/logs/test_35_b_3_4/Exper_{}".format(str(exper))
     # Check i<f the directory exists, if not, create it
     if not os.path.exists(path):
         os.makedirs(path)
@@ -622,6 +622,7 @@ for exper in range(N_exper):
     # train_obj = torch.as_tensor(train_obj_init[:N_init_IS1])
 
     for i in range(N_ITER):
+        print("BO-EI batch iteration=", i)
         mll, model = initialize_model(train_x, train_obj)
         fit_gpytorch_mll(mll)
         plot_EIonly_GP(model, i, path, train_x)
@@ -666,6 +667,7 @@ for exper in range(N_exper):
     # # train_obj = torch.as_tensor(train_obj_init[:N_init_IS1])
     #
     # for i in range(N_ITER):
+    #     print("BO-UCB batch iteration=", i)
     #     mll, model = initialize_model(train_x, train_obj)
     #     fit_gpytorch_mll(mll)
     #     plot_UCBonly_GP(model, i, path, train_x)
