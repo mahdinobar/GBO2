@@ -233,12 +233,12 @@ def plot_GP(model, iter, path, train_x):
             std = posterior.variance.sqrt().reshape(50, 50).numpy()
 
         # Plot the posterior mean
-        contour_mean = axs[i, 0].contourf(X1.numpy(), X2.numpy(), mean.T, cmap='viridis')
+        contour_mean = axs[i, 0].contourf(X1.numpy(), X2.numpy(), mean, cmap='viridis')
         axs[i, 0].set_title(f"Posterior Mean (s={s_val})")
         fig.colorbar(contour_mean, ax=axs[i, 0])
 
         # Plot the posterior standard deviation
-        contour_std = axs[i, 1].contourf(X1.numpy(), X2.numpy(), std.T, cmap='viridis')
+        contour_std = axs[i, 1].contourf(X1.numpy(), X2.numpy(), std, cmap='viridis')
         axs[i, 1].set_title(f"Posterior Standard Deviation (s={s_val})")
         fig.colorbar(contour_std, ax=axs[i, 1])
 
@@ -291,12 +291,12 @@ def plot_EIonly_GP(model, iter, path, train_x):
             std = posterior.variance.sqrt().reshape(50, 50).numpy()
 
         # Plot the posterior mean
-        contour_mean = axs[0].contourf(X1.numpy(), X2.numpy(), mean.T, cmap='viridis')
+        contour_mean = axs[0].contourf(X1.numpy(), X2.numpy(), mean, cmap='viridis')
         axs[0].set_title(f"Posterior Mean (s={s_val})")
         fig.colorbar(contour_mean, ax=axs[0])
 
         # Plot the posterior standard deviation
-        contour_std = axs[1].contourf(X1.numpy(), X2.numpy(), std.T, cmap='viridis')
+        contour_std = axs[1].contourf(X1.numpy(), X2.numpy(), std, cmap='viridis')
         axs[1].set_title(f"Posterior Standard Deviation (s={s_val})")
         fig.colorbar(contour_std, ax=axs[1])
 
@@ -345,12 +345,12 @@ def plot_UCBonly_GP(model, iter, path, train_x):
             std = posterior.variance.sqrt().reshape(50, 50).numpy()
 
         # Plot the posterior mean
-        contour_mean = axs[0].contourf(X1.numpy(), X2.numpy(), mean.T, cmap='viridis')
+        contour_mean = axs[0].contourf(X1.numpy(), X2.numpy(), mean, cmap='viridis')
         axs[0].set_title(f"Posterior Mean (s={s_val})")
         fig.colorbar(contour_mean, ax=axs[0])
 
         # Plot the posterior standard deviation
-        contour_std = axs[1].contourf(X1.numpy(), X2.numpy(), std.T, cmap='viridis')
+        contour_std = axs[1].contourf(X1.numpy(), X2.numpy(), std, cmap='viridis')
         axs[1].set_title(f"Posterior Standard Deviation (s={s_val})")
         fig.colorbar(contour_std, ax=axs[1])
 
@@ -461,7 +461,7 @@ set_seed(seed)
 problem = HEJ(negate=True).to(
     **tkwargs)  # Setting negate=True typically multiplies the objective values by -1, transforming a minimization objective (i.e., minimizing f(x)) into a maximization objective (i.e., maximizing −f(x)).
 
-N_exper = 10
+N_exper = 5
 NUM_RESTARTS = 4 if not SMOKE_TEST else 2
 RAW_SAMPLES = 64 if not SMOKE_TEST else 4
 BATCH_SIZE = 1
@@ -476,8 +476,8 @@ for exper in range(N_exper):
     print("**********Experiment {}**********".format(exper))
     # /cluster/home/mnobar/code/GBO2
     # /home/nobar/codes/GBO2
-    path = "/cluster/home/mnobar/code/GBO2/logs/test_35_b_1/Exper_{}".format(str(exper))
-    # Check if the directory exists, if not, create it
+    path = "/home/nobar/codes/GBO2/logs/test_35_b_3_3/Exper_{}".format(str(exper))
+    # Check i<f the directory exists, if not, create it
     if not os.path.exists(path):
         os.makedirs(path)
 
@@ -507,14 +507,14 @@ for exper in range(N_exper):
 
     # train_x_init, train_obj_init = generate_initial_data(n_IS1=N_init_IS1,n_IS2=N_init_IS2, seed=int(sobol_seeds[exper]))
     train_x_init, train_obj_init = generate_initial_data(n_IS1=N_init_IS1, n_IS2=N_init_IS2)
-    path_data_init = "/cluster/home/mnobar/code/GBO2/logs/test_35_b_1/Exper_{}".format(str(exper))
+    # path_data_init = "/home/nobar/codes/GBO2/logs/test_35_b_3_1/Exper_{}".format(str(exper))
     # train_x_init = torch.as_tensor(np.load(path_data_init+"/train_x_init.npy"))
     # train_obj_init =  problem(train_x_init).unsqueeze(-1)
     train_x = train_x_init
     train_obj = train_obj_init
     # print("train_obj_init=",train_obj_init)
-    # np.save(path + "/train_obj_init.npy", train_obj_init)
-    # np.save(path + "/train_x_init.npy", train_x_init)
+    np.save(path + "/train_obj_init.npy", train_obj_init)
+    np.save(path + "/train_x_init.npy", train_x_init)
 
     # # add IS3 estimations to GP dataset
     # for i in range(train_x_init.__len__()):
@@ -648,31 +648,33 @@ for exper in range(N_exper):
     print(f"\nEI only total cost: {cumulative_cost}\n")
 
 
-    ####################################################################################################################
-    # Baseline Single Fidelity BO with UCB
-    cumulative_cost = 0.0
-    costs_all = np.zeros(N_ITER)
-    train_x = train_x_init[:N_init_IS1]
-    train_obj = train_obj_init[:N_init_IS1]
-
-    # path2="/home/nobar/codes/GBO2/logs/test_31_b_5*/Exper_{}".format(str(exper))
-    # train_obj_init=np.load(path2 + "/train_obj_init.npy")
-    # train_x_init=np.load(path2 + "/train_x_init.npy")
+    # ####################################################################################################################
+    # ####################################################################################################################
+    # #####################################################################################################################
+    # # Baseline Single Fidelity BO with UCB
     # cumulative_cost = 0.0
     # costs_all = np.zeros(N_ITER)
-    # train_x = torch.as_tensor(train_x_init[:N_init_IS1])
-    # train_obj = torch.as_tensor(train_obj_init[:N_init_IS1])
-
-    for i in range(N_ITER):
-        mll, model = initialize_model(train_x, train_obj)
-        fit_gpytorch_mll(mll)
-        plot_UCBonly_GP(model, i, path, train_x)
-        ucb_acqf = get_ucb(model, beta=0.2)  # Tune beta as needed
-        new_x, new_obj, cost = optimize_ei_and_get_observation(ucb_acqf)
-        train_x = torch.cat([train_x, new_x])
-        train_obj = torch.cat([train_obj, new_obj])
-        cumulative_cost += cost
-        costs_all[i] = cost
-        np.save(path + "/costs_all_UCBonly.npy", costs_all)
-        np.save(path + "/train_x_UCBonly.npy", train_x)
-        np.save(path + "/train_obj_UCBonly.npy", train_obj)
+    # train_x = train_x_init[:N_init_IS1]
+    # train_obj = train_obj_init[:N_init_IS1]
+    #
+    # # path2="/home/nobar/codes/GBO2/logs/test_31_b_5*/Exper_{}".format(str(exper))
+    # # train_obj_init=np.load(path2 + "/train_obj_init.npy")
+    # # train_x_init=np.load(path2 + "/train_x_init.npy")
+    # # cumulative_cost = 0.0
+    # # costs_all = np.zeros(N_ITER)
+    # # train_x = torch.as_tensor(train_x_init[:N_init_IS1])
+    # # train_obj = torch.as_tensor(train_obj_init[:N_init_IS1])
+    #
+    # for i in range(N_ITER):
+    #     mll, model = initialize_model(train_x, train_obj)
+    #     fit_gpytorch_mll(mll)
+    #     plot_UCBonly_GP(model, i, path, train_x)
+    #     ucb_acqf = get_ucb(model, beta=0.2)  # Tune beta as needed
+    #     new_x, new_obj, cost = optimize_ei_and_get_observation(ucb_acqf)
+    #     train_x = torch.cat([train_x, new_x])
+    #     train_obj = torch.cat([train_obj, new_obj])
+    #     cumulative_cost += cost
+    #     costs_all[i] = cost
+    #     np.save(path + "/costs_all_UCBonly.npy", costs_all)
+    #     np.save(path + "/train_x_UCBonly.npy", train_x)
+    #     np.save(path + "/train_obj_UCBonly.npy", train_obj)
