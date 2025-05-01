@@ -9,6 +9,7 @@ from matplotlib.patches import Rectangle
 import math
 from scipy.stats import t
 import torch
+from matplotlib import gridspec
 
 
 def plot_colortable(colors, *, ncols=4, sort_colors=True):
@@ -1014,6 +1015,62 @@ def plots_MonteCarlo_objectiveEI_34tests(path, path2,   N_init_IS1,N_init_IS2,  
     # plt.title("Mean with 95% Confidence Interval")
     plt.savefig(path + "/all_obj_min_obs_IS1_Mean_IS1onlySamplingCost_95Conf.png")
     plt.savefig(path + "/all_obj_min_obs_IS1_Mean_IS1onlySamplingCost_95Conf.pdf")
+    plt.show()
+
+    # Create figure and two subplots with broken x-axis
+    fig = plt.figure(figsize=(10, 5))
+    gs = gridspec.GridSpec(1, 2, width_ratios=[10, 1], wspace=0.05)
+    ax1 = plt.subplot(gs[0])
+    ax2 = plt.subplot(gs[1], sharey=ax1)
+    # Plot on left part (2 to 15)
+    ax1.plot(x_IS1_baseline, mean_values_baseline, marker="s", linewidth=3, label="Mean MFBO", color="black")
+    ax1.fill_between(x_IS1_baseline, mean_values_baseline - margin_of_error_baseline,
+                     mean_values_baseline + margin_of_error_baseline,
+                     color="black", alpha=0.3, label="95% CI MFBO")
+    ax1.plot(mean_values_costsIS1only, mean_values, marker="o", linewidth=3, label="Mean GMFBO", color="crimson")
+    ax1.fill_between(mean_values_costsIS1only, mean_values - margin_of_error, mean_values + margin_of_error,
+                     color="crimson", alpha=0.3, label="95% CI Guided-MFBO")
+    ax1.plot(x_EI_only, mean_values_EIonly, marker="^", linewidth=3, label="Mean BO-EI", color="royalblue")
+    ax1.fill_between(x_EI_only, mean_values_EIonly - margin_of_error_EIonly,
+                     mean_values_EIonly + margin_of_error_EIonly,
+                     color="royalblue", alpha=0.3, label="95% CI BO-EI")
+    # Plot on right part (15 to 22)
+    ax2.plot(x_IS1_baseline, mean_values_baseline, marker="s", linewidth=3, color="black")
+    ax2.fill_between(x_IS1_baseline, mean_values_baseline - margin_of_error_baseline,
+                     mean_values_baseline + margin_of_error_baseline,
+                     color="black", alpha=0.3)
+    ax2.plot(mean_values_costsIS1only, mean_values, marker="o", linewidth=3, color="crimson")
+    ax2.fill_between(mean_values_costsIS1only, mean_values - margin_of_error, mean_values + margin_of_error,
+                     color="crimson", alpha=0.3)
+    ax2.plot(x_EI_only, mean_values_EIonly, marker="^", linewidth=3, color="royalblue")
+    ax2.fill_between(x_EI_only, mean_values_EIonly - margin_of_error_EIonly,
+                     mean_values_EIonly + margin_of_error_EIonly,
+                     color="royalblue", alpha=0.3)
+    # Set x-limits for broken axis
+    ax1.set_xlim(2, 15)
+    ax2.set_xlim(15, 22)
+    # Hide spines between axes
+    ax1.spines['right'].set_visible(False)
+    ax2.spines['left'].set_visible(False)
+    ax1.tick_params(labelright=False)
+    ax2.yaxis.tick_right()
+    # Add diagonal break marks
+    d = .015
+    kwargs = dict(transform=ax1.transAxes, color='k', clip_on=False)
+    ax1.plot([1 - d, 1 + d], [-d, +d], **kwargs)
+    ax1.plot([1 - d, 1 + d], [1 - d, 1 + d], **kwargs)
+    kwargs.update(transform=ax2.transAxes)
+    ax2.plot([-d, +d], [-d, +d], **kwargs)
+    ax2.plot([-d, +d], [1 - d, 1 + d], **kwargs)
+    # Labels and legend
+    ax1.set_xlabel('Mean Sampling Cost on Target IS')
+    ax1.set_ylabel('Minimum Observed Objective ($J^{*}$)')
+    ax1.legend(loc='best')
+    ax1.grid(True)
+    ax2.grid(True)
+    # Save
+    fig.savefig(path + "/broken_all_obj_min_obs_IS1_brokenX_Mean_IS1onlySamplingCost_95Conf.png")
+    fig.savefig(path + "/broken_all_obj_min_obs_IS1_brokenX_Mean_IS1onlySamplingCost_95Conf.pdf")
     plt.show()
 
     print("")
