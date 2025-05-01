@@ -901,6 +901,7 @@ def plots_MonteCarlo_objectiveEI_34tests(path, path2,   N_init_IS1,N_init_IS2,  
     plt.xlim(1, 20)
     plt.xticks(np.arange(1, 21, 2))
     plt.savefig(path+"/Unbiased_sampling_cost_objective_evaluation.png")
+    plt.savefig(path+"/Unbiased_sampling_cost_objective_evaluation.pdf")
     plt.show()
 
     D=np.vstack((np.asarray(min_obj_init_all), DD.T))
@@ -1012,6 +1013,7 @@ def plots_MonteCarlo_objectiveEI_34tests(path, path2,   N_init_IS1,N_init_IS2,  
     # plt.ylim(0.9, 1.4)  # Focus range
     # plt.title("Mean with 95% Confidence Interval")
     plt.savefig(path + "/all_obj_min_obs_IS1_Mean_IS1onlySamplingCost_95Conf.png")
+    plt.savefig(path + "/all_obj_min_obs_IS1_Mean_IS1onlySamplingCost_95Conf.pdf")
     plt.show()
 
     print("")
@@ -2114,7 +2116,7 @@ if __name__ == "__main__":
 
     # plot_cost_coef()
 
-    path = "/home/nobar/codes/GBO2/logs/test_35_3_5/"
+    path = "/home/nobar/codes/GBO2/logs/test_35_3_6/"
     # path2 = "/home/nobar/codes/GBO2/logs/test_31_b_UCB_1/"
     path2 = "/home/nobar/codes/GBO2/logs/test_35_b_3_4/"
     N_init_IS1=2
