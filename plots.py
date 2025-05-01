@@ -703,9 +703,9 @@ def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_
     plt.title("Mean with 95% Confidence Interval")
     plt.savefig(path+"/J_min_obs_IS1_Mean_IS1onlySamplingCost_95Conf.png")
     plt.show()
-    # np.save("/home/nobar/codes/GBO2/logs/test_34_2/x_IS1_baseline.npy",x_IS1)
-    # np.save("/home/nobar/codes/GBO2/logs/test_34_2/mean_values_baseline.npy",mean_values)
-    # np.save("/home/nobar/codes/GBO2/logs/test_34_2/margin_of_error_baseline.npy",margin_of_error)
+    # np.save("/home/nobar/codes/GBO2/logs/test_35_3/x_IS1_baseline.npy",x_IS1)
+    # np.save("/home/nobar/codes/GBO2/logs/test_35_3/mean_values_baseline.npy",mean_values)
+    # np.save("/home/nobar/codes/GBO2/logs/test_35_3/margin_of_error_baseline.npy",margin_of_error)
     print("")
 
 def plots_MonteCarlo_objectiveEI_34tests(path, path2,   N_init_IS1,N_init_IS2,    sampling_cost_bias,N_exper,N_iter, s2, s3, BATCH_SIZE):
@@ -737,16 +737,18 @@ def plots_MonteCarlo_objectiveEI_34tests(path, path2,   N_init_IS1,N_init_IS2,  
     costs_init=[]
     costs_init_IS1=[]
     costs_init_EIonly=[]
+    # N_exper=N_exper+1
     for exper in range(N_exper):
-        if exper==2:
-            exper_GMFBO=0
-        elif exper==3:
-            exper_GMFBO=0
-        elif exper==4:
-            exper_GMFBO=8
-        else:
-            exper_GMFBO=exper
-        exp_path = os.path.join(path, f"Exper_{exper_GMFBO}")
+        # if exper==2:
+        #     exper_GMFBO=0
+        # elif exper==3:
+        #     exper_GMFBO=0
+        # elif exper==4:
+        #     exper_GMFBO=8
+        # else:
+        #     exper_GMFBO=exper
+        # exper=0
+        exp_path = os.path.join(path, f"Exper_{exper}")
         exp_path2 = os.path.join(path2, f"Exper_{exper}")
         # Load files
         train_x = np.load(os.path.join(exp_path, "train_x.npy"))
@@ -983,9 +985,9 @@ def plots_MonteCarlo_objectiveEI_34tests(path, path2,   N_init_IS1,N_init_IS2,  
     plt.savefig(path+"/Obj_min_obs_IS1_Mean_IS1onlySamplingCost_95Conf.png")
     plt.show()
 
-    x_IS1_baseline = np.load("/home/nobar/codes/GBO2/logs/test_34_2/x_IS1_baseline.npy")
-    mean_values_baseline = np.load("/home/nobar/codes/GBO2/logs/test_34_2/mean_values_baseline.npy") + 0.006
-    margin_of_error_baseline = np.load("/home/nobar/codes/GBO2/logs/test_34_2/margin_of_error_baseline.npy")
+    x_IS1_baseline = np.load("/home/nobar/codes/GBO2/logs/test_35_3/x_IS1_baseline.npy")
+    mean_values_baseline = np.load("/home/nobar/codes/GBO2/logs/test_35_3/mean_values_baseline.npy") + 0.006
+    margin_of_error_baseline = np.load("/home/nobar/codes/GBO2/logs/test_35_3/margin_of_error_baseline.npy")
     # Plot
     plt.figure(figsize=(10, 5))
     plt.plot(x_IS1_baseline, mean_values_baseline, marker="s", linewidth=3, label="Mean MFBO", color="black")
@@ -2112,9 +2114,9 @@ if __name__ == "__main__":
 
     # plot_cost_coef()
 
-    path = "/home/nobar/codes/GBO2/logs/test_35_b_3_4/"
+    path = "/home/nobar/codes/GBO2/logs/test_35_3_5/"
     # path2 = "/home/nobar/codes/GBO2/logs/test_31_b_UCB_1/"
-    path2 = "/home/nobar/codes/GBO2/logs/test_35_b_2/"
+    path2 = "/home/nobar/codes/GBO2/logs/test_35_b_3_4/"
     N_init_IS1=2
     N_init_IS2=10
     sampling_cost_bias=5
@@ -2155,8 +2157,8 @@ if __name__ == "__main__":
     #     if np.sum(diffx)+np.sum(diffy)!=0:
     #         print("Experiment i=",i,ValueError("ERROR: initial dataset not identical across trials!"))
 
-    plots_MonteCarlo_objective(path,N_init_IS1,N_init_IS2,sampling_cost_bias,N_exper,N_iter,s2,s3, BATCH_SIZE)
+    # plots_MonteCarlo_objective(path,N_init_IS1,N_init_IS2,sampling_cost_bias,N_exper,N_iter,s2,s3, BATCH_SIZE)
     # plots_MonteCarlo_objectiveEI(path,path2,N_init_IS1,N_init_IS2,sampling_cost_bias,N_exper,N_iter,s2,s3, BATCH_SIZE)
-    # plots_MonteCarlo_objectiveEI_34tests(path,path2,N_init_IS1,N_init_IS2,sampling_cost_bias,N_exper,N_iter,s2,s3, BATCH_SIZE)
+    plots_MonteCarlo_objectiveEI_34tests(path,path2,N_init_IS1,N_init_IS2,sampling_cost_bias,N_exper,N_iter,s2,s3, BATCH_SIZE)
     # plots_MonteCarlo_objectiveUCB(path,path2,N_init_IS1,N_init_IS2,sampling_cost_bias,N_exper,N_iter,s2,s3, BATCH_SIZE)
 

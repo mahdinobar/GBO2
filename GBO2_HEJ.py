@@ -476,7 +476,7 @@ for exper in range(N_exper):
     print("**********Experiment {}**********".format(exper))
     # /cluster/home/mnobar/code/GBO2
     # /home/nobar/codes/GBO2
-    path = "/home/nobar/codes/GBO2/logs/test_35_b_3_4/Exper_{}".format(str(exper))
+    path = "/home/nobar/codes/GBO2/logs/test_35_3_5/Exper_{}".format(str(exper))
     # Check i<f the directory exists, if not, create it
     if not os.path.exists(path):
         os.makedirs(path)
@@ -484,7 +484,7 @@ for exper in range(N_exper):
     # reset mismatch dataset per each experiment
     problem.X_GP_train = None
     problem.y_GP_train = None
-    # problem.t_GP_train = None
+    problem.t_GP_train = None
 
     # uncomment for my idea
     # fidelities = torch.tensor([0.05, 0.1, 1.0], **tkwargs)
@@ -506,25 +506,27 @@ for exper in range(N_exper):
     torch.set_printoptions(precision=3, sci_mode=False)
 
     # train_x_init, train_obj_init = generate_initial_data(n_IS1=N_init_IS1,n_IS2=N_init_IS2, seed=int(sobol_seeds[exper]))
-    train_x_init, train_obj_init = generate_initial_data(n_IS1=N_init_IS1, n_IS2=N_init_IS2)
-    # path_data_init = "/home/nobar/codes/GBO2/logs/test_35_b_3_1/Exper_{}".format(str(exper))
-    # train_x_init = torch.as_tensor(np.load(path_data_init+"/train_x_init.npy"))
-    # train_obj_init =  problem(train_x_init).unsqueeze(-1)
+
+    # train_x_init, train_obj_init = generate_initial_data(n_IS1=N_init_IS1, n_IS2=N_init_IS2)
+    # np.save(path + "/train_obj_init.npy", train_obj_init)
+    # np.save(path + "/train_x_init.npy", train_x_init)
+
+    path_data_init = "/home/nobar/codes/GBO2/logs/test_35_b_3_4/Exper_{}".format(str(exper))
+    train_x_init = torch.as_tensor(np.load(path_data_init+"/train_x_init.npy"))
+    train_obj_init =  problem(train_x_init).unsqueeze(-1)
     train_x = train_x_init
     train_obj = train_obj_init
-    # print("train_obj_init=",train_obj_init)
-    np.save(path + "/train_obj_init.npy", train_obj_init)
-    np.save(path + "/train_x_init.npy", train_x_init)
 
-    # # add IS3 estimations to GP dataset
-    # for i in range(train_x_init.__len__()):
-    #     if train_x_init[i,2]==1:
-    #         IS3_new_x = train_x_init[i,:].clone().reshape(1,3)
-    #         IS3_new_x[:, 2] = 0.05
-    #         IS3_obj_new_x = problem(IS3_new_x).clone().unsqueeze(-1)
-    #         IS3_new_x[:, 2] = 0.1
-    #         train_x = torch.cat([train_x, IS3_new_x])
-    #         train_obj = torch.cat([train_obj, IS3_obj_new_x])
+
+    # (my idea) add IS3 estimations to GP dataset
+    for i in range(train_x_init.__len__()):
+        if train_x_init[i,2]==1:
+            IS3_new_x = train_x_init[i,:].clone().reshape(1,3)
+            IS3_new_x[:, 2] = 0.05
+            IS3_obj_new_x = problem(IS3_new_x).clone().unsqueeze(-1)
+            IS3_new_x[:, 2] = 0.1
+            train_x = torch.cat([train_x, IS3_new_x])
+            train_obj = torch.cat([train_obj, IS3_obj_new_x])
 
     cumulative_cost = 0.0
     costs_all = np.zeros(N_ITER)
@@ -578,14 +580,14 @@ for exper in range(N_exper):
         train_x = torch.cat([train_x, new_x])
         train_obj = torch.cat([train_obj, new_obj])
 
-        # # add IS3 estimations to GP dataset
-        # if new_x[:,-1]==1:
-        #     IS3_new_x=new_x.cope()
-        #     IS3_new_x[:,2]=0.05
-        #     IS3_obj_new_x=problem(IS3_new_x).unsqueeze(-1)
-        #     IS3_new_x[:, 2] = 0.1
-        #     train_x = torch.cat([train_x, IS3_new_x])
-        #     train_obj = torch.cat([train_obj, IS3_obj_new_x])
+        # (my idea) add IS3 estimations to GP dataset
+        if new_x[:,-1]==1:
+            IS3_new_x=new_x.clone()
+            IS3_new_x[:,2]=0.05
+            IS3_obj_new_x=problem(IS3_new_x).unsqueeze(-1)
+            IS3_new_x[:, 2] = 0.1
+            train_x = torch.cat([train_x, IS3_new_x])
+            train_obj = torch.cat([train_obj, IS3_obj_new_x])
 
         cumulative_cost += cost
         costs_all[i] = cost
@@ -604,52 +606,52 @@ for exper in range(N_exper):
 
     print(f"\nMFBO total cost: {cumulative_cost}\n")
 
-    ####################################################################################################################
-    ####################################################################################################################
-    ####################################################################################################################
-    # Baseline Single Fidelity BO with EI
-    cumulative_cost = 0.0
-    costs_all = np.zeros(N_ITER)
-    train_x = train_x_init[:N_init_IS1]
-    train_obj = train_obj_init[:N_init_IS1]
-
-    # path2="/home/nobar/codes/GBO2/logs/test_31_b_5*/Exper_{}".format(str(exper))
-    # train_obj_init=np.load(path2 + "/train_obj_init.npy")
-    # train_x_init=np.load(path2 + "/train_x_init.npy")
+    # ####################################################################################################################
+    # ####################################################################################################################
+    # ####################################################################################################################
+    # # Baseline Single Fidelity BO with EI
     # cumulative_cost = 0.0
     # costs_all = np.zeros(N_ITER)
-    # train_x = torch.as_tensor(train_x_init[:N_init_IS1])
-    # train_obj = torch.as_tensor(train_obj_init[:N_init_IS1])
-
-    for i in range(N_ITER):
-        print("BO-EI batch iteration=", i)
-        mll, model = initialize_model(train_x, train_obj)
-        fit_gpytorch_mll(mll)
-        plot_EIonly_GP(model, i, path, train_x)
-        ei_acqf = get_ei(model, best_f=train_obj.max())
-        new_x, new_obj, cost = optimize_ei_and_get_observation(ei_acqf)
-        train_x = torch.cat([train_x, new_x])
-        train_obj = torch.cat([train_obj, new_obj])
-        cumulative_cost += cost
-        costs_all[i] = cost
-        np.save(path + "/costs_all_EIonly.npy", costs_all)
-        np.save(path + "/train_x_EIonly.npy", train_x)
-        np.save(path + "/train_obj_EIonly.npy", train_obj)
-
-    final_rec_EIonly, objective_value_EIonly = get_recommendation(model, lower, upper)
-    np.save(path + "/final_rec_EIonly.npy", final_rec_EIonly)
-    np.save(path + "/objective_value_EIonly.npy", objective_value_EIonly)
-
-    final_rec_max_observed_EIonly, objective_value_max_observed_EIonly = get_recommendation_max_observed(train_x,
-                                                                                                         train_obj,
-                                                                                                         lower, upper)
-    np.save(path + "/final_rec_max_observed_EIonly.npy", final_rec_max_observed_EIonly)
-    np.save(path + "/objective_value_max_observed_EIonly.npy", objective_value_max_observed_EIonly)
-
-    print(f"\nEI only total cost: {cumulative_cost}\n")
-
-
-    # ####################################################################################################################
+    # train_x = train_x_init[:N_init_IS1]
+    # train_obj = train_obj_init[:N_init_IS1]
+    #
+    # # path2="/home/nobar/codes/GBO2/logs/test_31_b_5*/Exper_{}".format(str(exper))
+    # # train_obj_init=np.load(path2 + "/train_obj_init.npy")
+    # # train_x_init=np.load(path2 + "/train_x_init.npy")
+    # # cumulative_cost = 0.0
+    # # costs_all = np.zeros(N_ITER)
+    # # train_x = torch.as_tensor(train_x_init[:N_init_IS1])
+    # # train_obj = torch.as_tensor(train_obj_init[:N_init_IS1])
+    #
+    # for i in range(N_ITER):
+    #     print("BO-EI batch iteration=", i)
+    #     mll, model = initialize_model(train_x, train_obj)
+    #     fit_gpytorch_mll(mll)
+    #     plot_EIonly_GP(model, i, path, train_x)
+    #     ei_acqf = get_ei(model, best_f=train_obj.max())
+    #     new_x, new_obj, cost = optimize_ei_and_get_observation(ei_acqf)
+    #     train_x = torch.cat([train_x, new_x])
+    #     train_obj = torch.cat([train_obj, new_obj])
+    #     cumulative_cost += cost
+    #     costs_all[i] = cost
+    #     np.save(path + "/costs_all_EIonly.npy", costs_all)
+    #     np.save(path + "/train_x_EIonly.npy", train_x)
+    #     np.save(path + "/train_obj_EIonly.npy", train_obj)
+    #
+    # final_rec_EIonly, objective_value_EIonly = get_recommendation(model, lower, upper)
+    # np.save(path + "/final_rec_EIonly.npy", final_rec_EIonly)
+    # np.save(path + "/objective_value_EIonly.npy", objective_value_EIonly)
+    #
+    # final_rec_max_observed_EIonly, objective_value_max_observed_EIonly = get_recommendation_max_observed(train_x,
+    #                                                                                                      train_obj,
+    #                                                                                                      lower, upper)
+    # np.save(path + "/final_rec_max_observed_EIonly.npy", final_rec_max_observed_EIonly)
+    # np.save(path + "/objective_value_max_observed_EIonly.npy", objective_value_max_observed_EIonly)
+    #
+    # print(f"\nEI only total cost: {cumulative_cost}\n")
+    #
+    #
+    # # ####################################################################################################################
     # ####################################################################################################################
     # #####################################################################################################################
     # # Baseline Single Fidelity BO with UCB
