@@ -1016,13 +1016,12 @@ def plots_MonteCarlo_objectiveEI_34tests(path, path2,   N_init_IS1,N_init_IS2,  
     plt.savefig(path + "/all_obj_min_obs_IS1_Mean_IS1onlySamplingCost_95Conf.png")
     plt.savefig(path + "/all_obj_min_obs_IS1_Mean_IS1onlySamplingCost_95Conf.pdf")
     plt.show()
-
     # Create figure and two subplots with broken x-axis
     fig = plt.figure(figsize=(10, 5))
     gs = gridspec.GridSpec(1, 2, width_ratios=[10, 1], wspace=0.05)
     ax1 = plt.subplot(gs[0])
     ax2 = plt.subplot(gs[1], sharey=ax1)
-    # Plot on left part (2 to 15)
+    # Plot on left part (2 to 13)
     ax1.plot(x_IS1_baseline, mean_values_baseline, marker="s", linewidth=3, label="Mean MFBO", color="black")
     ax1.fill_between(x_IS1_baseline, mean_values_baseline - margin_of_error_baseline,
                      mean_values_baseline + margin_of_error_baseline,
@@ -1034,7 +1033,7 @@ def plots_MonteCarlo_objectiveEI_34tests(path, path2,   N_init_IS1,N_init_IS2,  
     ax1.fill_between(x_EI_only, mean_values_EIonly - margin_of_error_EIonly,
                      mean_values_EIonly + margin_of_error_EIonly,
                      color="royalblue", alpha=0.3, label="95% CI BO-EI")
-    # Plot on right part (15 to 22)
+    # Plot on right part (13 to 22)
     ax2.plot(x_IS1_baseline, mean_values_baseline, marker="s", linewidth=3, color="black")
     ax2.fill_between(x_IS1_baseline, mean_values_baseline - margin_of_error_baseline,
                      mean_values_baseline + margin_of_error_baseline,
@@ -1047,8 +1046,8 @@ def plots_MonteCarlo_objectiveEI_34tests(path, path2,   N_init_IS1,N_init_IS2,  
                      mean_values_EIonly + margin_of_error_EIonly,
                      color="royalblue", alpha=0.3)
     # Set x-limits for broken axis
-    ax1.set_xlim(2, 15)
-    ax2.set_xlim(15, 22)
+    ax1.set_xlim(2, 13)
+    ax2.set_xlim(13, 22)
     # Hide spines between axes
     ax1.spines['right'].set_visible(False)
     ax2.spines['left'].set_visible(False)
