@@ -612,9 +612,9 @@ for exper in range(N_exper):
                 # If value < 0, multiply by -1
                 IS3_new_x[:, :2] = torch.where(IS3_new_x[:, :2] < 0, -IS3_new_x[:, :2], IS3_new_x[:, :2])
                 IS3_new_x[:, :2] = torch.clamp(IS3_new_x[:, :2], 0.0, 1.0)
-                IS3_new_x[:,2]=0.7
+                IS3_new_x[:,2]=0.2
                 IS3_obj_new_x=problem(IS3_new_x).unsqueeze(-1)
-                IS3_new_x[:, 2] = 0.1
+                # IS3_new_x[:, 2] = 0.1
                 train_x = torch.cat([train_x, IS3_new_x])
                 train_obj = torch.cat([train_obj, IS3_obj_new_x])
 
