@@ -2172,7 +2172,7 @@ if __name__ == "__main__":
 
     # plot_cost_coef()
 
-    path = "/home/nobar/codes/GBO2/logs/test_37_1/"
+    path = "/home/nobar/codes/GBO2/logs/test_34_2_10_5c/"
     # path2 = "/home/nobar/codes/GBO2/logs/test_31_b_UCB_1/"
     path2 = "/home/nobar/codes/GBO2/logs/test_33_b_1/"
     N_init_IS1=2
