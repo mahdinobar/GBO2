@@ -704,9 +704,9 @@ def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_
     plt.title("Mean with 95% Confidence Interval")
     plt.savefig(path+"/J_min_obs_IS1_Mean_IS1onlySamplingCost_95Conf.png")
     plt.show()
-    # np.save("/home/nobar/codes/GBO2/logs/test_35_3/x_IS1_baseline.npy",x_IS1)
-    # np.save("/home/nobar/codes/GBO2/logs/test_35_3/mean_values_baseline.npy",mean_values)
-    # np.save("/home/nobar/codes/GBO2/logs/test_35_3/margin_of_error_baseline.npy",margin_of_error)
+    np.save("/home/nobar/codes/GBO2/logs/test_33_b_1/x_IS1_baseline.npy",x_IS1)
+    np.save("/home/nobar/codes/GBO2/logs/test_33_b_1/mean_values_baseline.npy",mean_values)
+    np.save("/home/nobar/codes/GBO2/logs/test_33_b_1/margin_of_error_baseline.npy",margin_of_error)
     print("")
 
 def plots_MonteCarlo_objectiveEI_34tests(path, path2,   N_init_IS1,N_init_IS2,    sampling_cost_bias,N_exper,N_iter, s2, s3, BATCH_SIZE):
@@ -987,9 +987,9 @@ def plots_MonteCarlo_objectiveEI_34tests(path, path2,   N_init_IS1,N_init_IS2,  
     plt.savefig(path+"/Obj_min_obs_IS1_Mean_IS1onlySamplingCost_95Conf.png")
     plt.show()
 
-    x_IS1_baseline = np.load("/home/nobar/codes/GBO2/logs/test_35_3/x_IS1_baseline.npy")
-    mean_values_baseline = np.load("/home/nobar/codes/GBO2/logs/test_35_3/mean_values_baseline.npy") + 0.006
-    margin_of_error_baseline = np.load("/home/nobar/codes/GBO2/logs/test_35_3/margin_of_error_baseline.npy")
+    x_IS1_baseline = np.load("/home/nobar/codes/GBO2/logs/test_33_b_1/x_IS1_baseline.npy")
+    mean_values_baseline = np.load("/home/nobar/codes/GBO2/logs/test_33_b_1/mean_values_baseline.npy")+0.006
+    margin_of_error_baseline = np.load("/home/nobar/codes/GBO2/logs/test_33_b_1/margin_of_error_baseline.npy")
     # Plot
     plt.figure(figsize=(10, 5))
     plt.plot(x_IS1_baseline, mean_values_baseline, marker="s", linewidth=3, label="Mean MFBO", color="black")
@@ -2174,11 +2174,11 @@ if __name__ == "__main__":
 
     path = "/home/nobar/codes/GBO2/logs/test_37_1/"
     # path2 = "/home/nobar/codes/GBO2/logs/test_31_b_UCB_1/"
-    path2 = "/home/nobar/codes/GBO2/logs/test_35_b_3_4/"
+    path2 = "/home/nobar/codes/GBO2/logs/test_33_b_1/"
     N_init_IS1=2
-    N_init_IS2=2
+    N_init_IS2=10
     sampling_cost_bias=5
-    N_exper=1
+    N_exper=10
     N_iter=20
     s2 = 0.1
     s3 = 0.05
