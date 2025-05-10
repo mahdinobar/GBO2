@@ -461,7 +461,7 @@ set_seed(seed)
 problem = HEJ(negate=True).to(
     **tkwargs)  # Setting negate=True typically multiplies the objective values by -1, transforming a minimization objective (i.e., minimizing f(x)) into a maximization objective (i.e., maximizing −f(x)).
 
-N_exper = 5
+N_exper = 10
 NUM_RESTARTS = 4 if not SMOKE_TEST else 2
 RAW_SAMPLES = 64 if not SMOKE_TEST else 4
 BATCH_SIZE = 1
@@ -476,7 +476,7 @@ for exper in range(N_exper):
     print("**********Experiment {}**********".format(exper))
     # /cluster/home/mnobar/code/GBO2
     # /home/nobar/codes/GBO2
-    path = "/home/nobar/codes/GBO2/logs/test_35_3_6/Exper_{}".format(str(exper))
+    path = "/cluster/home/mnobar/code/GBO2/logs/test_37_1/Exper_{}".format(str(exper))
     # Check i<f the directory exists, if not, create it
     if not os.path.exists(path):
         os.makedirs(path)
@@ -487,11 +487,11 @@ for exper in range(N_exper):
     problem.t_GP_train = None
 
     # uncomment for my idea
-    # fidelities = torch.tensor([0.05, 0.1, 1.0], **tkwargs)
+    # fidelities = torch.tensor([0.7, 0.1, 1.0], **tkwargs)
     fidelities = torch.tensor([0.1, 1.0], **tkwargs)
 
     # Define the bounds
-    original_bounds = torch.tensor([[70, 2, 0.0], [120, 5, 1.0]], **tkwargs)
+    original_bounds = torch.tensor([[30, 2, 0.0], [200, 10, 1.0]], **tkwargs)
     lower, upper = original_bounds[0], original_bounds[1]
     # Example input data
     X_original = torch.stack([lower, upper]).to(**tkwargs)
@@ -511,18 +511,36 @@ for exper in range(N_exper):
     # np.save(path + "/train_obj_init.npy", train_obj_init)
     # np.save(path + "/train_x_init.npy", train_x_init)
 
-    path_data_init = "/home/nobar/codes/GBO2/logs/test_35_b_3_4/Exper_{}".format(str(exper))
+    path_data_init = "/cluster/home/mnobar/code/GBO2/logs/test_33_b_1/Exper_{}".format(str(exper))
     train_x_init = torch.as_tensor(np.load(path_data_init+"/train_x_init.npy"))
     train_obj_init =  problem(train_x_init).unsqueeze(-1)
-    train_x = train_x_init
-    train_obj = train_obj_init
+
+    # train_x = train_x_init
+    # train_obj = train_obj_init
 
 
     # (my idea) add IS3 estimations to GP dataset
+    train_x=None
+    train_obj=None
     for i in range(train_x_init.__len__()):
+        x = train_x_init[i, :].clone().reshape(1, 3)
+        obj_x = problem(x).clone().unsqueeze(-1)
+        if train_x is None:
+            train_x=x
+            train_obj=obj_x
+        else:
+            train_x = torch.cat([train_x, x])
+            train_obj = torch.cat([train_obj, obj_x])
         if train_x_init[i,2]==1:
             IS3_new_x = train_x_init[i,:].clone().reshape(1,3)
-            IS3_new_x[:, 2] = 0.05
+            gains_vicinity_noise = torch.normal(mean=0.0, std=0.005, size=(1, 2))
+            IS3_new_x[:, :2] += gains_vicinity_noise
+            # If value > 1, wrap it to 1 - (value - 1) = 2 - value
+            IS3_new_x[:, :2] = torch.where(IS3_new_x[:, :2] > 1, 2 - IS3_new_x[:, :2], IS3_new_x[:, :2])
+            # If value < 0, multiply by -1
+            IS3_new_x[:, :2] = torch.where(IS3_new_x[:, :2] < 0, -IS3_new_x[:, :2], IS3_new_x[:, :2])
+            IS3_new_x[:, :2] = torch.clamp(IS3_new_x[:, :2], 0.0, 1.0)
+            IS3_new_x[:, 2] = 0.7
             IS3_obj_new_x = problem(IS3_new_x).clone().unsqueeze(-1)
             IS3_new_x[:, 2] = 0.1
             train_x = torch.cat([train_x, IS3_new_x])
@@ -547,10 +565,10 @@ for exper in range(N_exper):
         # else:
         #     best_f_s2 = train_obj[np.argwhere(train_x[:, 2] == 0.1)].squeeze().max()
         #     # Attention set initial best_f when no data in IS is still available
-        #     if sum(train_x[:, 2] == 0.05) == 0:
+        #     if sum(train_x[:, 2] == 0.7) == 0:
         #         best_f_s3 = torch.tensor([best_f_s2], dtype=torch.float64)
         #     else:
-        #         best_f_s3 = train_obj[np.argwhere(train_x[:, 2] == 0.05)].squeeze().max()
+        #         best_f_s3 = train_obj[np.argwhere(train_x[:, 2] == 0.7)].squeeze().max()
         #
         # caEI = get_cost_aware_ei(model, cost_model,
         #                         best_f_s1=best_f_s1,
@@ -583,11 +601,19 @@ for exper in range(N_exper):
         # (my idea) add IS3 estimations to GP dataset
         if new_x[:,-1]==1:
             IS3_new_x=new_x.clone()
-            IS3_new_x[:,2]=0.05
+            gains_vicinity_noise = torch.normal(mean=0.0, std=0.005, size=(1, 2))
+            IS3_new_x[:, :2] += gains_vicinity_noise
+            # If value > 1, wrap it to 1 - (value - 1) = 2 - value
+            IS3_new_x[:, :2] = torch.where(IS3_new_x[:, :2] > 1, 2 - IS3_new_x[:, :2], IS3_new_x[:, :2])
+            # If value < 0, multiply by -1
+            IS3_new_x[:, :2] = torch.where(IS3_new_x[:, :2] < 0, -IS3_new_x[:, :2], IS3_new_x[:, :2])
+            IS3_new_x[:, :2] = torch.clamp(IS3_new_x[:, :2], 0.0, 1.0)
+            IS3_new_x[:,2]=0.7
             IS3_obj_new_x=problem(IS3_new_x).unsqueeze(-1)
             IS3_new_x[:, 2] = 0.1
             train_x = torch.cat([train_x, IS3_new_x])
             train_obj = torch.cat([train_obj, IS3_obj_new_x])
+
 
         cumulative_cost += cost
         costs_all[i] = cost
