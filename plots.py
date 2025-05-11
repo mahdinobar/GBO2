@@ -741,9 +741,9 @@ def plots_MonteCarlo_objectiveEI_34tests(path, path2,   N_init_IS1,N_init_IS2,  
     # N_exper=N_exper+1
     for exper in range(N_exper):
         if exper==2:
-            exper_GMFBO=3
-        elif exper==7:
-            exper_GMFBO=6
+            exper_GMFBO=1
+        elif exper==9:
+            exper_GMFBO=4
         # elif exper==4:
         #     exper_GMFBO=8
         else:
@@ -754,25 +754,25 @@ def plots_MonteCarlo_objectiveEI_34tests(path, path2,   N_init_IS1,N_init_IS2,  
         # Load files
         train_x = np.load(os.path.join(exp_path, "train_x.npy"))
         train_obj = np.load(os.path.join(exp_path, "train_obj.npy"))
-        r = 1
-        # # uncomment and modify when r>1
-        # # # put data of IS3 after init data to keep order for plos below(correct for other Ninits)
-        # train_x_=np.copy(train_x)
-        # train_obj_=np.copy(train_obj)
-        # if r>1:
-        #     sliced = np.vstack([train_x[1:r+1], train_x[r+2:2*r+2]])
-        #     train_x_[1]=train_x[r+1]
-        #     train_x_[2:1+N_init_IS2+1] = train_x[2*r+2:2*r+2+N_init_IS2]
-        #     train_x_[1+N_init_IS2+1:1+N_init_IS2+2*r+1] = sliced
-        #     train_x_[1+N_init_IS2+2*r+1:] = train_x[2*r+2+N_init_IS2:]
-        #
-        #     sliced = np.vstack([train_obj[1:r+1], train_obj[r+2:2*r+2]])
-        #     train_obj_[1]=train_obj[r+1]
-        #     train_obj_[2:1+N_init_IS2+1] = train_obj[2*r+2:2*r+2+N_init_IS2]
-        #     train_obj_[1+N_init_IS2+1:1+N_init_IS2+2*r+1] = sliced
-        #     train_obj_[1+N_init_IS2+2*r+1:] = train_obj[2*r+2+N_init_IS2:]
-        # train_x=train_x_
-        # train_obj=train_obj_
+        r = 5
+        # uncomment and modify when r>1
+        # # put data of IS3 after init data to keep order for plos below(correct for other Ninits)
+        train_x_=np.copy(train_x)
+        train_obj_=np.copy(train_obj)
+        if r>1:
+            sliced = np.vstack([train_x[1:r+1], train_x[r+2:2*r+2]])
+            train_x_[1]=train_x[r+1]
+            train_x_[2:1+N_init_IS2+1] = train_x[2*r+2:2*r+2+N_init_IS2]
+            train_x_[1+N_init_IS2+1:1+N_init_IS2+2*r+1] = sliced
+            train_x_[1+N_init_IS2+2*r+1:] = train_x[2*r+2+N_init_IS2:]
+
+            sliced = np.vstack([train_obj[1:r+1], train_obj[r+2:2*r+2]])
+            train_obj_[1]=train_obj[r+1]
+            train_obj_[2:1+N_init_IS2+1] = train_obj[2*r+2:2*r+2+N_init_IS2]
+            train_obj_[1+N_init_IS2+1:1+N_init_IS2+2*r+1] = sliced
+            train_obj_[1+N_init_IS2+2*r+1:] = train_obj[2*r+2+N_init_IS2:]
+        train_x=train_x_
+        train_obj=train_obj_
 
 
         RAWS=np.hstack((train_x, train_obj))
@@ -2193,7 +2193,7 @@ if __name__ == "__main__":
 
     # plot_cost_coef()
 
-    path = "/home/nobar/codes/GBO2/logs/test_37_3/"
+    path = "/home/nobar/codes/GBO2/logs/test_37_4/"
     # path2 = "/home/nobar/codes/GBO2/logs/test_31_b_UCB_1/"
     path2 = "/home/nobar/codes/GBO2/logs/test_33_b_1/"
     N_init_IS1=2
