@@ -162,7 +162,7 @@ def get_cost_aware_ei(model, cost_model, best_f_s1, best_f_s2, alpha):
 
 
 def optimize_caEI_and_get_observation(caEI):
-    candidates, _ = optimize_acqf_mixed(acq_function=caEI, bounds=bounds, fixed_features_list=[{2: 0.1}, {2: 1.0}],
+    candidates, caEI_value = optimize_acqf_mixed(acq_function=caEI, bounds=bounds, fixed_features_list=[{2: 0.1}, {2: 1.0}],
                                         q=BATCH_SIZE,
                                         num_restarts=NUM_RESTARTS, raw_samples=RAW_SAMPLES,
                                         options={"batch_limit": 4, "maxiter": 50}, )
@@ -176,7 +176,7 @@ def optimize_caEI_and_get_observation(caEI):
     new_obj = problem(new_x).unsqueeze(-1)
     print(f"candidates:\n{new_x}\n")
     print(f"observations:\n{new_obj}\n\n")
-    return new_x, new_obj, cost
+    return new_x, new_obj, cost, caEI_value
 
 
 def optimize_mfkg_and_get_observation(mfkg_acqf):
@@ -476,7 +476,7 @@ for exper in range(N_exper):
     print("**********Experiment {}**********".format(exper))
     # /cluster/home/mnobar/code/GBO2
     # /home/nobar/codes/GBO2
-    path = "/cluster/home/mnobar/code/GBO2/logs/test_37_3/Exper_{}".format(str(exper))
+    path = "/home/nobar/codes/GBO2/logs/test_37_8/Exper_{}".format(str(exper))
     # Check i<f the directory exists, if not, create it
     if not os.path.exists(path):
         os.makedirs(path)
@@ -511,17 +511,21 @@ for exper in range(N_exper):
     # np.save(path + "/train_obj_init.npy", train_obj_init)
     # np.save(path + "/train_x_init.npy", train_x_init)
 
-    path_data_init = "/cluster/home/mnobar/code/GBO2/logs/test_33_b_1/Exper_{}".format(str(exper))
+    path_data_init = "/home/nobar/codes/GBO2/logs/test_33_b_1/Exper_{}".format(str(exper))
     train_x_init = torch.as_tensor(np.load(path_data_init+"/train_x_init.npy"))
-    train_obj_init =  problem(train_x_init).unsqueeze(-1)
+    # train_obj_init =  problem(train_x_init).unsqueeze(-1)
 
     # train_x = train_x_init
     # train_obj = train_obj_init
 
 
-    # (my idea) add IS3 estimations to GP dataset
+    # (my idea) add IS3 estimations to GP dataset + add IS3 data after IS1 and IS2 initial data
     train_x=None
     train_obj=None
+    i_IS1s=None
+    detla_J=None
+    JIS2s_for_delta_J=None
+    caEI_values=None
     for i in range(train_x_init.__len__()):
         x = train_x_init[i, :].clone().reshape(1, 3)
         obj_x = problem(x).clone().unsqueeze(-1)
@@ -532,6 +536,27 @@ for exper in range(N_exper):
             train_x = torch.cat([train_x, x])
             train_obj = torch.cat([train_obj, obj_x])
         if train_x_init[i,2]==1:
+            x_ = x.clone().reshape(1,3)
+            x_[:, 2] = 0.1
+            obj_x_IS2_ = problem(x_).clone().unsqueeze(-1)
+            if i_IS1s is None:
+                i_IS1s = torch.tensor([i])
+                JIS2s_for_delta_J = obj_x_IS2_
+                caEI_values = torch.tensor([0])
+                detla_J = obj_x_IS2_ - obj_x
+            else:
+                detla_J = torch.cat([detla_J, obj_x_IS2_ - obj_x])
+                i_IS1s = torch.cat([i_IS1s, torch.tensor([i])])
+                JIS2s_for_delta_J = torch.cat([JIS2s_for_delta_J, obj_x_IS2_])
+                caEI_values = torch.cat([caEI_values, torch.tensor([0])])
+        else:
+            detla_J = torch.cat([detla_J, torch.tensor([[0]])])
+            JIS2s_for_delta_J = torch.cat([JIS2s_for_delta_J, obj_x])
+            caEI_values = torch.cat([caEI_values, torch.tensor([0])])
+
+
+    # Now add IS3 data after initial dataset
+    for i in i_IS1s:
             IS3_new_x = train_x_init[i,:].clone().reshape(1,3)
             gains_vicinity_noise = torch.normal(mean=0.0, std=0.005, size=(1, 2))
             IS3_new_x[:, :2] += gains_vicinity_noise
@@ -585,7 +610,7 @@ for exper in range(N_exper):
                                 best_f_s1=best_f_s1,
                                 best_f_s2=best_f_s2,
                                 alpha=1)
-        new_x, new_obj, cost = optimize_caEI_and_get_observation(caEI)
+        new_x, new_obj, cost, caEI_value = optimize_caEI_and_get_observation(caEI)
 
         # fixed_features_list = [
         #     {2: 1.0},  # Fix fidelity s = 1.0 (real)
@@ -598,8 +623,18 @@ for exper in range(N_exper):
         train_x = torch.cat([train_x, new_x])
         train_obj = torch.cat([train_obj, new_obj])
 
+
+
+
         # (my idea) add IS3 estimations to GP dataset
         if new_x[:,-1]==1:
+            x_ = new_x.clone().reshape(1,3)
+            x_[:, 2] = 0.1
+            obj_x_IS2_ = problem(x_).clone().unsqueeze(-1)
+            detla_J = torch.cat([detla_J, obj_x_IS2_-new_obj])
+            JIS2s_for_delta_J = torch.cat([JIS2s_for_delta_J, obj_x_IS2_])
+            caEI_values = torch.cat([caEI_values, caEI_value.reshape(1)])
+
             IS3_new_x=new_x.clone()
             gains_vicinity_noise = torch.normal(mean=0.0, std=0.005, size=(1, 2))
             IS3_new_x[:, :2] += gains_vicinity_noise
@@ -614,12 +649,28 @@ for exper in range(N_exper):
             train_x = torch.cat([train_x, IS3_new_x])
             train_obj = torch.cat([train_obj, IS3_obj_new_x])
 
+            x_ = IS3_new_x.clone().reshape(1,3)
+            x_[:, 2] = 1.0
+            new_obj_ = problem(x_).clone().unsqueeze(-1)
+            detla_J = torch.cat([detla_J, IS3_obj_new_x-new_obj_])
+            JIS2s_for_delta_J = torch.cat([JIS2s_for_delta_J, IS3_obj_new_x])
+            caEI_values = torch.cat([caEI_values, torch.tensor([0])])
+
+        elif new_x[:,-1] == 0.1:
+            detla_J = torch.cat([detla_J, torch.tensor([[0]])])
+            JIS2s_for_delta_J = torch.cat([JIS2s_for_delta_J, new_obj])
+            caEI_values = torch.cat([caEI_values, caEI_value.reshape(1)])
 
         cumulative_cost += cost
         costs_all[i] = cost
         np.save(path + "/costs_all.npy", costs_all)
         np.save(path + "/train_x.npy", train_x)
         np.save(path + "/train_obj.npy", train_obj)
+
+        np.save(path + "/i_IS1s.npy", i_IS1s)
+        np.save(path + "/detla_J.npy", detla_J)
+        np.save(path + "/JIS2s_for_delta_J.npy", JIS2s_for_delta_J)
+        np.save(path + "/caEI_values.npy", caEI_values)
 
     final_rec, objective_value = get_recommendation(model, lower, upper)
     np.save(path + "/final_rec.npy", final_rec)
