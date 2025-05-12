@@ -740,48 +740,27 @@ def plots_MonteCarlo_objectiveEI_34tests(path, path2,   N_init_IS1,N_init_IS2,  
     costs_init_EIonly=[]
     # N_exper=N_exper+1
     for exper in range(N_exper):
-        if exper==2:
-            exper_GMFBO=1
-        elif exper==9:
-            exper_GMFBO=4
+        # if exper==2:
+        #     exper_GMFBO=0
+        # elif exper==3:
+        #     exper_GMFBO=0
         # elif exper==4:
         #     exper_GMFBO=8
-        else:
-            exper_GMFBO=exper
+        # else:
+        #     exper_GMFBO=exper
         # exper=0
-        exp_path = os.path.join(path, f"Exper_{exper_GMFBO}")
+        exp_path = os.path.join(path, f"Exper_{exper}")
         exp_path2 = os.path.join(path2, f"Exper_{exper}")
         # Load files
         train_x = np.load(os.path.join(exp_path, "train_x.npy"))
         train_obj = np.load(os.path.join(exp_path, "train_obj.npy"))
-        r = 5
-        # uncomment and modify when r>1
-        # # put data of IS3 after init data to keep order for plos below(correct for other Ninits)
-        train_x_=np.copy(train_x)
-        train_obj_=np.copy(train_obj)
-        if r>1:
-            sliced = np.vstack([train_x[1:r+1], train_x[r+2:2*r+2]])
-            train_x_[1]=train_x[r+1]
-            train_x_[2:1+N_init_IS2+1] = train_x[2*r+2:2*r+2+N_init_IS2]
-            train_x_[1+N_init_IS2+1:1+N_init_IS2+2*r+1] = sliced
-            train_x_[1+N_init_IS2+2*r+1:] = train_x[2*r+2+N_init_IS2:]
-
-            sliced = np.vstack([train_obj[1:r+1], train_obj[r+2:2*r+2]])
-            train_obj_[1]=train_obj[r+1]
-            train_obj_[2:1+N_init_IS2+1] = train_obj[2*r+2:2*r+2+N_init_IS2]
-            train_obj_[1+N_init_IS2+1:1+N_init_IS2+2*r+1] = sliced
-            train_obj_[1+N_init_IS2+2*r+1:] = train_obj[2*r+2+N_init_IS2:]
-        train_x=train_x_
-        train_obj=train_obj_
-
-
         RAWS=np.hstack((train_x, train_obj))
         idx_IS1 = np.argwhere(train_x[:, 2] == 1).squeeze()
-        idx_IS1_init=idx_IS1[np.argwhere(idx_IS1<N_init_IS1*(r+1)+N_init_IS2)[:,0]]
-        idx_IS1_rest=idx_IS1[np.argwhere(idx_IS1>N_init_IS1*(r+1)+N_init_IS2-1)[:,0]]
+        idx_IS1_init=idx_IS1[np.argwhere(idx_IS1<N_init_IS1*2+N_init_IS2)[:,0]]
+        idx_IS1_rest=idx_IS1[np.argwhere(idx_IS1>N_init_IS1*2+N_init_IS2-1)[:,0]]
         idx_ISDTs = np.argwhere(~(train_x[:, 2] == 1)).squeeze()
-        idx_ISDTs_init=idx_ISDTs[np.argwhere(idx_ISDTs<N_init_IS1*(r+1)+N_init_IS2)[:,0]]
-        idx_ISDTs_rest=idx_ISDTs[np.argwhere(idx_ISDTs>N_init_IS1*(r+1)+N_init_IS2-1)[:,0]]
+        idx_ISDTs_init=idx_ISDTs[np.argwhere(idx_ISDTs<N_init_IS1*2+N_init_IS2)[:,0]]
+        idx_ISDTs_rest=idx_ISDTs[np.argwhere(idx_ISDTs>N_init_IS1*2+N_init_IS2-1)[:,0]]
         train_x_IS1_init=train_x[idx_IS1_init, :]
         train_obj_IS1_init=train_obj[idx_IS1_init]
 
@@ -841,7 +820,7 @@ def plots_MonteCarlo_objectiveEI_34tests(path, path2,   N_init_IS1,N_init_IS2,  
 
         A=train_obj
         A[idx_ISDTs_rest]=-np.inf
-        train_obj_list_rest_modified.append(-A[N_init_IS1*(r+1)+N_init_IS2:])
+        train_obj_list_rest_modified.append(-A[N_init_IS1*2+N_init_IS2:])
 
         train_x_list_IS1.append(train_x_IS1)
         train_obj_list_IS1.append(train_obj_IS1)
@@ -2193,7 +2172,7 @@ if __name__ == "__main__":
 
     # plot_cost_coef()
 
-    path = "/home/nobar/codes/GBO2/logs/test_37_4/"
+    path = "/home/nobar/codes/GBO2/logs/test_37_1/"
     # path2 = "/home/nobar/codes/GBO2/logs/test_31_b_UCB_1/"
     path2 = "/home/nobar/codes/GBO2/logs/test_33_b_1/"
     N_init_IS1=2
