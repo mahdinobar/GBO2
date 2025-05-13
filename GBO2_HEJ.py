@@ -706,6 +706,8 @@ for exper in range(N_exper):
         np.save(path + "/i_IS1s.npy", i_IS1s)
         np.save(path + "/delta_J.npy", delta_J)
         np.save(path + "/JIS1s_for_delta_J.npy", JIS1s_for_delta_J)
+        np.save(path + "/delta_J2.npy", delta_J2)
+        np.save(path + "/JIS2s_for_delta_J2.npy", JIS2s_for_delta_J2)
         np.save(path + "/caEI_values.npy", caEI_values)
 
     final_rec, objective_value = get_recommendation(model, lower, upper)

@@ -709,6 +709,98 @@ def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_
     np.save("/home/nobar/codes/GBO2/logs/test_33_b_1/margin_of_error_baseline.npy",margin_of_error)
     print("")
 
+
+def plots_indicators(path, path2,   N_init_IS1,N_init_IS2,    sampling_cost_bias,N_exper,N_iter, s2, s3, BATCH_SIZE):
+    for exper in range(N_exper):
+        # if exper==2:
+        #     exper_GMFBO=0
+        # elif exper==3:
+        #     exper_GMFBO=0
+        # elif exper==4:
+        #     exper_GMFBO=8
+        # else:
+        #     exper_GMFBO=exper
+        # exper=0
+        exp_path = os.path.join(path, f"Exper_{exper}")
+        exp_path2 = os.path.join(path2, f"Exper_{exper}")
+        # Load files
+        train_x = np.load(os.path.join(exp_path, "train_x.npy"))
+        train_obj = np.load(os.path.join(exp_path, "train_obj.npy"))
+
+        delta_J=np.load(os.path.join(exp_path, "delta_J.npy"))
+        JIS1s_for_delta_J=np.load(os.path.join(exp_path, "JIS1s_for_delta_J.npy"))
+        delta_J2 = np.load(os.path.join(exp_path, "delta_J2.npy"))
+        JIS2s_for_delta_J2 = np.load(os.path.join(exp_path, "JIS2s_for_delta_J2.npy"))
+        caEI_values=np.load(os.path.join(exp_path, "caEI_values.npy"))
+        costs_all=np.load(os.path.join(exp_path, "costs_all.npy"))
+        i_IS1s=np.load(os.path.join(exp_path, "i_IS1s.npy"))
+
+        rawEI_s_values = caEI_values * (sampling_cost_bias + train_x[:, 2])
+        H_values = train_x[:, 2]
+        # delta_J[delta_J == 0] = np.nan
+        RAWS2 = np.hstack((train_x, train_obj, delta_J, caEI_values.reshape(-1, 1)))
+        plt.figure(figsize=(8, 5))
+        # Boolean masks
+        nonzero_mask = delta_J != 0
+        zero_mask = delta_J == 0
+        x = np.arange(1, len(delta_J) + 1).reshape(-1, 1)
+        # Plot non-zero values (filled markers)
+        plt.plot(x[nonzero_mask], delta_J[nonzero_mask], color='b', marker='o',
+                 markersize=6, linewidth=0,
+                 label=r'GMFBO, $\Delta J(k)=J_{ISn>1}(k)-J_{IS1}(k)$, $\epsilon_{n}=0.5$')
+        # Plot zero values (hollow markers)
+        plt.plot(x[zero_mask], delta_J[zero_mask], color='b', marker='o',
+                 markerfacecolor='none', markersize=6, linewidth=0)
+
+        # Boolean masks
+        nonzero_mask = rawEI_s_values != 0
+        zero_mask = rawEI_s_values == 0
+        x = np.arange(1, len(rawEI_s_values) + 1).reshape(-1, 1)
+        # Plot non-zero values (filled markers)
+        plt.plot(x[nonzero_mask], rawEI_s_values[nonzero_mask], color='m', marker='o',
+                 markersize=5, linewidth=0,
+                 label=r'GMFBO, $EI(k,s)$, $\epsilon_{n}=0.5$')
+        # Plot zero values (hollow markers)
+        plt.plot(x[zero_mask], rawEI_s_values[zero_mask], color='m', marker='o',
+                 markerfacecolor='none', markersize=5, linewidth=0)
+
+        # Boolean masks
+        nonzero_mask = H_values != 0
+        zero_mask = H_values == 0
+        x = np.arange(1, len(H_values) + 1).reshape(-1, 1)
+        # Plot non-zero values (filled markers)
+        plt.plot(x[nonzero_mask], H_values[nonzero_mask], color='r', marker='o',
+                 markersize=5, linewidth=0,
+                 label=r'GMFBO, $H(s)-b$, $\epsilon_{n}=0.5$')
+        # Plot zero values (hollow markers)
+        plt.plot(x[zero_mask], H_values[zero_mask], color='r', marker='o',
+                 markerfacecolor='none', markersize=5, linewidth=0)
+
+
+        # plt.plot(np.arange(1, delta_J.__len__() + 1), delta_J, color='b', marker="o", markersize=5, linewidth=1,
+        #          label=r'GMFBO, $\Delta J(k)=J_{ISn>1}(k)-J_{IS1}(k)$, $\epsilon_{n}=0.5$')  # Thick line for mean
+        # plt.plot(np.arange(1, delta_J.__len__() + 1), rawEI_s_values, color='m', marker="o", markersize=5, linewidth=1,
+        #          label=r'GMFBO, $H(s)$, $\epsilon_{n}=0.5$')  # Thick line for mean
+        plt.axvspan(1, 2.5, color='green', alpha=0.3)
+        plt.axvspan(2.5, 12.5, color='orange', alpha=0.3)
+        plt.axvspan(12.5, 14.5, color='yellow', alpha=0.3)
+        plt.xlabel('sample number')
+        plt.ylabel('indicator')
+        # plt.title('Unbiased Cumulative Sampling Cost vs BO Iterations')
+        plt.legend()
+        plt.grid(True)
+        # plt.yscale('log')
+        # plt.ylim(0.9, 1.05)  # Focus range
+        # plt.yticks([0.9, 0.95, 1.0, 1.05])
+        plt.xlim(1, delta_J.__len__())
+        plt.ylim(-1.7, 1.05)
+        plt.xticks(np.arange(1, delta_J.__len__(), 2))
+        plt.savefig(exp_path + "/indicators.pdf")
+        plt.show()
+
+        RAWS=np.hstack((train_x, train_obj))
+
+
 def plots_MonteCarlo_objectiveEI_34tests(path, path2,   N_init_IS1,N_init_IS2,    sampling_cost_bias,N_exper,N_iter, s2, s3, BATCH_SIZE):
     costs_all_list = []
     costs_all_list_EIonly = []
@@ -2244,7 +2336,7 @@ if __name__ == "__main__":
 
     # plot_cost_coef()
 
-    path = "/home/nobar/codes/GBO2/logs/test_37_8_b/"
+    path = "/home/nobar/codes/GBO2/logs/test_37_9/"
     # path2 = "/home/nobar/codes/GBO2/logs/test_31_b_UCB_1/"
     path2 = "/home/nobar/codes/GBO2/logs/test_33_b_1/"
     N_init_IS1=2
@@ -2289,6 +2381,6 @@ if __name__ == "__main__":
 
     # plots_MonteCarlo_objective(path,N_init_IS1,N_init_IS2,sampling_cost_bias,N_exper,N_iter,s2,s3, BATCH_SIZE)
     # plots_MonteCarlo_objectiveEI(path,path2,N_init_IS1,N_init_IS2,sampling_cost_bias,N_exper,N_iter,s2,s3, BATCH_SIZE)
-    plots_MonteCarlo_objectiveEI_34tests(path,path2,N_init_IS1,N_init_IS2,sampling_cost_bias,N_exper,N_iter,s2,s3, BATCH_SIZE)
+    # plots_MonteCarlo_objectiveEI_34tests(path,path2,N_init_IS1,N_init_IS2,sampling_cost_bias,N_exper,N_iter,s2,s3, BATCH_SIZE)
     # plots_MonteCarlo_objectiveUCB(path,path2,N_init_IS1,N_init_IS2,sampling_cost_bias,N_exper,N_iter,s2,s3, BATCH_SIZE)
-
+    plots_indicators(path,path2,N_init_IS1,N_init_IS2,sampling_cost_bias,N_exper,N_iter,s2,s3, BATCH_SIZE)
