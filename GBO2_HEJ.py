@@ -461,7 +461,7 @@ set_seed(seed)
 problem = HEJ(negate=True).to(
     **tkwargs)  # Setting negate=True typically multiplies the objective values by -1, transforming a minimization objective (i.e., minimizing f(x)) into a maximization objective (i.e., maximizing −f(x)).
 
-N_exper = 1
+N_exper = 10
 NUM_RESTARTS = 4 if not SMOKE_TEST else 2
 RAW_SAMPLES = 64 if not SMOKE_TEST else 4
 BATCH_SIZE = 1
@@ -476,7 +476,7 @@ for exper in range(N_exper):
     print("**********Experiment {}**********".format(exper))
     # /cluster/home/mnobar/code/GBO2
     # /home/nobar/codes/GBO2
-    path = "/home/nobar/codes/GBO2/logs/test_37_8/Exper_{}".format(str(exper))
+    path = "/cluster/home/mnobar/code/GBO2/logs/test_37_8/Exper_{}".format(str(exper))
     # Check i<f the directory exists, if not, create it
     if not os.path.exists(path):
         os.makedirs(path)
@@ -511,7 +511,7 @@ for exper in range(N_exper):
     # np.save(path + "/train_obj_init.npy", train_obj_init)
     # np.save(path + "/train_x_init.npy", train_x_init)
 
-    path_data_init = "/home/nobar/codes/GBO2/logs/test_33_b_1/Exper_{}".format(str(exper))
+    path_data_init = "/cluster/home/mnobar/code/GBO2/logs/test_33_b_1/Exper_{}".format(str(exper))
     train_x_init = torch.as_tensor(np.load(path_data_init+"/train_x_init.npy"))
     # train_obj_init =  problem(train_x_init).unsqueeze(-1)
 
@@ -519,7 +519,6 @@ for exper in range(N_exper):
     # train_obj = train_obj_init
 
 
-    # (my idea) add IS3 estimations to GP dataset + add IS3 data after IS1 and IS2 initial data
     train_x=None
     train_obj=None
     i_IS1s=None
@@ -554,7 +553,8 @@ for exper in range(N_exper):
             JIS1s_for_delta_J = torch.cat([JIS1s_for_delta_J, obj_x_IS1_])
             caEI_values = torch.cat([caEI_values, torch.tensor([0])])
 
-
+    # (my idea) add IS3 estimations to GP dataset + add IS3 data after IS1 and IS2 initial data
+    # (my idea) add IS3 estimations to GP dataset
     # Now add IS3 data after initial dataset
     for i in i_IS1s:
             IS3_new_x = train_x_init[i,:].clone().reshape(1,3)
@@ -633,12 +633,12 @@ for exper in range(N_exper):
 
 
 
-        # (my idea) add IS3 estimations to GP dataset
         if new_x[:,-1]==1:
             delta_J = torch.cat([delta_J, torch.tensor([[0]])])
             JIS1s_for_delta_J = torch.cat([JIS1s_for_delta_J, new_obj])
             caEI_values = torch.cat([caEI_values, caEI_value.reshape(1)])
 
+            # # (my idea) add IS3 estimations to GP dataset
             IS3_new_x=new_x.clone()
             gains_vicinity_noise = torch.normal(mean=0.0, std=0.005, size=(1, 2))
             IS3_new_x[:, :2] += gains_vicinity_noise
@@ -652,7 +652,6 @@ for exper in range(N_exper):
             IS3_new_x[:, 2] = 0.1
             train_x = torch.cat([train_x, IS3_new_x])
             train_obj = torch.cat([train_obj, IS3_obj_new_x])
-
             x_ = IS3_new_x.clone().reshape(1,3)
             x_[:, 2] = 1.0
             new_obj_ = problem(x_).clone().unsqueeze(-1)
