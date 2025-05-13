@@ -524,6 +524,8 @@ for exper in range(N_exper):
     i_IS1s=None
     delta_J=None
     JIS1s_for_delta_J=None
+    delta_J2=None
+    JIS2s_for_delta_J2=None
     caEI_values=None
     for i in range(train_x_init.__len__()):
         x = train_x_init[i, :].clone().reshape(1, 3)
@@ -540,11 +542,23 @@ for exper in range(N_exper):
                 JIS1s_for_delta_J = obj_x
                 caEI_values = torch.tensor([0])
                 delta_J = torch.tensor([[0]])
+
+                x_ = x.clone().reshape(1, 3)
+                x_[:, 2] = 0.1
+                obj_x_IS2_ = problem(x_).clone().unsqueeze(-1)
+                delta_J2 = obj_x_IS2_ - obj_x
+                JIS2s_for_delta_J2 = obj_x_IS2_
             else:
                 i_IS1s = torch.cat([i_IS1s, torch.tensor([i])])
                 delta_J = torch.cat([delta_J, torch.tensor([[0]])])
                 JIS1s_for_delta_J = torch.cat([JIS1s_for_delta_J, obj_x])
                 caEI_values = torch.cat([caEI_values, torch.tensor([0])])
+                x_ = x.clone().reshape(1, 3)
+                x_[:, 2] = 0.1
+                obj_x_IS2_ = problem(x_).clone().unsqueeze(-1)
+                delta_J2 = torch.cat([delta_J2, obj_x_IS2_ - obj_x])
+                JIS2s_for_delta_J2 = torch.cat([JIS2s_for_delta_J2, obj_x_IS2_])
+
         else:
             x_ = x.clone().reshape(1,3)
             x_[:, 2] = 1.0
@@ -552,6 +566,9 @@ for exper in range(N_exper):
             delta_J = torch.cat([delta_J, obj_x-obj_x_IS1_])
             JIS1s_for_delta_J = torch.cat([JIS1s_for_delta_J, obj_x_IS1_])
             caEI_values = torch.cat([caEI_values, torch.tensor([0])])
+
+            delta_J2 = torch.cat([delta_J2, torch.tensor([[0]])])
+            JIS2s_for_delta_J2 = torch.cat([JIS2s_for_delta_J2, obj_x])
 
     # (my idea) add IS3 estimations to GP dataset + add IS3 data after IS1 and IS2 initial data
     # (my idea) add IS3 estimations to GP dataset
@@ -637,6 +654,13 @@ for exper in range(N_exper):
             delta_J = torch.cat([delta_J, torch.tensor([[0]])])
             JIS1s_for_delta_J = torch.cat([JIS1s_for_delta_J, new_obj])
             caEI_values = torch.cat([caEI_values, caEI_value.reshape(1)])
+            x_ = new_x.clone().reshape(1, 3)
+            x_[:, 2] = 0.1
+            obj_x_IS2_ = problem(x_).clone().unsqueeze(-1)
+            delta_J2 = torch.cat([delta_J2, obj_x_IS2_ - new_obj])
+            JIS2s_for_delta_J2 = torch.cat([JIS2s_for_delta_J2, obj_x_IS2_])
+
+
 
             # # (my idea) add IS3 estimations to GP dataset
             IS3_new_x=new_x.clone()
@@ -658,6 +682,9 @@ for exper in range(N_exper):
             delta_J = torch.cat([delta_J, IS3_obj_new_x-new_obj_])
             JIS1s_for_delta_J = torch.cat([JIS1s_for_delta_J, IS3_obj_new_x])
             caEI_values = torch.cat([caEI_values, torch.tensor([0])])
+            # TODO
+            delta_J2 = torch.cat([delta_J2, torch.tensor([[0]])])
+            JIS2s_for_delta_J2 = torch.cat([JIS2s_for_delta_J2, new_obj])
 
         elif new_x[:,-1] == 0.1:
             x_ = new_x.clone().reshape(1,3)
@@ -666,6 +693,9 @@ for exper in range(N_exper):
             delta_J = torch.cat([delta_J, new_obj-obj_x_IS1_])
             JIS1s_for_delta_J = torch.cat([JIS1s_for_delta_J, obj_x_IS1_])
             caEI_values = torch.cat([caEI_values, caEI_value.reshape(1)])
+            # TODO
+            delta_J2 = torch.cat([delta_J2, torch.tensor([[0]])])
+            JIS2s_for_delta_J2 = torch.cat([JIS2s_for_delta_J2, new_obj])
 
         cumulative_cost += cost
         costs_all[i] = cost
