@@ -461,7 +461,7 @@ set_seed(seed)
 problem = HEJ(negate=True).to(
     **tkwargs)  # Setting negate=True typically multiplies the objective values by -1, transforming a minimization objective (i.e., minimizing f(x)) into a maximization objective (i.e., maximizing −f(x)).
 
-N_exper = 10
+N_exper = 1
 NUM_RESTARTS = 4 if not SMOKE_TEST else 2
 RAW_SAMPLES = 64 if not SMOKE_TEST else 4
 BATCH_SIZE = 1
@@ -523,8 +523,8 @@ for exper in range(N_exper):
     train_x=None
     train_obj=None
     i_IS1s=None
-    detla_J=None
-    JIS2s_for_delta_J=None
+    delta_J=None
+    JIS1s_for_delta_J=None
     caEI_values=None
     for i in range(train_x_init.__len__()):
         x = train_x_init[i, :].clone().reshape(1, 3)
@@ -536,22 +536,22 @@ for exper in range(N_exper):
             train_x = torch.cat([train_x, x])
             train_obj = torch.cat([train_obj, obj_x])
         if train_x_init[i,2]==1:
-            x_ = x.clone().reshape(1,3)
-            x_[:, 2] = 0.1
-            obj_x_IS2_ = problem(x_).clone().unsqueeze(-1)
             if i_IS1s is None:
                 i_IS1s = torch.tensor([i])
-                JIS2s_for_delta_J = obj_x_IS2_
+                JIS1s_for_delta_J = obj_x
                 caEI_values = torch.tensor([0])
-                detla_J = obj_x_IS2_ - obj_x
+                delta_J = torch.tensor([[0]])
             else:
-                detla_J = torch.cat([detla_J, obj_x_IS2_ - obj_x])
                 i_IS1s = torch.cat([i_IS1s, torch.tensor([i])])
-                JIS2s_for_delta_J = torch.cat([JIS2s_for_delta_J, obj_x_IS2_])
+                delta_J = torch.cat([delta_J, torch.tensor([[0]])])
+                JIS1s_for_delta_J = torch.cat([JIS1s_for_delta_J, obj_x])
                 caEI_values = torch.cat([caEI_values, torch.tensor([0])])
         else:
-            detla_J = torch.cat([detla_J, torch.tensor([[0]])])
-            JIS2s_for_delta_J = torch.cat([JIS2s_for_delta_J, obj_x])
+            x_ = x.clone().reshape(1,3)
+            x_[:, 2] = 1.0
+            obj_x_IS1_ = problem(x_).clone().unsqueeze(-1)
+            delta_J = torch.cat([delta_J, obj_x-obj_x_IS1_])
+            JIS1s_for_delta_J = torch.cat([JIS1s_for_delta_J, obj_x_IS1_])
             caEI_values = torch.cat([caEI_values, torch.tensor([0])])
 
 
@@ -570,6 +570,13 @@ for exper in range(N_exper):
             IS3_new_x[:, 2] = 0.1
             train_x = torch.cat([train_x, IS3_new_x])
             train_obj = torch.cat([train_obj, IS3_obj_new_x])
+
+            x_ = IS3_new_x.clone().reshape(1, 3)
+            x_[:, 2] = 1.0
+            obj_ = problem(x_).clone().unsqueeze(-1)
+            delta_J = torch.cat([delta_J, IS3_obj_new_x - obj_])
+            JIS1s_for_delta_J = torch.cat([JIS1s_for_delta_J, obj_])
+            caEI_values = torch.cat([caEI_values, torch.tensor([0])])
 
     cumulative_cost = 0.0
     costs_all = np.zeros(N_ITER)
@@ -628,11 +635,8 @@ for exper in range(N_exper):
 
         # (my idea) add IS3 estimations to GP dataset
         if new_x[:,-1]==1:
-            x_ = new_x.clone().reshape(1,3)
-            x_[:, 2] = 0.1
-            obj_x_IS2_ = problem(x_).clone().unsqueeze(-1)
-            detla_J = torch.cat([detla_J, obj_x_IS2_-new_obj])
-            JIS2s_for_delta_J = torch.cat([JIS2s_for_delta_J, obj_x_IS2_])
+            delta_J = torch.cat([delta_J, torch.tensor([[0]])])
+            JIS1s_for_delta_J = torch.cat([JIS1s_for_delta_J, new_obj])
             caEI_values = torch.cat([caEI_values, caEI_value.reshape(1)])
 
             IS3_new_x=new_x.clone()
@@ -652,13 +656,16 @@ for exper in range(N_exper):
             x_ = IS3_new_x.clone().reshape(1,3)
             x_[:, 2] = 1.0
             new_obj_ = problem(x_).clone().unsqueeze(-1)
-            detla_J = torch.cat([detla_J, IS3_obj_new_x-new_obj_])
-            JIS2s_for_delta_J = torch.cat([JIS2s_for_delta_J, IS3_obj_new_x])
+            delta_J = torch.cat([delta_J, IS3_obj_new_x-new_obj_])
+            JIS1s_for_delta_J = torch.cat([JIS1s_for_delta_J, IS3_obj_new_x])
             caEI_values = torch.cat([caEI_values, torch.tensor([0])])
 
         elif new_x[:,-1] == 0.1:
-            detla_J = torch.cat([detla_J, torch.tensor([[0]])])
-            JIS2s_for_delta_J = torch.cat([JIS2s_for_delta_J, new_obj])
+            x_ = new_x.clone().reshape(1,3)
+            x_[:, 2] = 1.0
+            obj_x_IS1_ = problem(x_).clone().unsqueeze(-1)
+            delta_J = torch.cat([delta_J, new_obj-obj_x_IS1_])
+            JIS1s_for_delta_J = torch.cat([JIS1s_for_delta_J, obj_x_IS1_])
             caEI_values = torch.cat([caEI_values, caEI_value.reshape(1)])
 
         cumulative_cost += cost
@@ -668,8 +675,8 @@ for exper in range(N_exper):
         np.save(path + "/train_obj.npy", train_obj)
 
         np.save(path + "/i_IS1s.npy", i_IS1s)
-        np.save(path + "/detla_J.npy", detla_J)
-        np.save(path + "/JIS2s_for_delta_J.npy", JIS2s_for_delta_J)
+        np.save(path + "/delta_J.npy", delta_J)
+        np.save(path + "/JIS1s_for_delta_J.npy", JIS1s_for_delta_J)
         np.save(path + "/caEI_values.npy", caEI_values)
 
     final_rec, objective_value = get_recommendation(model, lower, upper)

@@ -754,7 +754,17 @@ def plots_MonteCarlo_objectiveEI_34tests(path, path2,   N_init_IS1,N_init_IS2,  
         # Load files
         train_x = np.load(os.path.join(exp_path, "train_x.npy"))
         train_obj = np.load(os.path.join(exp_path, "train_obj.npy"))
+
+        detla_J=np.load(os.path.join(exp_path, "detla_J.npy"))
+        JIS2s_for_delta_J=np.load(os.path.join(exp_path, "JIS2s_for_delta_J.npy"))
+        caEI_values=np.load(os.path.join(exp_path, "caEI_values.npy"))
+        costs_all=np.load(os.path.join(exp_path, "costs_all.npy"))
+        i_IS1s=np.load(os.path.join(exp_path, "i_IS1s.npy"))
+
+        detla_J[detla_J == 0] = np.nan
+
         RAWS=np.hstack((train_x, train_obj))
+
         idx_IS1 = np.argwhere(train_x[:, 2] == 1).squeeze()
         idx_IS1_init=idx_IS1[np.argwhere(idx_IS1<N_init_IS1*2+N_init_IS2)[:,0]]
         idx_IS1_rest=idx_IS1[np.argwhere(idx_IS1>N_init_IS1*2+N_init_IS2-1)[:,0]]
@@ -2172,7 +2182,7 @@ if __name__ == "__main__":
 
     # plot_cost_coef()
 
-    path = "/home/nobar/codes/GBO2/logs/test_37_1/"
+    path = "/home/nobar/codes/GBO2/logs/test_37_8/"
     # path2 = "/home/nobar/codes/GBO2/logs/test_31_b_UCB_1/"
     path2 = "/home/nobar/codes/GBO2/logs/test_33_b_1/"
     N_init_IS1=2
