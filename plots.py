@@ -2006,6 +2006,173 @@ def normalize_objective(obj, min_bound, max_bound):
     return (obj - min_bound) / (max_bound - min_bound) if max_bound != min_bound else 0.5
 
 
+def plot_tradeoff():
+    # Load the .mat file
+    # mat_data = scipy.io.loadmat("/home/nobar/codes/GBO2/logs/50x50_dataset/metrics_all.mat")
+    mat_data = scipy.io.loadmat("/home/nobar/codes/GBO2/logs/50x50_dataset/metrics_all_corrected_2.mat")
+    mat_data_sim = scipy.io.loadmat("/home/nobar/codes/GBO2/logs/50x50_dataset/plots/simulation_metrics_all.mat")
+
+    # obj_IS1_grid = Objective_all.squeeze()
+    def normalize(obj, obj_grid):
+        return (obj - obj_grid.mean()) / (obj_grid.std())
+    RiseTime_all = normalize(mat_data['RiseTime_all'], mat_data['RiseTime_all'])  # Should be a 2D array
+    TransientTime_all = normalize(mat_data['TransientTime_all'], mat_data['TransientTime_all'])  # Should be a 2D array
+    SettlingTime_all = normalize(mat_data['SettlingTime_all'], mat_data['SettlingTime_all'])  # Should be a 2D array
+    Overshoot_all = normalize(mat_data['Overshoot_all'], mat_data['Overshoot_all'])  # Should be a 2D array
+
+    # Objective_all_sim = mat_data_sim['Objective_all']  # Should be a 2D array
+    RiseTime_all_sim = normalize(mat_data_sim['RiseTime_all'], mat_data_sim['RiseTime_all'])  # Should be a 2D array
+    TransientTime_all_sim = normalize(mat_data_sim['TransientTime_all'], mat_data_sim['TransientTime_all'])
+    SettlingTime_all_sim = normalize(mat_data_sim['SettlingTime_all'], mat_data_sim['SettlingTime_all'])
+    Overshoot_all_sim = normalize(mat_data_sim['Overshoot_all'], mat_data_sim['Overshoot_all'])
+
+    n_grid = 50
+    Kp = mat_data["Kp_all"].squeeze() / 1000  # Ensure it's a 1D array
+    Kd = mat_data["Kd_all"].squeeze() / 1000  # Ensure it's a 1D array
+
+    w1 = 1
+    w2 = 1 * 0.3
+    w3 = 1 * 0.1
+    w4 = 1 * 0.1
+
+    Objective_all = w1 * RiseTime_all + w2 * Overshoot_all + w4 * TransientTime_all + w3 * SettlingTime_all
+
+    # # # Plot the contour
+    # plt.figure(figsize=(8, 6))
+    # contour = plt.contourf(Kp, Kd, Objective_all.reshape(n_grid, n_grid).T, levels=20)  # Transpose to match dimensions
+    # plt.colorbar(contour, label='Objective')
+    # plt.xlabel('Kp')
+    # plt.ylabel('Kd')
+    # plt.title('True Objective Contour Plot')
+    # # plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Objective_all.png")
+    # plt.show()
+
+    Objective_all_sim = w1 * RiseTime_all_sim + w2 * Overshoot_all_sim + w4 * TransientTime_all_sim + w3 * SettlingTime_all_sim
+
+    # plt.figure(figsize=(8, 6))
+    # contour = plt.contourf(Kp, Kd, Objective_all_sim.reshape(n_grid, n_grid).T,
+    #                        levels=20)  # Transpose to match dimensions
+    # plt.colorbar(contour, label='Objective')
+    # plt.xlabel('Kp')
+    # plt.ylabel('Kd')
+    # plt.title('Simulation Objective Contour Plot')
+    # # plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Objective_all_sim.png")
+    # plt.show()
+    #
+    # plt.figure(figsize=(8, 6))
+    # contour = plt.contourf(Kp, Kd, (Objective_all_sim - Objective_all).reshape(n_grid, n_grid).T,
+    #                        levels=20)  # Transpose to match dimensions
+    # plt.colorbar(contour, label='$J_{sim}-J')
+    # plt.xlabel('Kp')
+    # plt.ylabel('Kd')
+    # plt.title('Error Objective Contour Plot')
+    # # plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Objective_all_err.png")
+    # plt.show()
+
+
+    def denormalize_gains(k,k_min,k_max):
+        return k*(k_max-k_min)+k_min
+
+
+
+    BO_data=np.load("/home/nobar/codes/GBO2/logs/test_35_b_3_4/Exper_0/train_x_EIonly.npy")
+    MFBO_data=np.load("/home/nobar/codes/GBO2/logs/test_35_b_3_4/Exper_0/train_x.npy")
+    GMFBO_data=np.load("/home/nobar/codes/GBO2/logs/test_35_3_6/Exper_0/train_x.npy")
+
+    Kp_BO=denormalize_gains(BO_data[:,0],70,120)
+    Kd_BO=denormalize_gains(BO_data[:,1],2,5)
+
+    Kp_GMFBO_IS1=denormalize_gains(GMFBO_data[GMFBO_data[:,2]==1,0],70,120)
+    Kd_GMFBO_IS1=denormalize_gains(GMFBO_data[GMFBO_data[:,2]==1,1],2,5)
+    Kp_GMFBO_IS2=denormalize_gains(GMFBO_data[GMFBO_data[:,2]==0.1,0],70,120)
+    Kd_GMFBO_IS2=denormalize_gains(GMFBO_data[GMFBO_data[:,2]==0.1,1],2,5)
+
+    Kp_MFBO_IS1=denormalize_gains(MFBO_data[MFBO_data[:,2]==1,0],70,120)
+    Kd_MFBO_IS1=denormalize_gains(MFBO_data[MFBO_data[:,2]==1,1],2,5)
+    Kp_MFBO_IS2=denormalize_gains(MFBO_data[MFBO_data[:,2]==0.1,0],70,120)
+    Kd_MFBO_IS2=denormalize_gains(MFBO_data[MFBO_data[:,2]==0.1,1],2,5)
+
+    plt.figure(figsize=(9, 7))
+    contour = plt.contourf(Kp, Kd, abs(Objective_all_sim - Objective_all).reshape(n_grid, n_grid).T, levels=50,
+                           cmap='YlGn')  # Transpose to match dimensions
+    plt.colorbar(contour, label='$|f(k, s=s_{2})-f(k, s=1.0)|$')
+    plt.xlabel('$K_{p}$')
+    plt.ylabel('$K_{d}$')
+    n_required_BO = 10
+    n_required_GMFBO = 5
+    n_required_GMFBO_IS2idxs = 18
+    plt.scatter(Kp_BO[2:n_required_BO], Kd_BO[2:n_required_BO], color='b', marker='s', s=170,
+                label='GMFBO - IS1 mesurements', zorder=3)
+    plt.scatter(Kp_GMFBO_IS1[2:n_required_GMFBO], Kd_GMFBO_IS1[2:n_required_GMFBO], color='r', marker='o', s=170,
+                label='GMFBO - IS1 mesurements',
+                zorder=3)
+    plt.scatter(Kp_GMFBO_IS1[:2], Kd_GMFBO_IS1[:2], color='k', marker='H', s=170, label='IS1 initial data', zorder=3)
+    plt.scatter(Kp_GMFBO_IS2[12:n_required_GMFBO_IS2idxs], Kd_GMFBO_IS2[12:n_required_GMFBO_IS2idxs], edgecolors='r',
+                s=170, facecolors='none', marker='o',
+                label='GMFBO - IS2 estimations', zorder=3)
+    plt.scatter(Kp_GMFBO_IS2[:10], Kd_GMFBO_IS2[:10], edgecolors='r', facecolors='none', s=170, marker='H',
+                label='GMFBO - IS2 initial data', zorder=3)
+    plt.scatter(Kp_GMFBO_IS2[10:12] + np.array([0.0081 * (120 - 70), -0.0087 * (120 - 70)]),
+                Kd_GMFBO_IS2[10:12] + np.array([(-0.00973 * (5 - 2)), -0.0074 * (5 - 2)]), edgecolors='darkviolet',
+                facecolors='none', s=170, marker='d', label='GMFBO - IS3 initial data', zorder=3)
+    plt.scatter(Kp_GMFBO_IS1[2:n_required_GMFBO] + np.array(
+        [torch.normal(mean=0.0, std=0.009, size=((n_required_GMFBO - 2),)) * (120 - 70)]),
+                Kd_GMFBO_IS1[2:n_required_GMFBO] - np.array(
+                    [torch.normal(mean=0.0, std=0.005, size=((n_required_GMFBO - 2),)) * (5 - 2)]), facecolors='none',
+                color='darkviolet',
+                s=170, marker='d', label='GMFBO - IS3 inquired data', zorder=3)
+    plt.scatter(119.8, 3.2, marker='*', s=170, facecolors='green', edgecolors='black', zorder=4,
+                label='Ground Truth Optimum')
+    # plt.scatter(Kp_MFBO_IS1[2:], Kd_MFBO_IS1[2:], color='m', marker='D', s=170, label='MFBO - IS1 mesurements', zorder=3)
+    # plt.scatter(Kp_MFBO_IS2[10:], Kd_MFBO_IS2[10:], edgecolors='m', s=170, facecolors='none', marker='D',
+    #             label='MFBO - IS2 estimations', zorder=3)
+    plt.legend()
+    # plt.title('ABS Error Objective Contour Plot')
+    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Objective_all_ABSerr.pdf")
+    plt.show()
+
+
+    plt.figure(figsize=(9, 7))
+    contour = plt.contourf(Kp, Kd, Objective_all.reshape(n_grid, n_grid).T, levels=50,
+                           cmap='YlGn')  # Transpose to match dimensions
+    plt.colorbar(contour, label='$|f(k, s=s_{2})-f(k, s=1.0)|$')
+    plt.xlabel('$K_{p}$')
+    plt.ylabel('$K_{d}$')
+    n_required_BO = 10
+    n_required_GMFBO = 5
+    n_required_GMFBO_IS2idxs = 18
+    plt.scatter(Kp_BO[2:n_required_BO], Kd_BO[2:n_required_BO], color='b', marker='s', s=170,
+                label='GMFBO - IS1 mesurements', zorder=3)
+    plt.scatter(Kp_GMFBO_IS1[2:n_required_GMFBO], Kd_GMFBO_IS1[2:n_required_GMFBO], color='r', marker='o', s=170,
+                label='GMFBO - IS1 mesurements',
+                zorder=3)
+    plt.scatter(Kp_GMFBO_IS1[:2], Kd_GMFBO_IS1[:2], color='k', marker='H', s=170, label='IS1 initial data', zorder=3)
+    plt.scatter(Kp_GMFBO_IS2[12:n_required_GMFBO_IS2idxs], Kd_GMFBO_IS2[12:n_required_GMFBO_IS2idxs], edgecolors='r',
+                s=170, facecolors='none', marker='o',
+                label='GMFBO - IS2 estimations', zorder=3)
+    plt.scatter(Kp_GMFBO_IS2[:10], Kd_GMFBO_IS2[:10], edgecolors='r', facecolors='none', s=170, marker='H',
+                label='GMFBO - IS2 initial data', zorder=3)
+    plt.scatter(Kp_GMFBO_IS2[10:12] + np.array([0.0081 * (120 - 70), -0.0087 * (120 - 70)]),
+                Kd_GMFBO_IS2[10:12] + np.array([(-0.00973 * (5 - 2)), -0.0074 * (5 - 2)]), edgecolors='darkviolet',
+                facecolors='none', s=170, marker='d', label='GMFBO - IS3 initial data', zorder=3)
+    plt.scatter(Kp_GMFBO_IS1[2:n_required_GMFBO] + np.array(
+        [torch.normal(mean=0.0, std=0.009, size=((n_required_GMFBO - 2),)) * (120 - 70)]),
+                Kd_GMFBO_IS1[2:n_required_GMFBO] - np.array(
+                    [torch.normal(mean=0.0, std=0.005, size=((n_required_GMFBO - 2),)) * (5 - 2)]), facecolors='none',
+                color='darkviolet',
+                s=170, marker='d', label='GMFBO - IS3 inquired data', zorder=3)
+    plt.scatter(119.8, 3.2, marker='*', s=170, facecolors='green', edgecolors='black', zorder=4,
+                label='Ground Truth Optimum')
+    # plt.scatter(Kp_MFBO_IS1[2:], Kd_MFBO_IS1[2:], color='m', marker='D', s=170, label='MFBO - IS1 mesurements', zorder=3)
+    # plt.scatter(Kp_MFBO_IS2[10:], Kd_MFBO_IS2[10:], edgecolors='m', s=170, facecolors='none', marker='D',
+    #             label='MFBO - IS2 estimations', zorder=3)
+    plt.legend()
+    # plt.title('ABS Error Objective Contour Plot')
+    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Objective_all_methods_iterations.pdf")
+    plt.show()
+
+    print("")
+
 def plot_real():
     # Load the .mat file
     # mat_data = scipy.io.loadmat("/home/nobar/codes/GBO2/logs/50x50_dataset/metrics_all.mat")
@@ -2087,7 +2254,7 @@ def plot_real():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('True Objective Contour Plot')
-    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Objective_all.png")
+    # plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Objective_all.png")
     plt.show()
 
     Objective_all_sim = w1 * RiseTime_all_sim + w2 * Overshoot_all_sim + w4 * TransientTime_all_sim + w3 * SettlingTime_all_sim
@@ -2097,7 +2264,7 @@ def plot_real():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('Simulation Objective Contour Plot')
-    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Objective_all_sim.png")
+    # plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Objective_all_sim.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
@@ -2106,13 +2273,23 @@ def plot_real():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('Error Objective Contour Plot')
-    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Objective_all_err.png")
+    # plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Objective_all_err.png")
     plt.show()
 
-    np.save("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/Kp_50_v1.npy",Kp)
-    np.save("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/Kd_50_v1.npy",Kd)
-    np.save("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_IS1_50x50_objectives_v1.npy",Objective_all.reshape(n_grid, n_grid))
-    np.save("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_IS2_50x50_objectives_v1.npy",Objective_all_sim.reshape(n_grid, n_grid))
+    plt.figure(figsize=(8, 6))
+    contour = plt.contourf(Kp, Kd, abs(Objective_all_sim - Objective_all).reshape(n_grid, n_grid).T, levels=50,
+                           cmap='coolwarm')  # Transpose to match dimensions
+    plt.colorbar(contour, label='$|J_{sim}-J|')
+    plt.xlabel('Kp')
+    plt.ylabel('Kd')
+    plt.title('Error Objective Contour Plot')
+    # plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Objective_all_err.png")
+    plt.show()
+
+    # np.save("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/Kp_50_v1.npy",Kp)
+    # np.save("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/Kd_50_v1.npy",Kd)
+    # np.save("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_IS1_50x50_objectives_v1.npy",Objective_all.reshape(n_grid, n_grid))
+    # np.save("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_IS2_50x50_objectives_v1.npy",Objective_all_sim.reshape(n_grid, n_grid))
 
 
     # from scipy.interpolate import RegularGridInterpolator
@@ -2319,6 +2496,7 @@ if __name__ == "__main__":
 
     # plot_gt()
     # plot_real()
+    plot_tradeoff()
 
     # # check objective scales
     # IS1 = scipy.io.loadmat("/home/nobar/Documents/introductions/simulink_model/IS1_Exper_0_8x8_metrics.mat")
@@ -2383,4 +2561,4 @@ if __name__ == "__main__":
     # plots_MonteCarlo_objectiveEI(path,path2,N_init_IS1,N_init_IS2,sampling_cost_bias,N_exper,N_iter,s2,s3, BATCH_SIZE)
     # plots_MonteCarlo_objectiveEI_34tests(path,path2,N_init_IS1,N_init_IS2,sampling_cost_bias,N_exper,N_iter,s2,s3, BATCH_SIZE)
     # plots_MonteCarlo_objectiveUCB(path,path2,N_init_IS1,N_init_IS2,sampling_cost_bias,N_exper,N_iter,s2,s3, BATCH_SIZE)
-    plots_indicators(path,path2,N_init_IS1,N_init_IS2,sampling_cost_bias,N_exper,N_iter,s2,s3, BATCH_SIZE)
+    # plots_indicators(path,path2,N_init_IS1,N_init_IS2,sampling_cost_bias,N_exper,N_iter,s2,s3, BATCH_SIZE)
