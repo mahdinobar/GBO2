@@ -476,7 +476,7 @@ for exper in range(N_exper):
     print("**********Experiment {}**********".format(exper))
     # /cluster/home/mnobar/code/GBO2
     # /home/nobar/codes/GBO2
-    path = "/cluster/home/mnobar/code/GBO2/logs/test_40_8/Exper_{}".format(str(exper))
+    path = "/cluster/home/mnobar/code/GBO2/logs/test_41_5/Exper_{}".format(str(exper))
     # Check i<f the directory exists, if not, create it
     if not os.path.exists(path):
         os.makedirs(path)
@@ -587,6 +587,9 @@ for exper in range(N_exper):
             IS3_new_x[:, 2] = 0.1
             train_x = torch.cat([train_x, IS3_new_x])
             train_obj = torch.cat([train_obj, IS3_obj_new_x])
+            # TODO
+            delta_J2 = torch.cat([delta_J2, torch.tensor([[0]])])
+            JIS2s_for_delta_J2 = torch.cat([JIS2s_for_delta_J2, IS3_obj_new_x])
 
             x_ = IS3_new_x.clone().reshape(1, 3)
             x_[:, 2] = 1.0

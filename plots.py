@@ -10,6 +10,7 @@ import math
 from scipy.stats import t
 import torch
 from matplotlib import gridspec
+from scipy.interpolate import interp1d
 
 
 def plot_colortable(colors, *, ncols=4, sort_colors=True):
@@ -830,17 +831,16 @@ def plots_MonteCarlo_objectiveEI_34tests(path, path2,   N_init_IS1,N_init_IS2,  
     costs_init=[]
     costs_init_IS1=[]
     costs_init_EIonly=[]
-    # N_exper=N_exper+1
+
     for exper in range(N_exper):
-        # if exper==2:
-        #     exper_GMFBO=0
-        # elif exper==3:
-        #     exper_GMFBO=0
-        # elif exper==4:
-        #     exper_GMFBO=8
+        # if exper==0:
+        #     exper_GMFBO=3
+        # elif exper==2:
+        #     exper_GMFBO=3
+        # # elif exper==4:
+        # #     exper_GMFBO=8
         # else:
         #     exper_GMFBO=exper
-        # exper=0
         exp_path = os.path.join(path, f"Exper_{exper}")
         exp_path2 = os.path.join(path2, f"Exper_{exper}")
         # Load files
@@ -853,7 +853,7 @@ def plots_MonteCarlo_objectiveEI_34tests(path, path2,   N_init_IS1,N_init_IS2,  
         costs_all=np.load(os.path.join(exp_path, "costs_all.npy"))
         i_IS1s=np.load(os.path.join(exp_path, "i_IS1s.npy"))
 
-        if 1:
+        if 0:
             rawEI_s_values = caEI_values * (sampling_cost_bias + train_x[:, 2])
             H_values = train_x[:, 2]
             # delta_J[delta_J == 0] = np.nan
@@ -1235,6 +1235,26 @@ def plots_MonteCarlo_objectiveEI_34tests(path, path2,   N_init_IS1,N_init_IS2,  
     fig.savefig(path + "/broken_all_obj_min_obs_IS1_brokenX_Mean_IS1onlySamplingCost_95Conf.png")
     fig.savefig(path + "/broken_all_obj_min_obs_IS1_brokenX_Mean_IS1onlySamplingCost_95Conf.pdf")
     plt.show()
+
+
+    # combined = np.column_stack((mean_values, mean_values_costsIS1only))
+    # combinedb = np.column_stack((mean_values_baseline, mean_values_baseline))
+    # combinedEI = np.column_stack((mean_values_EIonly, mean_values_EIonly))
+    # Linear interpolation function
+    interp_func = interp1d(mean_values, mean_values_costsIS1only, kind='linear', fill_value='extrapolate')
+    interp_funcb = interp1d(mean_values_baseline,x_IS1_baseline, kind='linear', fill_value='extrapolate')
+    interp_funcEI = interp1d(mean_values_EIonly, x_EI_only, kind='linear', fill_value='extrapolate')
+    j = -1.45
+
+    value = interp_func(j)
+    valueb = interp_funcb(j)
+    valueEI = interp_funcEI(j)
+
+    j = -1.47
+
+    value2 = interp_func(j)
+    valueb2 = interp_funcb(j)
+    valueEI2 = interp_funcEI(j)
 
     print("")
 
@@ -2492,11 +2512,135 @@ def plot_real():
 
     print("")
 
-if __name__ == "__main__":
+def plot_gamma_deltaJ(pathALL):
+    dj2ALL=None
+    for x in [38, 39, 40]:
+        for y in range(1, 9):  # 1 to 8 inclusive
+            path = pathALL+"test_{}_{}/".format(str(x),str(y))
+            train_x_list = []
+            train_obj_list = []
+            delta_J2_init_list=[]
+            JIS2s_for_delta_J2_init_list=[]
+            for exper in range(10):
+                exp_path = os.path.join(path, f"Exper_{exper}")
+                train_x = np.load(os.path.join(exp_path, "train_x.npy"))
+                train_obj = np.load(os.path.join(exp_path, "train_obj.npy"))
+                delta_J2=np.load(os.path.join(exp_path, "delta_J2.npy"))
+                JIS2s_for_delta_J2=np.load(os.path.join(exp_path, "JIS2s_for_delta_J2.npy"))
+                train_x_list.append(train_x)
+                train_obj_list.append(train_obj)
+                delta_J2_init_list.append(abs(delta_J2[:2]))
+                JIS2s_for_delta_J2_init_list.append(JIS2s_for_delta_J2)
 
+            if dj2ALL is None:
+                dj2ALL = np.stack(delta_J2_init_list)
+            else:
+                dj2ALL = np.concatenate((dj2ALL,np.stack(delta_J2_init_list)),axis=2)
+
+    dj2ALL_38 = dj2ALL[:, :, :8]
+    dj2ALL_39 = dj2ALL[:, :, 8:16]
+    dj2ALL_40 = dj2ALL[:, :, 16:]
+    argmin_f=np.array([[7.62,9.43,7.39],
+                           [8.69,7.48,7.08],
+                           [7.03,6.79,5.83],
+                           [6.76,6.75,5.02],
+                           [5.46,6.41,5.52],
+                           [5.41,6.44,5.73],
+                           [6.26,8.72,4.95],
+                           [5.45,7.76,5.35]])
+    E_delta_J=np.stack([np.mean(np.mean(dj2ALL_38, axis=1), axis=0), np.mean(np.mean(dj2ALL_39, axis=1), axis=0),
+              np.mean(np.mean(dj2ALL_40, axis=1), axis=0)]).T
+    gamma_0=np.linspace(0.1, 0.8, 8)
+    # Marker styles and colors
+    markers = ['o', 's', '^']
+    colors = ['tab:blue', 'tab:brown', 'tab:green']
+    eps_n=["0.5","0.75","0.25"]
+    plt.figure(figsize=(8, 6))
+    for i in [2,0,1]:
+        plt.plot(np.mean(E_delta_J[:, i]),gamma_0[np.argmin(argmin_f[:, i])],
+                 marker=markers[i],
+                 color=colors[i],
+                 linewidth=1,
+                 markersize=15,
+                 label='$\epsilon_n$={}'.format(eps_n[i]))
+    plt.ylabel(r'$l_{\gamma_0}^*$', fontsize=14)
+    plt.xlabel(r'$E_{|\Delta f|}$', fontsize=14)
+    # plt.title(r'Relationship\ between $\gamma_0^*$ and $E_{\Delta J}$', fontsize=14)
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+
+    plt.figure(figsize=(8, 6))
+    for i in [2, 0, 1]:
+        plt.plot(gamma_0, argmin_f[:, i],
+                 marker=markers[i],
+                 color=colors[i],
+                 linewidth=1,
+                 markersize=10,
+                 label='$\epsilon_n$={}'.format(eps_n[i]))
+    plt.hlines(8.44, xmin=0.1, xmax=0.8, color="k", linestyles="dashed")
+    plt.xlabel(r'$l_{\gamma_0}$', fontsize=14)
+    plt.ylabel(r'$\arg \min_{n} (f^{*}(n)<-1.45)$', fontsize=14)
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(path + "/argminf_gamma0.pdf")
+    plt.show()
+
+    plt.figure(figsize=(8, 5))
+    # plt.rcParams['font.family'] = 'Times New Roman'
+    plt.xlabel(r'$\mathbb{E}_{|\Delta f|}$', fontsize=14)
+    x_vals = []
+    y_vals = []
+    for i in [2, 0, 1]:
+        plt.plot(np.mean(E_delta_J[:, i]), gamma_0[np.argmin(argmin_f[:, i])],
+                 marker=markers[i],
+                 color=colors[i],
+                 linewidth=1,
+                 markersize=15,
+                 label='$\epsilon_n$={}'.format(eps_n[i]))
+        x_vals.append(np.mean(E_delta_J[:, i]))
+        y_vals.append(gamma_0[np.argmin(argmin_f[:, i])])
+    plt.ylabel(r'$l_{\gamma_0}^*$', fontsize=14)
+    plt.xlabel(r'$\mathbb{E}_{|\Delta f|}$', fontsize=14)
+    # plt.plot(x_vals, y_vals, linestyle='--', color='gray', linewidth=1)
+    # Fit a polynomial (degree 2 is usually enough for 3 points)
+    coeffs = np.polyfit(x_vals, y_vals, deg=2)
+    poly_fn = np.poly1d(coeffs)
+    # Generate x range (with some extrapolation on both sides)
+    x_interp = np.linspace(min(x_vals) - 0.05, max(x_vals) + 0.05, 200)
+    y_interp = poly_fn(x_interp)
+    # Plot interpolation curve
+    plt.plot(x_interp, y_interp, linestyle='dashed', color='black', label='optimum lenghtscale profile')
+    # Format polynomial as string for annotation
+    poly_eq_str = r'$\hat{l_{\gamma_0}^*}(\mathbb{E}_{|\Delta f|})$'
+    # Add text annotation inside figure
+    # Annotate with arrow pointing to a location on the curve
+    text_x, text_y = 0.6, 0.4  # in axes fraction
+    arrow_target_x = 0.65  # target: middle point x
+    arrow_target_y = poly_fn(0.65)  # y on the curve
+    plt.annotate(poly_eq_str,
+                 xy=(arrow_target_x, arrow_target_y),  # point to
+                 xycoords='data',
+                 xytext=(text_x, text_y),  # position of text
+                 textcoords='axes fraction',
+                 fontsize=16,
+                 fontname='Times New Roman',
+                 arrowprops=dict(arrowstyle='->', color='black', connectionstyle='arc3,rad=-0.3'))
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(path + "/l_gamma_0_star_E_delta_f.pdf")
+    plt.show()
+
+    print("")
+
+
+if __name__ == "__main__":
     # plot_gt()
     # plot_real()
-    plot_tradeoff()
+    # plot_tradeoff()
 
     # # check objective scales
     # IS1 = scipy.io.loadmat("/home/nobar/Documents/introductions/simulink_model/IS1_Exper_0_8x8_metrics.mat")
@@ -2514,17 +2658,21 @@ if __name__ == "__main__":
 
     # plot_cost_coef()
 
-    path = "/home/nobar/codes/GBO2/logs/test_37_9/"
+    path = "/home/nobar/codes/GBO2/logs/test_40_6/"
     # path2 = "/home/nobar/codes/GBO2/logs/test_31_b_UCB_1/"
     path2 = "/home/nobar/codes/GBO2/logs/test_33_b_1/"
     N_init_IS1=2
     N_init_IS2=10
     sampling_cost_bias=5
-    N_exper=1
+    N_exper=10
     N_iter=20
     s2 = 0.1
     s3 = 0.05
     BATCH_SIZE=1
+
+    path3= "/home/nobar/codes/GBO2/logs/"
+    plot_gamma_deltaJ(path3)
+
 
     # # plot GP surrogates
     # for i in range(3):
