@@ -77,11 +77,11 @@ def generate_initial_data(n_IS1, n_IS2):
     return train_x_full, train_obj
 
 
-def initialize_model(train_x, train_obj):
+def initialize_model(train_x, train_obj,l_g_0):
     # define a surrogate model suited for a "training data"-like fidelity parameter
     # in dimension index 2 corrosponding to the fidelity random variable in state space, as in [2]
     model = SingleTaskMultiFidelityGP(
-        train_x, train_obj, outcome_transform=Standardize(m=1), data_fidelities=[2]
+        train_x, train_obj, outcome_transform=Standardize(m=1), data_fidelities=[2],l_g_0=l_g_0,
     )
     mll = ExactMarginalLogLikelihood(model.likelihood, model)
     return mll, model
@@ -476,7 +476,9 @@ BATCH_SIZE = 1
 N_init_IS1 = 2 if not SMOKE_TEST else 2
 N_init_IS2 = 10 if not SMOKE_TEST else 2
 N_ITER = 20 if not SMOKE_TEST else 1
-N_change=21 # iteration that IS1 dynamics changes; disable by N_change>=N_ITER
+N_change=5 # iteration that IS1 dynamics changes; disable by N_change>=N_ITER
+l_g_0=0.4 # GP kernel gamma_0 lenghscale
+N_IS3_sample_each_time=4 # number of repeat IS3 samples in vicinity of IS1 measurement each time
 
 # # generate seed for sobol initial dataset
 # sobol_seeds=torch.randint(1,10000,(N_exper,))
@@ -485,7 +487,7 @@ for exper in range(N_exper):
     print("**********Experiment {}**********".format(exper))
     # /home/nobar/codes/GBO2
     # /cluster/home/mnobar/code/GBO2
-    path = "/cluster/home/mnobar/code/GBO2/logs/test_43/Exper_{}".format(str(exper))
+    path = "/cluster/home/mnobar/code/GBO2/logs/test_48/Exper_{}".format(str(exper))
     # Check i<f the directory exists, if not, create it
     if not os.path.exists(path):
         os.makedirs(path)
@@ -509,7 +511,7 @@ for exper in range(N_exper):
 
     target_fidelities = {2: 1.0}
 
-    cost_model = AffineFidelityCostModel(fidelity_weights={2: 1.0}, fixed_cost=5)
+    cost_model = AffineFidelityCostModel(fidelity_weights={2: 1.0}, fixed_cost=5, fixed_cost_2=0)
     cost_aware_utility = InverseCostWeightedUtility(cost_model=cost_model)
 
     torch.set_printoptions(precision=3, sci_mode=False)
@@ -520,7 +522,7 @@ for exper in range(N_exper):
     # np.save(path + "/train_obj_init.npy", train_obj_init)
     # np.save(path + "/train_x_init.npy", train_x_init)
 
-    path_data_init = "/cluster/home/mnobar/code/GBO2/logs/test_33_b_1/Exper_{}".format(str(exper))
+    path_data_init = "/home/nobar/codes/GBO2/logs/test_33_b_1/Exper_{}".format(str(exper))
     train_x_init = torch.as_tensor(np.load(path_data_init+"/train_x_init.npy"))
     # train_obj_init =  problem(train_x_init).unsqueeze(-1)
 
@@ -612,7 +614,7 @@ for exper in range(N_exper):
     for i in range(N_ITER):
         print("batch iteration=", i)
         cost_model.b_iter = i + 1  # batch iteration for adaptive cost
-        mll, model = initialize_model(train_x, train_obj)
+        mll, model = initialize_model(train_x, train_obj, l_g_0)
         # train the GP model
         fit_gpytorch_mll(mll)
         plot_GP(model, i, path, train_x)
@@ -649,6 +651,8 @@ for exper in range(N_exper):
 
         if np.sum(np.asarray(train_x[:,2])==1)>N_init_IS1+N_change:
             change_IS1=True
+            l_g_0 = 0.3
+            cost_model.fixed_cost_2=2
         else:
             change_IS1=False
 
@@ -679,30 +683,30 @@ for exper in range(N_exper):
             JIS2s_for_delta_J2 = torch.cat([JIS2s_for_delta_J2, obj_x_IS2_])
 
 
-
-            # # (my idea) add IS3 estimations to GP dataset
-            IS3_new_x=new_x.clone()
-            gains_vicinity_noise = torch.normal(mean=0.0, std=0.005, size=(1, 2))
-            IS3_new_x[:, :2] += gains_vicinity_noise
-            # If value > 1, wrap it to 1 - (value - 1) = 2 - value
-            IS3_new_x[:, :2] = torch.where(IS3_new_x[:, :2] > 1, 2 - IS3_new_x[:, :2], IS3_new_x[:, :2])
-            # If value < 0, multiply by -1
-            IS3_new_x[:, :2] = torch.where(IS3_new_x[:, :2] < 0, -IS3_new_x[:, :2], IS3_new_x[:, :2])
-            IS3_new_x[:, :2] = torch.clamp(IS3_new_x[:, :2], 0.0, 1.0)
-            IS3_new_x[:,2]=0.7
-            IS3_obj_new_x=problem(IS3_new_x).unsqueeze(-1)
-            IS3_new_x[:, 2] = 0.1
-            train_x = torch.cat([train_x, IS3_new_x])
-            train_obj = torch.cat([train_obj, IS3_obj_new_x])
-            x_ = IS3_new_x.clone().reshape(1,3)
-            x_[:, 2] = 1.0
-            new_obj_ = problem(x_).clone().unsqueeze(-1)
-            delta_J = torch.cat([delta_J, IS3_obj_new_x-new_obj_])
-            JIS1s_for_delta_J = torch.cat([JIS1s_for_delta_J, IS3_obj_new_x])
-            caEI_values = torch.cat([caEI_values, torch.tensor([0])])
-            # TODO
-            delta_J2 = torch.cat([delta_J2, torch.tensor([[0]])])
-            JIS2s_for_delta_J2 = torch.cat([JIS2s_for_delta_J2, new_obj])
+            for i in range(N_IS3_sample_each_time):
+                # # (my idea) add IS3 estimations to GP dataset
+                IS3_new_x=new_x.clone()
+                gains_vicinity_noise = torch.normal(mean=0.0, std=0.005, size=(1, 2))
+                IS3_new_x[:, :2] += gains_vicinity_noise
+                # If value > 1, wrap it to 1 - (value - 1) = 2 - value
+                IS3_new_x[:, :2] = torch.where(IS3_new_x[:, :2] > 1, 2 - IS3_new_x[:, :2], IS3_new_x[:, :2])
+                # If value < 0, multiply by -1
+                IS3_new_x[:, :2] = torch.where(IS3_new_x[:, :2] < 0, -IS3_new_x[:, :2], IS3_new_x[:, :2])
+                IS3_new_x[:, :2] = torch.clamp(IS3_new_x[:, :2], 0.0, 1.0)
+                IS3_new_x[:,2]=0.7
+                IS3_obj_new_x=problem(IS3_new_x).unsqueeze(-1)
+                IS3_new_x[:, 2] = 0.1
+                train_x = torch.cat([train_x, IS3_new_x])
+                train_obj = torch.cat([train_obj, IS3_obj_new_x])
+                x_ = IS3_new_x.clone().reshape(1,3)
+                x_[:, 2] = 1.0
+                new_obj_ = problem(x_).clone().unsqueeze(-1)
+                delta_J = torch.cat([delta_J, IS3_obj_new_x-new_obj_])
+                JIS1s_for_delta_J = torch.cat([JIS1s_for_delta_J, IS3_obj_new_x])
+                caEI_values = torch.cat([caEI_values, torch.tensor([0])])
+                # TODO
+                delta_J2 = torch.cat([delta_J2, torch.tensor([[0]])])
+                JIS2s_for_delta_J2 = torch.cat([JIS2s_for_delta_J2, new_obj])
 
         elif new_x[:,-1] == 0.1:
             x_ = new_x.clone().reshape(1,3)
@@ -748,7 +752,7 @@ for exper in range(N_exper):
     # train_x = train_x_init[:N_init_IS1]
     # train_obj = train_obj_init[:N_init_IS1]
     #
-    # # path2="/cluster/home/mnobar/code/GBO2/logs/test_31_b_5*/Exper_{}".format(str(exper))
+    # # path2="/home/nobar/codes/GBO2/logs/test_31_b_5*/Exper_{}".format(str(exper))
     # # train_obj_init=np.load(path2 + "/train_obj_init.npy")
     # # train_x_init=np.load(path2 + "/train_x_init.npy")
     # # cumulative_cost = 0.0
@@ -793,7 +797,7 @@ for exper in range(N_exper):
     # train_x = train_x_init[:N_init_IS1]
     # train_obj = train_obj_init[:N_init_IS1]
     #
-    # # path2="/cluster/home/mnobar/code/GBO2/logs/test_31_b_5*/Exper_{}".format(str(exper))
+    # # path2="/home/nobar/codes/GBO2/logs/test_31_b_5*/Exper_{}".format(str(exper))
     # # train_obj_init=np.load(path2 + "/train_obj_init.npy")
     # # train_x_init=np.load(path2 + "/train_x_init.npy")
     # # cumulative_cost = 0.0
