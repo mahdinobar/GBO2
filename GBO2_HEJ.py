@@ -522,7 +522,7 @@ for exper in range(N_exper):
     # np.save(path + "/train_obj_init.npy", train_obj_init)
     # np.save(path + "/train_x_init.npy", train_x_init)
 
-    path_data_init = "/home/nobar/codes/GBO2/logs/test_33_b_1/Exper_{}".format(str(exper))
+    path_data_init = "/cluster/home/mnobar/code/GBO2/logs/test_33_b_1/Exper_{}".format(str(exper))
     train_x_init = torch.as_tensor(np.load(path_data_init+"/train_x_init.npy"))
     # train_obj_init =  problem(train_x_init).unsqueeze(-1)
 
@@ -652,7 +652,7 @@ for exper in range(N_exper):
         if np.sum(np.asarray(train_x[:,2])==1)>N_init_IS1+N_change:
             change_IS1=True
             l_g_0 = 0.3
-            cost_model.fixed_cost_2=2
+            cost_model.fixed_cost_2=7.75
         else:
             change_IS1=False
 
@@ -752,7 +752,7 @@ for exper in range(N_exper):
     # train_x = train_x_init[:N_init_IS1]
     # train_obj = train_obj_init[:N_init_IS1]
     #
-    # # path2="/home/nobar/codes/GBO2/logs/test_31_b_5*/Exper_{}".format(str(exper))
+    # # path2="/cluster/home/mnobar/code/GBO2/logs/test_31_b_5*/Exper_{}".format(str(exper))
     # # train_obj_init=np.load(path2 + "/train_obj_init.npy")
     # # train_x_init=np.load(path2 + "/train_x_init.npy")
     # # cumulative_cost = 0.0
@@ -797,7 +797,7 @@ for exper in range(N_exper):
     # train_x = train_x_init[:N_init_IS1]
     # train_obj = train_obj_init[:N_init_IS1]
     #
-    # # path2="/home/nobar/codes/GBO2/logs/test_31_b_5*/Exper_{}".format(str(exper))
+    # # path2="/cluster/home/mnobar/code/GBO2/logs/test_31_b_5*/Exper_{}".format(str(exper))
     # # train_obj_init=np.load(path2 + "/train_obj_init.npy")
     # # train_x_init=np.load(path2 + "/train_x_init.npy")
     # # cumulative_cost = 0.0
