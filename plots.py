@@ -63,14 +63,17 @@ def plot_colortable(colors, *, ncols=4, sort_colors=True):
     return fig
 def plot_gt():
     # Load the .mat file
-    mat_data = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/misc/IS1_metrics_8x8_FeasSet2_smallerFeas.mat')
+    # mat_data = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/misc/IS1_metrics_8x8_FeasSet2_smallerFeas.mat')
+    mat_data = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/misc/IS1_metrics_20x20_FeasSet2_smallerFeas.mat')
+    mat_data2 = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/misc/IS1_metrics_20x20_FeasSet2_smallerFeas_perturbed.mat')
     # mat_data = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/misc/IS1_Exper_0_8x8_metrics.mat')
     # mat_data2 = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/misc/IS2_Exper_0_8x8_metrics.mat')
     # mat_data2 = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/misc/IS2_metrics_8x8_FeasSet2.mat')
-    mat_data2 = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3Dyn_s_01/IS3_1to2_metrics_8x8_FeasSet2.mat')
-    n_grid=8
-    # obj_IS2_grid = np.load("/home/nobar/codes/GBO2/logs/IS3_FeasSet2OLD_obj.npy")
-    obj_IS2_grid = np.load("/home/nobar/Documents/introductions/simulink_model/IS2_FeasSet2OLD_obj.npy")
+    # mat_data2 = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3Dyn_s_01/IS3_1to2_metrics_8x8_FeasSet2.mat')
+    n_grid=20
+    # # obj_IS2_grid = np.load("/home/nobar/codes/GBO2/logs/IS3_FeasSet2OLD_obj.npy")
+    # obj_IS2_grid = np.load("/home/nobar/Documents/introductions/simulink_model/IS2_FeasSet2OLD_obj.npy")
+    obj_IS2_grid = np.load("/home/nobar/Documents/introductions/simulink_model/IS1_FeasSet2OLD_obj.npy")
     obj_IS1_grid = np.load("/home/nobar/Documents/introductions/simulink_model/IS1_FeasSet2OLD_obj.npy")
     def normalize_objective(obj, obj_grid):
         return (obj - obj_grid.mean()) / (obj_grid.std())
@@ -113,7 +116,7 @@ def plot_gt():
     # plt.xlabel('Kp')
     # plt.ylabel('Kd')
     # plt.title('True Objective Contour Plot')
-    # plt.savefig("/home/nobar/codes/GBO2/logs/test_23_8_test/Exper_0/IS2_Exper_0_8x8_metrics.png")
+    # #plt.savefig("/home/nobar/codes/GBO2/logs/test_23_8_test/Exper_0/IS2_Exper_0_8x8_metrics.png")
     # plt.show()
 
     # w1 = 26
@@ -151,7 +154,7 @@ def plot_gt():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('True Objective Contour Plot')
-    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS1_J_normalized_test_FeasSet2_smallerFeas.png")
+    #plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS1_J_normalized_test_FeasSet2_smallerFeas.png")
     plt.show()
 
     new_obj2=w1*RiseTime2_all+w2*Overshoot2_all+w4*TransientTime2_all+w3*SettlingTime2_all+w5*PeakTime2_all+w6*SettlingMin2_all
@@ -167,7 +170,7 @@ def plot_gt():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('Estimated Objective Contour Plot')
-    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to2_J_normalized_test_FeasSet2_smallerFeas.png")
+    #plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to2_J_normalized_test_FeasSet2_smallerFeas.png")
     plt.show()
 
     error_new_obj=new_obj2-new_obj
@@ -184,9 +187,9 @@ def plot_gt():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('Error True Objective Contour Plot')
-    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to2_Error_normalized_FeasSet2_smallerFeas.png")
-    # plt.savefig("/home/nobar/codes/GBO2/logs/test_29_baseline/ERROR_Exper_0_8x8_metrics_normalized.png")
-    # plt.savefig("/home/nobar/codes/GBO2/logs/test_23_8_test/Exper_0/IS2_Exper_0_8x8_metrics_NEW.png")
+    #plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to2_Error_normalized_FeasSet2_smallerFeas.png")
+    # #plt.savefig("/home/nobar/codes/GBO2/logs/test_29_baseline/ERROR_Exper_0_8x8_metrics_normalized.png")
+    # #plt.savefig("/home/nobar/codes/GBO2/logs/test_23_8_test/Exper_0/IS2_Exper_0_8x8_metrics_NEW.png")
     plt.show()
     # error_new_obj=new_obj2-new_obj
     # # np.save("/home/nobar/codes/GBO2/logs/IS2_new_1_obj.npy",new_obj)
@@ -201,9 +204,9 @@ def plot_gt():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('Error True Objective Contour Plot')
-    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to2_ABSError_normalized_FeasSet2_smallerFeas.png")
-    # plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/ABS_ERROR_Exper_8x8_metrics_normalized.png")
-    # plt.savefig("/home/nobar/codes/GBO2/logs/test_23_8_test/Exper_0/IS2_Exper_0_8x8_metrics_NEW.png")
+    #plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to2_ABSError_normalized_FeasSet2_smallerFeas.png")
+    # #plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/ABS_ERROR_Exper_8x8_metrics_normalized.png")
+    # #plt.savefig("/home/nobar/codes/GBO2/logs/test_23_8_test/Exper_0/IS2_Exper_0_8x8_metrics_NEW.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
@@ -214,7 +217,7 @@ def plot_gt():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('$w.T_{p}$')
-    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS1_Tp_test_smallerFeas.png")
+    #plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS1_Tp_test_smallerFeas.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
@@ -225,7 +228,7 @@ def plot_gt():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('$w.SettlingMin$')
-    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS1_SettlingMin_test_smallerFeas.png")
+    #plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS1_SettlingMin_test_smallerFeas.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
@@ -236,7 +239,7 @@ def plot_gt():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('$w.T_{r}$')
-    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS1_Tr_test_smallerFeas.png")
+    #plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS1_Tr_test_smallerFeas.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
@@ -247,7 +250,7 @@ def plot_gt():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('$w.T_{s}$')
-    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS1_Ts_test_smallerFeas.png")
+    #plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS1_Ts_test_smallerFeas.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
@@ -258,7 +261,7 @@ def plot_gt():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('$w.M$')
-    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS1_Ov_test_smallerFeas.png")
+    #plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS1_Ov_test_smallerFeas.png")
     plt.show()
     plt.close()
     plt.figure(figsize=(8, 6))
@@ -269,7 +272,7 @@ def plot_gt():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('$w.T_{tr}$')
-    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS1_Ttr_test_smallerFeas.png")
+    #plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS1_Ttr_test_smallerFeas.png")
     plt.show()
 
 
@@ -284,7 +287,7 @@ def plot_gt():
     # plt.xlabel('Kp')
     # plt.ylabel('Kd')
     # plt.title('Error Objective Contour Plot')
-    # plt.savefig("/home/nobar/codes/GBO2/logs/test_23_8_test/Exper_0/IS3_J_1to2_error.png")
+    # #plt.savefig("/home/nobar/codes/GBO2/logs/test_23_8_test/Exper_0/IS3_J_1to2_error.png")
     # plt.show()
 
     plt.figure(figsize=(8, 6))
@@ -293,7 +296,7 @@ def plot_gt():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('error $w.T_{r}$')
-    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to2_Tr_error_smallerFeas.png")
+    #plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to2_Tr_error_smallerFeas.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
@@ -304,7 +307,7 @@ def plot_gt():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('error $w.T_{s}$')
-    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to2_Ts_error_smallerFeas.png")
+    #plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to2_Ts_error_smallerFeas.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
@@ -315,7 +318,7 @@ def plot_gt():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('error $w.M$')
-    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to2_Ov_error_smallerFeas.png")
+    #plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to2_Ov_error_smallerFeas.png")
     plt.show()
     plt.close()
     plt.figure(figsize=(8, 6))
@@ -326,7 +329,7 @@ def plot_gt():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('error $w.T_{tr}$')
-    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to2_Ttr_error_smallerFeas.png")
+    #plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to2_Ttr_error_smallerFeas.png")
     plt.show()
 
     print("")
@@ -359,7 +362,7 @@ def plot_kernels():
     plt.xlabel("x")
     plt.ylabel("x'")
     plt.title("Matérn 5/2 Kernel Contour Map")
-    plt.savefig("/home/nobar/codes/GBO2/logs/test_3/matern52.png")
+    #plt.savefig("/home/nobar/codes/GBO2/logs/test_3/matern52.png")
     plt.show()
 
     plt.figure(figsize=(6, 5))
@@ -369,7 +372,7 @@ def plot_kernels():
     plt.xlabel("s")
     plt.ylabel("s'")
     plt.title("C1 Contour Map")
-    plt.savefig("/home/nobar/codes/GBO2/logs/test_3/C1kernelCoefficient.png")
+    #plt.savefig("/home/nobar/codes/GBO2/logs/test_3/C1kernelCoefficient.png")
     plt.show()
 
 def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_bias,N_exper,N_iter, s2, s3, BATCH_SIZE):
@@ -513,7 +516,7 @@ def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_
     # plt.yscale('log')
     # plt.ylim(0.9, 1.05)  # Focus range
     # plt.yticks([0.9, 0.95, 1.0, 1.05])
-    plt.savefig(path+"/J_min_obs_IS1_BOiter.png")
+    #plt.savefig(path+"/J_min_obs_IS1_BOiter.png")
     plt.show()
 
     costs=np.hstack((np.asarray(costs_init).reshape(N_exper,1),np.stack(costs_all_list)))
@@ -541,7 +544,7 @@ def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_
     # plt.yscale('log')
     # plt.ylim(0.9, 1.05)  # Focus range
     # plt.yticks([0.9, 0.95, 1.0, 1.05])
-    plt.savefig(path+"/Cost_sampling_BOiter.png")
+    #plt.savefig(path+"/Cost_sampling_BOiter.png")
     plt.show()
 
 
@@ -570,7 +573,7 @@ def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_
     # plt.yscale('log')
     # plt.ylim(0.9, 1.05)  # Focus range
     # plt.yticks([0.9, 0.95, 1.0, 1.05])
-    plt.savefig(path+"/Unbiased_cost_sampling_BOiter.png")
+    #plt.savefig(path+"/Unbiased_cost_sampling_BOiter.png")
     plt.show()
 
     # np.save("/home/nobar/codes/GBO2/logs/test_33_b_1/C_unbiased.npy",C)
@@ -635,7 +638,7 @@ def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_
     # plt.yscale('log')
     # plt.ylim(0.9, 1.05)  # Focus range
     # plt.yticks([0.9, 0.95, 1.0, 1.05])
-    plt.savefig(path+"/J_min_obs_IS1_Mean_Unbiased_cost_sampling.png")
+    #plt.savefig(path+"/J_min_obs_IS1_Mean_Unbiased_cost_sampling.png")
     plt.show()
 
     # mean_values_baseline=np.load("/home/nobar/codes/GBO2/logs/test_6_11_baseline/mean_values.npy")
@@ -673,7 +676,7 @@ def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_
     plt.grid(True)
     # plt.ylim(0.9, 1.BATCH_SIZE)  # Focus range
     plt.title("Mean with 95% Confidence Interval")
-    plt.savefig(path+"/J_min_obs_IS1_Mean_Unbiased_cost_sampling_95Conf.png")
+    #plt.savefig(path+"/J_min_obs_IS1_Mean_Unbiased_cost_sampling_95Conf.png")
     plt.show()
     # np.save("/home/nobar/codes/GBO2/logs/test_6_11_baseline/mean_values.npy",mean_values)
     # np.save("/home/nobar/codes/GBO2/logs/test_6_11_baseline/margin_of_error.npy",margin_of_error)
@@ -703,7 +706,7 @@ def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_
     plt.grid(True)
     # plt.ylim(0.9, 1.4)  # Focus range
     plt.title("Mean with 95% Confidence Interval")
-    plt.savefig(path+"/J_min_obs_IS1_Mean_IS1onlySamplingCost_95Conf.png")
+    #plt.savefig(path+"/J_min_obs_IS1_Mean_IS1onlySamplingCost_95Conf.png")
     plt.show()
     np.save("/home/nobar/codes/GBO2/logs/test_33_b_1/x_IS1_baseline.npy",x_IS1)
     np.save("/home/nobar/codes/GBO2/logs/test_33_b_1/mean_values_baseline.npy",mean_values)
@@ -796,7 +799,7 @@ def plots_indicators(path, path2,   N_init_IS1,N_init_IS2,    sampling_cost_bias
         plt.xlim(1, delta_J.__len__())
         plt.ylim(-1.7, 1.05)
         plt.xticks(np.arange(1, delta_J.__len__(), 2))
-        plt.savefig(exp_path + "/indicators.pdf")
+        #plt.savefig(exp_path + "/indicators.pdf")
         plt.show()
 
         RAWS=np.hstack((train_x, train_obj))
@@ -914,7 +917,7 @@ def plots_MonteCarlo_objectiveEI_34tests(path, path2,   N_init_IS1,N_init_IS2,  
             plt.xlim(1, delta_J.__len__())
             plt.ylim(-1.7, 1.05)
             plt.xticks(np.arange(1, delta_J.__len__(), 2))
-            plt.savefig(exp_path + "/indicators.pdf")
+            #plt.savefig(exp_path + "/indicators.pdf")
             plt.show()
 
         RAWS=np.hstack((train_x, train_obj))
@@ -1065,8 +1068,8 @@ def plots_MonteCarlo_objectiveEI_34tests(path, path2,   N_init_IS1,N_init_IS2,  
     # plt.yticks([0.9, 0.95, 1.0, 1.05])
     plt.xlim(1, 20)
     plt.xticks(np.arange(1, 21, 2))
-    plt.savefig(path+"/Unbiased_sampling_cost_objective_evaluation.png")
-    plt.savefig(path+"/Unbiased_sampling_cost_objective_evaluation.pdf")
+    #plt.savefig(path+"/Unbiased_sampling_cost_objective_evaluation.png")
+    #plt.savefig(path+"/Unbiased_sampling_cost_objective_evaluation.pdf")
     plt.show()
 
     D=np.vstack((np.asarray(min_obj_init_all), DD.T))
@@ -1148,7 +1151,7 @@ def plots_MonteCarlo_objectiveEI_34tests(path, path2,   N_init_IS1,N_init_IS2,  
     plt.grid(True)
     # plt.ylim(0.9, 1.4)  # Focus range
     plt.title("Mean with 95% Confidence Interval")
-    plt.savefig(path+"/Obj_min_obs_IS1_Mean_IS1onlySamplingCost_95Conf.png")
+    #plt.savefig(path+"/Obj_min_obs_IS1_Mean_IS1onlySamplingCost_95Conf.png")
     plt.show()
 
     x_IS1_baseline = np.load("/home/nobar/codes/GBO2/logs/test_33_b_1/x_IS1_baseline.npy")
@@ -1177,8 +1180,8 @@ def plots_MonteCarlo_objectiveEI_34tests(path, path2,   N_init_IS1,N_init_IS2,  
     # plt.ylim(-1.6, 0.7)
     # plt.ylim(0.9, 1.4)  # Focus range
     # plt.title("Mean with 95% Confidence Interval")
-    plt.savefig(path + "/all_obj_min_obs_IS1_Mean_IS1onlySamplingCost_95Conf.png")
-    plt.savefig(path + "/all_obj_min_obs_IS1_Mean_IS1onlySamplingCost_95Conf.pdf")
+    #plt.savefig(path + "/all_obj_min_obs_IS1_Mean_IS1onlySamplingCost_95Conf.png")
+    #plt.savefig(path + "/all_obj_min_obs_IS1_Mean_IS1onlySamplingCost_95Conf.pdf")
     plt.show()
     # Create figure and two subplots with broken x-axis
     fig = plt.figure(figsize=(10, 5))
@@ -1289,7 +1292,9 @@ def plots_MonteCarlo_objectiveEI(path, path2,   N_init_IS1,N_init_IS2,    sampli
     costs_init=[]
     costs_init_IS1=[]
     costs_init_EIonly=[]
+    # N_exper=2 #TODO remove
     for exper in range(N_exper):
+        # exper=0 #TODO remove
         exp_path = os.path.join(path, f"Exper_{exper}")
         exp_path2 = os.path.join(path2, f"Exper_{exper}")
         # Load files
@@ -1402,7 +1407,7 @@ def plots_MonteCarlo_objectiveEI(path, path2,   N_init_IS1,N_init_IS2,    sampli
     # plt.yscale('log')
     # plt.ylim(0.9, 1.05)  # Focus range
     # plt.yticks([0.9, 0.95, 1.0, 1.05])
-    plt.savefig(path2+"/Unbiased_cost_sampling_BOiter.png")
+    #plt.savefig(path2+"/Unbiased_cost_sampling_BOiter.png")
     plt.show()
 
     costs_IS2_all=[]
@@ -1462,7 +1467,7 @@ def plots_MonteCarlo_objectiveEI(path, path2,   N_init_IS1,N_init_IS2,    sampli
     # plt.yscale('log')
     # plt.ylim(0.9, 1.05)  # Focus range
     # plt.yticks([0.9, 0.95, 1.0, 1.05])
-    plt.savefig(path2+"/J_min_obs_IS1_Mean_Unbiased_cost_sampling.png")
+    #plt.savefig(path2+"/J_min_obs_IS1_Mean_Unbiased_cost_sampling.png")
     plt.show()
 
     mean_values_baseline=np.load("/home/nobar/codes/GBO2/logs/test_6_11_baseline/mean_values.npy")
@@ -1500,7 +1505,7 @@ def plots_MonteCarlo_objectiveEI(path, path2,   N_init_IS1,N_init_IS2,    sampli
     plt.grid(True)
     # plt.ylim(0.9, 1.BATCH_SIZE)  # Focus range
     plt.title("Mean with 95% Confidence Interval")
-    plt.savefig(path2+"/J_min_obs_IS1_Mean_Unbiased_cost_sampling_95Conf.png")
+    #plt.savefig(path2+"/J_min_obs_IS1_Mean_Unbiased_cost_sampling_95Conf.png")
     plt.show()
     # np.save("/home/nobar/codes/GBO2/logs/test_6_11_baseline/mean_values.npy",mean_values)
     # np.save("/home/nobar/codes/GBO2/logs/test_6_11_baseline/margin_of_error.npy",margin_of_error)
@@ -1530,7 +1535,7 @@ def plots_MonteCarlo_objectiveEI(path, path2,   N_init_IS1,N_init_IS2,    sampli
     plt.grid(True)
     # plt.ylim(0.9, 1.4)  # Focus range
     plt.title("Mean with 95% Confidence Interval")
-    plt.savefig(path2+"/J_min_obs_IS1_Mean_IS1onlySamplingCost_95Conf.png")
+    #plt.savefig(path2+"/J_min_obs_IS1_Mean_IS1onlySamplingCost_95Conf.png")
     plt.show()
     # np.save("/home/nobar/codes/GBO2/logs/test_6_11_baseline/mean_values.npy",mean_values)
     # np.save("/home/nobar/codes/GBO2/logs/test_6_11_baseline/margin_of_error.npy",margin_of_error)
@@ -1676,7 +1681,7 @@ def plots_MonteCarlo_objectiveUCB(path, path2,   N_init_IS1,N_init_IS2,    sampl
     # plt.yscale('log')
     # plt.ylim(0.9, 1.05)  # Focus range
     # plt.yticks([0.9, 0.95, 1.0, 1.05])
-    plt.savefig(path2+"/J_min_obs_IS1_BOiter.png")
+    #plt.savefig(path2+"/J_min_obs_IS1_BOiter.png")
     plt.show()
 
     costs=np.hstack((np.asarray(costs_init).reshape(N_exper,1),np.stack(costs_all_list)))
@@ -1704,7 +1709,7 @@ def plots_MonteCarlo_objectiveUCB(path, path2,   N_init_IS1,N_init_IS2,    sampl
     # plt.yscale('log')
     # plt.ylim(0.9, 1.05)  # Focus range
     # plt.yticks([0.9, 0.95, 1.0, 1.05])
-    plt.savefig(path2+"/Cost_sampling_BOiter.png")
+    #plt.savefig(path2+"/Cost_sampling_BOiter.png")
     plt.show()
 
 
@@ -1733,7 +1738,7 @@ def plots_MonteCarlo_objectiveUCB(path, path2,   N_init_IS1,N_init_IS2,    sampl
     # plt.yscale('log')
     # plt.ylim(0.9, 1.05)  # Focus range
     # plt.yticks([0.9, 0.95, 1.0, 1.05])
-    plt.savefig(path2+"/Unbiased_cost_sampling_BOiter.png")
+    #plt.savefig(path2+"/Unbiased_cost_sampling_BOiter.png")
     plt.show()
 
     costs_IS2_all=[]
@@ -1793,7 +1798,7 @@ def plots_MonteCarlo_objectiveUCB(path, path2,   N_init_IS1,N_init_IS2,    sampl
     # plt.yscale('log')
     # plt.ylim(0.9, 1.05)  # Focus range
     # plt.yticks([0.9, 0.95, 1.0, 1.05])
-    plt.savefig(path2+"/J_min_obs_IS1_Mean_Unbiased_cost_sampling.png")
+    #plt.savefig(path2+"/J_min_obs_IS1_Mean_Unbiased_cost_sampling.png")
     plt.show()
 
     mean_values_baseline=np.load("/home/nobar/codes/GBO2/logs/test_6_11_baseline/mean_values.npy")
@@ -1831,7 +1836,7 @@ def plots_MonteCarlo_objectiveUCB(path, path2,   N_init_IS1,N_init_IS2,    sampl
     plt.grid(True)
     # plt.ylim(0.9, 1.BATCH_SIZE)  # Focus range
     plt.title("Mean with 95% Confidence Interval")
-    plt.savefig(path2+"/J_min_obs_IS1_Mean_Unbiased_cost_sampling_95Conf.png")
+    #plt.savefig(path2+"/J_min_obs_IS1_Mean_Unbiased_cost_sampling_95Conf.png")
     plt.show()
     # np.save("/home/nobar/codes/GBO2/logs/test_6_11_baseline/mean_values.npy",mean_values)
     # np.save("/home/nobar/codes/GBO2/logs/test_6_11_baseline/margin_of_error.npy",margin_of_error)
@@ -1861,7 +1866,7 @@ def plots_MonteCarlo_objectiveUCB(path, path2,   N_init_IS1,N_init_IS2,    sampl
     plt.grid(True)
     # plt.ylim(0.9, 1.4)  # Focus range
     plt.title("Mean with 95% Confidence Interval")
-    plt.savefig(path2+"/J_min_obs_IS1_Mean_IS1onlySamplingCost_95Conf.png")
+    #plt.savefig(path2+"/J_min_obs_IS1_Mean_IS1onlySamplingCost_95Conf.png")
     plt.show()
     # np.save("/home/nobar/codes/GBO2/logs/test_6_11_baseline/mean_values.npy",mean_values)
     # np.save("/home/nobar/codes/GBO2/logs/test_6_11_baseline/margin_of_error.npy",margin_of_error)
@@ -1950,8 +1955,8 @@ def plot_GPs(iter, path, train_x_i,train_obj_i):
             ax.set_ylabel("$x_2$")
 
     plt.tight_layout()
-    # plt.savefig(path + "/withTrainData_EIonly_GP_itr_{}.png".format(str(iter)))
-    plt.savefig(path + "/withTrainData_GP_itr_{}.png".format(str(iter)))
+    # #plt.savefig(path + "/withTrainData_EIonly_GP_itr_{}.png".format(str(iter)))
+    #plt.savefig(path + "/withTrainData_GP_itr_{}.png".format(str(iter)))
     # plt.show()
     plt.close()
 
@@ -2007,7 +2012,7 @@ def plot_EIonly_GP(iter, path, train_x_i,train_obj_i):
         plt.ylabel("$x_2$")
 
     plt.tight_layout()
-    plt.savefig(path + "/withTrainData_EIonly_GP_itr_{}.png".format(str(iter)))
+    #plt.savefig(path + "/withTrainData_EIonly_GP_itr_{}.png".format(str(iter)))
     # plt.show()
     plt.close()
 
@@ -2064,7 +2069,7 @@ def plot_tradeoff():
     # plt.xlabel('Kp')
     # plt.ylabel('Kd')
     # plt.title('True Objective Contour Plot')
-    # # plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Objective_all.png")
+    # # #plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Objective_all.png")
     # plt.show()
 
     Objective_all_sim = w1 * RiseTime_all_sim + w2 * Overshoot_all_sim + w4 * TransientTime_all_sim + w3 * SettlingTime_all_sim
@@ -2076,7 +2081,7 @@ def plot_tradeoff():
     # plt.xlabel('Kp')
     # plt.ylabel('Kd')
     # plt.title('Simulation Objective Contour Plot')
-    # # plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Objective_all_sim.png")
+    # # #plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Objective_all_sim.png")
     # plt.show()
     #
     # plt.figure(figsize=(8, 6))
@@ -2086,7 +2091,7 @@ def plot_tradeoff():
     # plt.xlabel('Kp')
     # plt.ylabel('Kd')
     # plt.title('Error Objective Contour Plot')
-    # # plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Objective_all_err.png")
+    # # #plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Objective_all_err.png")
     # plt.show()
 
 
@@ -2148,7 +2153,7 @@ def plot_tradeoff():
     #             label='MFBO - IS2 estimations', zorder=3)
     plt.legend()
     # plt.title('ABS Error Objective Contour Plot')
-    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Objective_all_ABSerr.pdf")
+    #plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Objective_all_ABSerr.pdf")
     plt.show()
 
 
@@ -2188,7 +2193,7 @@ def plot_tradeoff():
     #             label='MFBO - IS2 estimations', zorder=3)
     plt.legend()
     # plt.title('ABS Error Objective Contour Plot')
-    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Objective_all_methods_iterations.pdf")
+    #plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Objective_all_methods_iterations.pdf")
     plt.show()
 
     print("")
@@ -2246,7 +2251,7 @@ def plot_real():
     # plt.xlabel('Kp')
     # plt.ylabel('Kd')
     # plt.title('True Objective Contour Plot')
-    # plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots/real_objective_old_weights.png")
+    # #plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots/real_objective_old_weights.png")
     # plt.show()
     #
     # w1 = 1
@@ -2274,7 +2279,7 @@ def plot_real():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('True Objective Contour Plot')
-    # plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Objective_all.png")
+    # #plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Objective_all.png")
     plt.show()
 
     Objective_all_sim = w1 * RiseTime_all_sim + w2 * Overshoot_all_sim + w4 * TransientTime_all_sim + w3 * SettlingTime_all_sim
@@ -2284,7 +2289,7 @@ def plot_real():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('Simulation Objective Contour Plot')
-    # plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Objective_all_sim.png")
+    # #plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Objective_all_sim.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
@@ -2293,7 +2298,7 @@ def plot_real():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('Error Objective Contour Plot')
-    # plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Objective_all_err.png")
+    # #plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Objective_all_err.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
@@ -2303,7 +2308,7 @@ def plot_real():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('Error Objective Contour Plot')
-    # plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Objective_all_err.png")
+    # #plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Objective_all_err.png")
     plt.show()
 
     # np.save("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/Kp_50_v1.npy",Kp)
@@ -2353,8 +2358,8 @@ def plot_real():
     # plt.xlabel('Kp')
     # plt.ylabel('Kd')
     # plt.title('Absolute Error Objective Contour Plot')
-    # plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_IS1_numerical.png")
-    # # plt.savefig("/home/nobar/codes/GBO2/logs/test_23_8_test/Exper_0/IS2_Exper_0_8x8_metrics_NEW.png")
+    # #plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_IS1_numerical.png")
+    # # #plt.savefig("/home/nobar/codes/GBO2/logs/test_23_8_test/Exper_0/IS2_Exper_0_8x8_metrics_NEW.png")
     # plt.show()
 
     plt.figure(figsize=(8, 6))
@@ -2363,7 +2368,7 @@ def plot_real():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title("Rise Time")
-    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_RiseTime_all.png")
+    #plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_RiseTime_all.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
@@ -2372,7 +2377,7 @@ def plot_real():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title("Transient Time")
-    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_TransientTime_all.png")
+    #plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_TransientTime_all.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
@@ -2381,7 +2386,7 @@ def plot_real():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title("Settling Time")
-    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_SettlingTime_all.png")
+    #plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_SettlingTime_all.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
@@ -2390,7 +2395,7 @@ def plot_real():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title("Overshoot")
-    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Overshoot_all.png")
+    #plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Overshoot_all.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
@@ -2399,7 +2404,7 @@ def plot_real():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title("Rise Time")
-    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_RiseTime_all_sim.png")
+    #plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_RiseTime_all_sim.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
@@ -2408,7 +2413,7 @@ def plot_real():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title("Transient Time")
-    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_TransientTime_all_sim.png")
+    #plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_TransientTime_all_sim.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
@@ -2417,7 +2422,7 @@ def plot_real():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title("Settling Time")
-    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_SettlingTime_all_sim.png")
+    #plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_SettlingTime_all_sim.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
@@ -2426,7 +2431,7 @@ def plot_real():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title("Overshoot")
-    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Overshoot_all_sim.png")
+    #plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Overshoot_all_sim.png")
     plt.show()
 
 
@@ -2436,7 +2441,7 @@ def plot_real():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title("Rise Time Error")
-    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_RiseTime_all_err.png")
+    #plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_RiseTime_all_err.png")
     plt.show()
     plt.figure(figsize=(8, 6))
     contour = plt.contourf(Kp, Kd, (SettlingTime_all-SettlingTime_all_sim).reshape(n_grid, n_grid).T, levels=30)  # Transpose to match dimensions
@@ -2444,7 +2449,7 @@ def plot_real():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title("Settling Time Error")
-    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_SettlingTime_all_err.png")
+    #plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_SettlingTime_all_err.png")
     plt.show()
     plt.figure(figsize=(8, 6))
     contour = plt.contourf(Kp, Kd, (TransientTime_all-TransientTime_all_sim).reshape(n_grid, n_grid).T, levels=30)  # Transpose to match dimensions
@@ -2452,7 +2457,7 @@ def plot_real():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title("Transient Time Error")
-    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_TransientTime_all_err.png")
+    #plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_TransientTime_all_err.png")
     plt.show()
     plt.figure(figsize=(8, 6))
     contour = plt.contourf(Kp, Kd, (Overshoot_all-Overshoot_all_sim).reshape(n_grid, n_grid).T, levels=30)  # Transpose to match dimensions
@@ -2460,7 +2465,7 @@ def plot_real():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title("Overshoot Error")
-    plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Overshoot_all_err.png")
+    #plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Overshoot_all_err.png")
     plt.show()
     # # Plot the contour
     # plt.figure(figsize=(8, 6))
@@ -2471,7 +2476,7 @@ def plot_real():
     # plt.xlabel('Kp')
     # plt.ylabel('Kd')
     # plt.title("Weighted Rise Time")
-    # plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots/Weighted_RiseTime_all.png")
+    # #plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots/Weighted_RiseTime_all.png")
     # plt.show()
     #
     # # Plot the contour
@@ -2483,7 +2488,7 @@ def plot_real():
     # plt.xlabel('Kp')
     # plt.ylabel('Kd')
     # plt.title("Weighted Transient Time")
-    # plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots/Weighted_TransientTime_all.png")
+    # #plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots/Weighted_TransientTime_all.png")
     # plt.show()
     #
     # # Plot the contour
@@ -2495,7 +2500,7 @@ def plot_real():
     # plt.xlabel('Kp')
     # plt.ylabel('Kd')
     # plt.title("Weighted Settling Time")
-    # plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots/Weighted_SettlingTime_all.png")
+    # #plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots/Weighted_SettlingTime_all.png")
     # plt.show()
     #
     # # Plot the contour
@@ -2507,7 +2512,7 @@ def plot_real():
     # plt.xlabel('Kp')
     # plt.ylabel('Kd')
     # plt.title("Weighted Overshoot")
-    # plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots/Weighted_Overshoot_all.png")
+    # #plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots/Weighted_Overshoot_all.png")
     # plt.show()
 
     print("")
@@ -2585,7 +2590,7 @@ def plot_gamma_deltaJ(pathALL):
     plt.grid(True)
     plt.legend()
     plt.tight_layout()
-    plt.savefig(path + "/argminf_gamma0.pdf")
+    #plt.savefig(path + "/argminf_gamma0.pdf")
     plt.show()
 
     plt.figure(figsize=(8, 5))
@@ -2631,7 +2636,7 @@ def plot_gamma_deltaJ(pathALL):
     plt.grid(True)
     plt.legend()
     plt.tight_layout()
-    plt.savefig(path + "/l_gamma_0_star_E_delta_f.pdf")
+    #plt.savefig(path + "/l_gamma_0_star_E_delta_f.pdf")
     plt.show()
 
     print("")
@@ -2658,7 +2663,7 @@ if __name__ == "__main__":
 
     # plot_cost_coef()
 
-    path = "/home/nobar/codes/GBO2/logs/test_40_6/"
+    path = "/home/nobar/codes/GBO2/logs/test_42/"
     # path2 = "/home/nobar/codes/GBO2/logs/test_31_b_UCB_1/"
     path2 = "/home/nobar/codes/GBO2/logs/test_33_b_1/"
     N_init_IS1=2
@@ -2670,8 +2675,9 @@ if __name__ == "__main__":
     s3 = 0.05
     BATCH_SIZE=1
 
-    path3= "/home/nobar/codes/GBO2/logs/"
-    plot_gamma_deltaJ(path3)
+
+    # path3= "/home/nobar/codes/GBO2/logs/"
+    # plot_gamma_deltaJ(path3)
 
 
     # # plot GP surrogates
@@ -2707,6 +2713,6 @@ if __name__ == "__main__":
 
     # plots_MonteCarlo_objective(path,N_init_IS1,N_init_IS2,sampling_cost_bias,N_exper,N_iter,s2,s3, BATCH_SIZE)
     # plots_MonteCarlo_objectiveEI(path,path2,N_init_IS1,N_init_IS2,sampling_cost_bias,N_exper,N_iter,s2,s3, BATCH_SIZE)
-    # plots_MonteCarlo_objectiveEI_34tests(path,path2,N_init_IS1,N_init_IS2,sampling_cost_bias,N_exper,N_iter,s2,s3, BATCH_SIZE)
+    plots_MonteCarlo_objectiveEI_34tests(path,path2,N_init_IS1,N_init_IS2,sampling_cost_bias,N_exper,N_iter,s2,s3, BATCH_SIZE)
     # plots_MonteCarlo_objectiveUCB(path,path2,N_init_IS1,N_init_IS2,sampling_cost_bias,N_exper,N_iter,s2,s3, BATCH_SIZE)
     # plots_indicators(path,path2,N_init_IS1,N_init_IS2,sampling_cost_bias,N_exper,N_iter,s2,s3, BATCH_SIZE)

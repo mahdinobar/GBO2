@@ -161,7 +161,7 @@ def get_cost_aware_ei(model, cost_model, best_f_s1, best_f_s2, alpha):
     return eipu
 
 
-def optimize_caEI_and_get_observation(caEI):
+def optimize_caEI_and_get_observation(caEI,change_IS1):
     candidates, caEI_value = optimize_acqf_mixed(acq_function=caEI, bounds=bounds, fixed_features_list=[{2: 0.1}, {2: 1.0}],
                                         q=BATCH_SIZE,
                                         num_restarts=NUM_RESTARTS, raw_samples=RAW_SAMPLES,
@@ -173,7 +173,15 @@ def optimize_caEI_and_get_observation(caEI):
     # observe new values
     cost = cost_model(candidates).sum()
     new_x = candidates.detach()
-    new_obj = problem(new_x).unsqueeze(-1)
+
+    if change_IS1==True and new_x[:, 2]==1.0:
+        print("IS1 changed!")
+        new_x[:, 2]=111
+        new_obj = problem(new_x).unsqueeze(-1)
+        new_x[:, 2] = 1.0
+    else:
+        new_obj = problem(new_x).unsqueeze(-1)
+
     print(f"candidates:\n{new_x}\n")
     print(f"observations:\n{new_obj}\n\n")
     return new_x, new_obj, cost, caEI_value
@@ -468,15 +476,16 @@ BATCH_SIZE = 1
 N_init_IS1 = 2 if not SMOKE_TEST else 2
 N_init_IS2 = 10 if not SMOKE_TEST else 2
 N_ITER = 20 if not SMOKE_TEST else 1
+N_change=21 # iteration that IS1 dynamics changes; disable by N_change>=N_ITER
 
 # # generate seed for sobol initial dataset
 # sobol_seeds=torch.randint(1,10000,(N_exper,))
 
 for exper in range(N_exper):
     print("**********Experiment {}**********".format(exper))
-    # /cluster/home/mnobar/code/GBO2
     # /home/nobar/codes/GBO2
-    path = "/cluster/home/mnobar/code/GBO2/logs/test_41_5/Exper_{}".format(str(exper))
+    # /cluster/home/mnobar/code/GBO2
+    path = "/cluster/home/mnobar/code/GBO2/logs/test_43/Exper_{}".format(str(exper))
     # Check i<f the directory exists, if not, create it
     if not os.path.exists(path):
         os.makedirs(path)
@@ -637,7 +646,13 @@ for exper in range(N_exper):
                                 best_f_s1=best_f_s1,
                                 best_f_s2=best_f_s2,
                                 alpha=1)
-        new_x, new_obj, cost, caEI_value = optimize_caEI_and_get_observation(caEI)
+
+        if np.sum(np.asarray(train_x[:,2])==1)>N_init_IS1+N_change:
+            change_IS1=True
+        else:
+            change_IS1=False
+
+        new_x, new_obj, cost, caEI_value = optimize_caEI_and_get_observation(caEI,change_IS1)
 
         # fixed_features_list = [
         #     {2: 1.0},  # Fix fidelity s = 1.0 (real)
@@ -733,7 +748,7 @@ for exper in range(N_exper):
     # train_x = train_x_init[:N_init_IS1]
     # train_obj = train_obj_init[:N_init_IS1]
     #
-    # # path2="/home/nobar/codes/GBO2/logs/test_31_b_5*/Exper_{}".format(str(exper))
+    # # path2="/cluster/home/mnobar/code/GBO2/logs/test_31_b_5*/Exper_{}".format(str(exper))
     # # train_obj_init=np.load(path2 + "/train_obj_init.npy")
     # # train_x_init=np.load(path2 + "/train_x_init.npy")
     # # cumulative_cost = 0.0
@@ -778,7 +793,7 @@ for exper in range(N_exper):
     # train_x = train_x_init[:N_init_IS1]
     # train_obj = train_obj_init[:N_init_IS1]
     #
-    # # path2="/home/nobar/codes/GBO2/logs/test_31_b_5*/Exper_{}".format(str(exper))
+    # # path2="/cluster/home/mnobar/code/GBO2/logs/test_31_b_5*/Exper_{}".format(str(exper))
     # # train_obj_init=np.load(path2 + "/train_obj_init.npy")
     # # train_x_init=np.load(path2 + "/train_x_init.npy")
     # # cumulative_cost = 0.0
