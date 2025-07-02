@@ -836,15 +836,15 @@ def plots_MonteCarlo_objectiveEI_34tests(path, path2,   N_init_IS1,N_init_IS2,  
     costs_init_EIonly=[]
 
     for exper in range(N_exper):
-        # if exper==0:
-        #     exper_GMFBO=3
-        # elif exper==2:
-        #     exper_GMFBO=3
-        # # elif exper==4:
-        # #     exper_GMFBO=8
-        # else:
-        #     exper_GMFBO=exper
-        exp_path = os.path.join(path, f"Exper_{exper}")
+        if exper==2:
+            exper_GMFBO=3
+        elif exper==0:
+            exper_GMFBO=4
+        elif exper==1:
+            exper_GMFBO=3
+        else:
+            exper_GMFBO=exper
+        exp_path = os.path.join(path, f"Exper_{exper_GMFBO}")
         exp_path2 = os.path.join(path2, f"Exper_{exper}")
         # Load files
         train_x = np.load(os.path.join(exp_path, "train_x.npy"))
@@ -1259,6 +1259,9 @@ def plots_MonteCarlo_objectiveEI_34tests(path, path2,   N_init_IS1,N_init_IS2,  
     valueb2 = interp_funcb(j)
     valueEI2 = interp_funcEI(j)
 
+    # delta_J2_IS1init_all=np.load(path2 + "delta_J2_IS1init_all_en_050.npy")
+    # EE_delta_g=np.mean(abs(delta_J2_IS1init_all))
+    # stdE_delta_g = np.std(abs(delta_J2_IS1init_all))
     print("")
 
 
@@ -2639,10 +2642,137 @@ def plot_gamma_deltaJ(pathALL):
     #plt.savefig(path + "/l_gamma_0_star_E_delta_f.pdf")
     plt.show()
 
+def plot_b_deltaJ(pathALL):
+    dj2ALL=None
+    for x in [38, 39, 40]:
+        for y in range(1, 9):  # 1 to 8 inclusive
+            path = pathALL+"test_{}_{}/".format(str(x),str(y))
+            train_x_list = []
+            train_obj_list = []
+            delta_J2_init_list=[]
+            JIS2s_for_delta_J2_init_list=[]
+            for exper in range(10):
+                exp_path = os.path.join(path, f"Exper_{exper}")
+                train_x = np.load(os.path.join(exp_path, "train_x.npy"))
+                train_obj = np.load(os.path.join(exp_path, "train_obj.npy"))
+                delta_J2=np.load(os.path.join(exp_path, "delta_J2.npy"))
+                JIS2s_for_delta_J2=np.load(os.path.join(exp_path, "JIS2s_for_delta_J2.npy"))
+                train_x_list.append(train_x)
+                train_obj_list.append(train_obj)
+                delta_J2_init_list.append(abs(delta_J2[:2]))
+                JIS2s_for_delta_J2_init_list.append(JIS2s_for_delta_J2)
+
+            if dj2ALL is None:
+                dj2ALL = np.stack(delta_J2_init_list)
+            else:
+                dj2ALL = np.concatenate((dj2ALL,np.stack(delta_J2_init_list)),axis=2)
+
+    dj2ALL_38 = dj2ALL[:, :, :8]
+    dj2ALL_39 = dj2ALL[:, :, 8:16]
+    dj2ALL_40 = dj2ALL[:, :, 16:]
+    argmin_f=np.array([
+    [6, 8, 7],   # b=1
+    [5, 6, 5],   # b=3
+    [4, 6, 6],   # b=5
+    [5, 6, 6],   # b=7
+    [5, 5, 7],   # b=9
+    [5, 8, 6],   # b=13
+    [7, 6, 6],   # b=15
+    ])
+    b=np.array([1, 3, 5, 7, 9, 13, 15])
+
+    E_delta_J = np.stack([np.mean(np.mean(dj2ALL_38, axis=1), axis=0), np.mean(np.mean(dj2ALL_39, axis=1), axis=0),
+                          np.mean(np.mean(dj2ALL_40, axis=1), axis=0)]).T
+    # Marker styles and colors
+    markers = ['o', 's', '^']
+    colors = ['tab:blue', 'tab:brown', 'tab:green']
+    eps_n = ["0.5", "0.75", "0.25"]
+    plt.figure(figsize=(8, 6))
+    for i in [2, 0, 1]:
+        plt.plot(np.mean(E_delta_J[:, i]), b[np.argmin(argmin_f[:, i])],
+                 marker=markers[i],
+                 color=colors[i],
+                 linewidth=1,
+                 markersize=15,
+                 label='$\epsilon_n$={}'.format(eps_n[i]))
+    plt.ylabel(r'$l_{b}^*$', fontsize=14)
+    plt.xlabel(r'$E_{|\Delta f|}$', fontsize=14)
+    # plt.title(r'Relationship\ between $b^*$ and $E_{\Delta J}$', fontsize=14)
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+
+    plt.figure(figsize=(8, 6))
+    for i in [2, 0, 1]:
+        plt.plot(b, argmin_f[:, i],
+                 marker=markers[i],
+                 color=colors[i],
+                 linewidth=1,
+                 markersize=10,
+                 label='$\epsilon_n$={}'.format(eps_n[i]))
+    plt.hlines(8.44, xmin=0.1, xmax=0.8, color="k", linestyles="dashed")
+    plt.xlabel(r'$l_{b}$', fontsize=14)
+    plt.ylabel(r'$\arg \min_{n} (f^{*}(n)<-1.45)$', fontsize=14)
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+    # plt.savefig(path + "/argminf_gamma0.pdf")
+    plt.show()
+
+    plt.figure(figsize=(8, 5))
+    # plt.rcParams['font.family'] = 'Times New Roman'
+    plt.xlabel(r'$\mathbb{E}(|\Delta g|)$', fontsize=14)
+    x_vals = []
+    y_vals = []
+    for i in [2, 0, 1]:
+        plt.plot(np.mean(E_delta_J[:, i]), b[np.argmin(argmin_f[:, i])],
+                 marker=markers[i],
+                 color=colors[i],
+                 linewidth=1,
+                 markersize=15,
+                 label='$\epsilon_n$={}'.format(eps_n[i]))
+        x_vals.append(np.mean(E_delta_J[:, i]))
+        y_vals.append(b[np.argmin(argmin_f[:, i])])
+    plt.ylabel(r'${b}^*$', fontsize=14)
+    plt.xlabel(r'$\mathbb{E}(|\Delta g|)$', fontsize=14)
+    # plt.plot(x_vals, y_vals, linestyle='--', color='gray', linewidth=1)
+    # Fit a polynomial (degree 2 is usually enough for 3 points)
+    coeffs = np.polyfit(x_vals, y_vals, deg=2)
+    poly_fn = np.poly1d(coeffs)
+    # Generate x range (with some extrapolation on both sides)
+    x_interp = np.linspace(min(x_vals) - 0.05, max(x_vals) + 0.05, 200)
+    y_interp = poly_fn(x_interp)
+    # Plot interpolation curve
+    plt.plot(x_interp, y_interp, linestyle='dashed', color='black', label='optimum b profile')
+    # Format polynomial as string for annotation
+    poly_eq_str = r'$\hat{b}^*(\mathbb{E}(|\Delta g|)$'
+    # Add text annotation inside figure
+    # Annotate with arrow pointing to a location on the curve
+    text_x, text_y = 0.6, 0.4  # in axes fraction
+    arrow_target_x = 0.65  # target: middle point x
+    arrow_target_y = poly_fn(0.65)  # y on the curve
+    plt.annotate(poly_eq_str,
+                 xy=(arrow_target_x, arrow_target_y),  # point to
+                 xycoords='data',
+                 xytext=(text_x, text_y),  # position of text
+                 textcoords='axes fraction',
+                 fontsize=16,
+                 fontname='Times New Roman',
+                 arrowprops=dict(arrowstyle='->', color='black', connectionstyle='arc3,rad=-0.3'))
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(path + "/b_star_E_delta_g.pdf")
+    plt.show()
+
     print("")
 
 
 if __name__ == "__main__":
+
+    # delta_J2_test_46=np.load("/home/nobar/codes/GBO2/logs/test_46/Exper_3/delta_J2.npy")
+    # delta_J2_test_49_2=np.load("/home/nobar/codes/GBO2/logs/test_49_2/Exper_3/delta_J2.npy")
     # plot_gt()
     # plot_real()
     # plot_tradeoff()
@@ -2663,9 +2793,12 @@ if __name__ == "__main__":
 
     # plot_cost_coef()
 
-    path = "/home/nobar/codes/GBO2/logs/test_42/"
+    path = "/home/nobar/codes/GBO2/logs/test_43/"
     # path2 = "/home/nobar/codes/GBO2/logs/test_31_b_UCB_1/"
-    path2 = "/home/nobar/codes/GBO2/logs/test_33_b_1/"
+    # path2 = "/home/nobar/codes/GBO2/logs/test_33_b_1/"
+    # get EI only when IS1 changes after 5 iter
+    path2 = "/home/nobar/codes/GBO2/logs/test_46/"
+
     N_init_IS1=2
     N_init_IS2=10
     sampling_cost_bias=5
@@ -2676,8 +2809,9 @@ if __name__ == "__main__":
     BATCH_SIZE=1
 
 
-    # path3= "/home/nobar/codes/GBO2/logs/"
+    path3= "/home/nobar/codes/GBO2/logs/"
     # plot_gamma_deltaJ(path3)
+    plot_b_deltaJ(path3)
 
 
     # # plot GP surrogates
