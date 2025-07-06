@@ -2562,7 +2562,7 @@ def plot_gamma_deltaJ(pathALL):
     # Marker styles and colors
     markers = ['o', 's', '^']
     colors = ['tab:blue', 'tab:brown', 'tab:green']
-    eps_n=["0.5","0.75","0.25"]
+    eps_n=["0.50","0.75","0.25"]
     # Set global font to Serif
     matplotlib.rcParams['font.family'] = 'Serif'
     matplotlib.rcParams['axes.labelsize'] = 16
@@ -2585,8 +2585,8 @@ def plot_gamma_deltaJ(pathALL):
     plt.text(0.50, y_baseline + 0.05, "baseline BO iterations",  # adjust +0.3 as needed
              fontsize=14, ha='center', va='bottom', family='Serif')
 
-    plt.xlabel(r'$l_{\gamma_0}$')
-    plt.ylabel('mean number of iterations')
+    plt.xlabel(r'$l_{\gamma_0}$', fontsize=16)
+    plt.ylabel('mean number of iterations', fontsize=16)
     plt.grid(True)
     plt.legend()
     plt.tight_layout()
@@ -2594,9 +2594,15 @@ def plot_gamma_deltaJ(pathALL):
     plt.savefig(path + "/argminf_gamma0.pdf", format="pdf")
     plt.show()
 
-    plt.figure(figsize=(8, 5))
+    plt.figure(figsize=(8, 4))
+    # Set global font to Serif
+    matplotlib.rcParams['font.family'] = 'Serif'
+    matplotlib.rcParams['axes.labelsize'] = 16
+    matplotlib.rcParams['xtick.labelsize'] = 14
+    matplotlib.rcParams['ytick.labelsize'] = 14
+    matplotlib.rcParams['legend.fontsize'] = 16
     # plt.rcParams['font.family'] = 'Times New Roman'
-    plt.xlabel(r'$\mathbb{E}_{|\Delta f|}$', fontsize=14)
+    plt.xlabel(r'$\mathbb{E}({\Delta \mathcal{g}})$', fontsize=16)
     x_vals = []
     y_vals = []
     for i in [2, 0, 1]:
@@ -2608,8 +2614,8 @@ def plot_gamma_deltaJ(pathALL):
                  label='$\epsilon_n$={}'.format(eps_n[i]))
         x_vals.append(np.mean(E_delta_J[:, i]))
         y_vals.append(gamma_0[np.argmin(argmin_f[:, i])])
-    plt.ylabel(r'$l_{\gamma_0}^*$', fontsize=14)
-    plt.xlabel(r'$\mathbb{E}_{|\Delta f|}$', fontsize=14)
+    plt.ylabel(r'$l_{\gamma_0}^*$', fontsize=16)
+    plt.xlabel(r'$\mathbb{E}({\Delta \mathcal{g})}$', fontsize=16)
     # plt.plot(x_vals, y_vals, linestyle='--', color='gray', linewidth=1)
     # Fit a polynomial (degree 2 is usually enough for 3 points)
     coeffs = np.polyfit(x_vals, y_vals, deg=2)
@@ -2620,12 +2626,12 @@ def plot_gamma_deltaJ(pathALL):
     # Plot interpolation curve
     plt.plot(x_interp, y_interp, linestyle='dashed', color='black', label='optimum lenghtscale profile')
     # Format polynomial as string for annotation
-    poly_eq_str = r'$\hat{l_{\gamma_0}^*}(\mathbb{E}_{|\Delta f|})$'
+    poly_eq_str = r'$\hat{l_{\gamma_0}^*}(\mathbb{E}({\Delta \mathcal{g}}))$'
     # Add text annotation inside figure
     # Annotate with arrow pointing to a location on the curve
-    text_x, text_y = 0.6, 0.4  # in axes fraction
-    arrow_target_x = 0.65  # target: middle point x
-    arrow_target_y = poly_fn(0.65)  # y on the curve
+    text_x, text_y = 0.7, 0.35  # in axes fraction
+    arrow_target_x = 0.72  # target: middle point x
+    arrow_target_y = poly_fn(0.7)  # y on the curve
     plt.annotate(poly_eq_str,
                  xy=(arrow_target_x, arrow_target_y),  # point to
                  xycoords='data',
@@ -2637,8 +2643,10 @@ def plot_gamma_deltaJ(pathALL):
     plt.grid(True)
     plt.legend()
     plt.tight_layout()
-    #plt.savefig(path + "/l_gamma_0_star_E_delta_f.pdf")
+    plt.savefig(path + "/l_gamma_0_star_E_delta_f.pdf", format="pdf")
     plt.show()
+
+    print("")
 
 def plot_b_deltaJ(pathALL):
     dj2ALL=None
