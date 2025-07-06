@@ -11,7 +11,7 @@ from scipy.stats import t
 import torch
 from matplotlib import gridspec
 from scipy.interpolate import interp1d
-
+import matplotlib
 
 def plot_colortable(colors, *, ncols=4, sort_colors=True):
 
@@ -2563,23 +2563,13 @@ def plot_gamma_deltaJ(pathALL):
     markers = ['o', 's', '^']
     colors = ['tab:blue', 'tab:brown', 'tab:green']
     eps_n=["0.5","0.75","0.25"]
-    plt.figure(figsize=(8, 6))
-    for i in [2,0,1]:
-        plt.plot(np.mean(E_delta_J[:, i]),gamma_0[np.argmin(argmin_f[:, i])],
-                 marker=markers[i],
-                 color=colors[i],
-                 linewidth=1,
-                 markersize=15,
-                 label='$\epsilon_n$={}'.format(eps_n[i]))
-    plt.ylabel(r'$l_{\gamma_0}^*$', fontsize=14)
-    plt.xlabel(r'$E_{|\Delta f|}$', fontsize=14)
-    # plt.title(r'Relationship\ between $\gamma_0^*$ and $E_{\Delta J}$', fontsize=14)
-    plt.grid(True)
-    plt.legend()
-    plt.tight_layout()
-    plt.show()
-
-    plt.figure(figsize=(8, 6))
+    # Set global font to Serif
+    matplotlib.rcParams['font.family'] = 'Serif'
+    matplotlib.rcParams['axes.labelsize'] = 16
+    matplotlib.rcParams['xtick.labelsize'] = 14
+    matplotlib.rcParams['ytick.labelsize'] = 14
+    matplotlib.rcParams['legend.fontsize'] = 14
+    plt.figure(figsize=(8, 4))
     for i in [2, 0, 1]:
         plt.plot(gamma_0, argmin_f[:, i],
                  marker=markers[i],
@@ -2587,13 +2577,21 @@ def plot_gamma_deltaJ(pathALL):
                  linewidth=1,
                  markersize=10,
                  label='$\epsilon_n$={}'.format(eps_n[i]))
-    plt.hlines(8.44, xmin=0.1, xmax=0.8, color="k", linestyles="dashed")
-    plt.xlabel(r'$l_{\gamma_0}$', fontsize=14)
-    plt.ylabel(r'$\arg \min_{n} (f^{*}(n)<-1.45)$', fontsize=14)
+    # Draw horizontal line
+    y_baseline = 8.44
+    plt.hlines(y_baseline, xmin=0.09, xmax=0.82, color="k", linestyles="dashed")
+
+    # Add text label on top-middle of the hline
+    plt.text(0.50, y_baseline + 0.05, "baseline BO iterations",  # adjust +0.3 as needed
+             fontsize=14, ha='center', va='bottom', family='Serif')
+
+    plt.xlabel(r'$l_{\gamma_0}$')
+    plt.ylabel('mean number of iterations')
     plt.grid(True)
     plt.legend()
     plt.tight_layout()
-    #plt.savefig(path + "/argminf_gamma0.pdf")
+    plt.xlim([0.09, 0.81])
+    plt.savefig(path + "/argminf_gamma0.pdf", format="pdf")
     plt.show()
 
     plt.figure(figsize=(8, 5))
@@ -2810,8 +2808,8 @@ if __name__ == "__main__":
 
 
     path3= "/home/nobar/codes/GBO2/logs/"
-    # plot_gamma_deltaJ(path3)
-    plot_b_deltaJ(path3)
+    plot_gamma_deltaJ(path3)
+    # plot_b_deltaJ(path3)
 
 
     # # plot GP surrogates
