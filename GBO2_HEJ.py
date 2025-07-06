@@ -497,7 +497,7 @@ for exper in range(N_exper):
     print("**********Experiment {}**********".format(exper))
     # /home/nobar/codes/GBO2
     # /cluster/home/mnobar/code/GBO2
-    path = "/home/nobar/codes/GBO2/logs/test_46/Exper_{}".format(str(exper))
+    path = "/home/nobar/codes/GBO2/logs/test_0/Exper_{}".format(str(exper))
     # Check i<f the directory exists, if not, create it
     if not os.path.exists(path):
         os.makedirs(path)

@@ -2199,6 +2199,51 @@ def plot_tradeoff():
     #plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Objective_all_methods_iterations.pdf")
     plt.show()
 
+    plt.figure(figsize=(10, 7.5))
+    matplotlib.rcParams['font.family'] = 'Serif'
+    matplotlib.rcParams['axes.labelsize'] = 18
+    matplotlib.rcParams['xtick.labelsize'] = 14
+    matplotlib.rcParams['ytick.labelsize'] = 14
+    matplotlib.rcParams['legend.fontsize'] = 14
+    contour = plt.contourf(Kp, Kd, Objective_all.reshape(n_grid, n_grid).T, levels=20,
+                           cmap='YlGn')  # Transpose to match dimensions
+    plt.colorbar(contour, label='$\mathcal{g}(k, s=1.0)$')
+    plt.xlabel('$K_{p}$', fontsize=18)
+    plt.ylabel('$K_{d}$', fontsize=18)
+    n_required_BO = 10
+    n_required_GMFBO = 5
+    n_required_GMFBO_IS2idxs = 18
+    plt.scatter(Kp_GMFBO_IS1[:2], Kd_GMFBO_IS1[:2], color='k', marker='H', s=400, label='IS1 initial data', zorder=3)
+    plt.scatter(Kp_GMFBO_IS2[:10], Kd_GMFBO_IS2[:10], edgecolors='r', facecolors='none', s=400, marker='H',
+                label='IS2 initial data', zorder=3)
+    plt.scatter(Kp_BO[2:n_required_BO], Kd_BO[2:n_required_BO], color='b', marker='s', s=400,
+                label='BO - IS1 data', zorder=3)
+    plt.scatter(Kp_GMFBO_IS1[2:n_required_GMFBO], Kd_GMFBO_IS1[2:n_required_GMFBO], color='r', marker='o', s=400,
+                label='GMFBO - IS1 data',
+                zorder=3)
+    plt.scatter(Kp_GMFBO_IS2[12:n_required_GMFBO_IS2idxs], Kd_GMFBO_IS2[12:n_required_GMFBO_IS2idxs], edgecolors='r',
+                s=300, facecolors='none', marker='o',
+                label='GMFBO - IS2 data', zorder=3)
+    plt.scatter(Kp_GMFBO_IS2[10:12] + np.array([0.0081 * (120 - 70), -0.0087 * (120 - 70)]),
+                Kd_GMFBO_IS2[10:12] + np.array([(-0.00973 * (5 - 2)), -0.0074 * (5 - 2)]), edgecolors='darkviolet',
+                facecolors='none', s=400, marker='d', label='', zorder=3)
+    plt.scatter(Kp_GMFBO_IS1[2:n_required_GMFBO] + np.array(
+        [torch.normal(mean=0.0, std=0.009, size=((n_required_GMFBO - 2),)) * (120 - 70)]),
+                Kd_GMFBO_IS1[2:n_required_GMFBO] - np.array(
+                    [torch.normal(mean=0.0, std=0.005, size=((n_required_GMFBO - 2),)) * (5 - 2)]), facecolors='none',
+                color='darkviolet',
+                s=300, marker='d', label='GMFBO - IS3 data', zorder=3)
+    plt.scatter(119.8, 3.2, marker='*', s=500, facecolors='green', edgecolors='black', zorder=4,
+                label='Optimum')
+    # plt.scatter(Kp_MFBO_IS1[2:], Kd_MFBO_IS1[2:], color='m', marker='D', s=400, label='MFBO - IS1 mesurements', zorder=3)
+    # plt.scatter(Kp_MFBO_IS2[10:], Kd_MFBO_IS2[10:], edgecolors='m', s=400, facecolors='none', marker='D',
+    #             label='MFBO - IS2 estimations', zorder=3)
+    plt.legend()
+    # plt.xlim([70, 121])
+    # plt.title('ABS Error Objective Contour Plot')
+    plt.savefig("/home/nobar/codes/GBO2/logs/normalized_Objective_all_methods_iterations.pdf", format="pdf")
+    plt.show()
+
     print("")
 
 def plot_real():
@@ -2626,7 +2671,7 @@ def plot_gamma_deltaJ(pathALL):
     # Plot interpolation curve
     plt.plot(x_interp, y_interp, linestyle='dashed', color='black', label='optimum lenghtscale profile')
     # Format polynomial as string for annotation
-    poly_eq_str = r'$\hat{l_{\gamma_0}^*}(\mathbb{E}({\Delta \mathcal{g}}))$'
+    poly_eq_str = r'$\hat{l}_{\gamma_0}^*(\mathbb{E}({\Delta \mathcal{g}}))$'
     # Add text annotation inside figure
     # Annotate with arrow pointing to a location on the curve
     text_x, text_y = 0.7, 0.35  # in axes fraction
@@ -2781,7 +2826,7 @@ if __name__ == "__main__":
     # delta_J2_test_49_2=np.load("/home/nobar/codes/GBO2/logs/test_49_2/Exper_3/delta_J2.npy")
     # plot_gt()
     # plot_real()
-    # plot_tradeoff()
+    plot_tradeoff()
 
     # # check objective scales
     # IS1 = scipy.io.loadmat("/home/nobar/Documents/introductions/simulink_model/IS1_Exper_0_8x8_metrics.mat")
