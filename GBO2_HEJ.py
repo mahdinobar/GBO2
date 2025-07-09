@@ -596,8 +596,8 @@ for exper in range(N_exper):
     # (my idea) add IS3 estimations to GP dataset
     # Now add IS3 data after initial dataset
     for i in i_IS1s:
-        IS3_obj_new_x_ = None
-        while IS3_obj_new_x_ is None:
+        IS3_obj_new_x_ = -1e10
+        while IS3_obj_new_x_==-1e10:
             IS3_new_x = train_x_init[i,:].clone().reshape(1,3)
             # gains_vicinity_noise = torch.normal(mean=0.0, std=0.005, size=(1, 2))
             gains_vicinity_noise = np.array([torch.normal(mean=0.0, std=0.005, size=(1, 1)),
@@ -700,8 +700,8 @@ for exper in range(N_exper):
 
 
             for i in range(N_IS3_sample_each_time):
-                IS3_obj_new_x_=None
-                while IS3_obj_new_x_==None:
+                IS3_obj_new_x_=-1e10
+                while IS3_obj_new_x_==-1e10:
                     # # (my idea) add IS3 estimations to GP dataset
                     IS3_new_x=new_x.clone()
                     # gains_vicinity_noise = torch.normal(mean=0.0, std=0.005, size=(1, 1))
