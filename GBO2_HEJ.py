@@ -497,7 +497,7 @@ for exper in range(N_exper):
     print("**********Experiment {}**********".format(exper))
     # /home/nobar/codes/GBO2
     # /cluster/home/mnobar/code/GBO2
-    path = "/cluster/home/mnobar/code/GBO2/logs/test_50_0/Exper_{}".format(str(exper))
+    path = "/cluster/home/mnobar/code/GBO2/logs/test_50_1/Exper_{}".format(str(exper))
     # Check i<f the directory exists, if not, create it
     if not os.path.exists(path):
         os.makedirs(path)
@@ -548,8 +548,7 @@ for exper in range(N_exper):
     delta_J2=None
     JIS2s_for_delta_J2=None
     caEI_values=None
-    # for i in range(train_x_init.__len__()):
-    for i in range(2):
+    for i in range(train_x_init.__len__()):
         x = train_x_init[i, :].clone().reshape(1, 3)
         obj_x = problem(x).clone().unsqueeze(-1)
         if train_x is None:
@@ -597,8 +596,12 @@ for exper in range(N_exper):
     # (my idea) add IS3 estimations to GP dataset
     # Now add IS3 data after initial dataset
     for i in i_IS1s:
+        IS3_obj_new_x_ = None
+        while IS3_obj_new_x_ is None:
             IS3_new_x = train_x_init[i,:].clone().reshape(1,3)
-            gains_vicinity_noise = torch.normal(mean=0.0, std=0.005, size=(1, 2))
+            # gains_vicinity_noise = torch.normal(mean=0.0, std=0.005, size=(1, 2))
+            gains_vicinity_noise = np.array([torch.normal(mean=0.0, std=0.005, size=(1, 1)),
+                                             torch.normal(mean=0.0, std=0.005, size=(1, 1))]).reshape(1, 2)
             IS3_new_x[:, :2] += gains_vicinity_noise
             # If value > 1, wrap it to 1 - (value - 1) = 2 - value
             IS3_new_x[:, :2] = torch.where(IS3_new_x[:, :2] > 1, 2 - IS3_new_x[:, :2], IS3_new_x[:, :2])
@@ -606,20 +609,21 @@ for exper in range(N_exper):
             IS3_new_x[:, :2] = torch.where(IS3_new_x[:, :2] < 0, -IS3_new_x[:, :2], IS3_new_x[:, :2])
             IS3_new_x[:, :2] = torch.clamp(IS3_new_x[:, :2], 0.0, 1.0)
             IS3_new_x[:, 2] = 0.7
-            IS3_obj_new_x = problem(IS3_new_x).clone().unsqueeze(-1)
-            IS3_new_x[:, 2] = 0.1
-            train_x = torch.cat([train_x, IS3_new_x])
-            train_obj = torch.cat([train_obj, IS3_obj_new_x])
-            # TODO
-            delta_J2 = torch.cat([delta_J2, torch.tensor([[0]])])
-            JIS2s_for_delta_J2 = torch.cat([JIS2s_for_delta_J2, IS3_obj_new_x])
+            IS3_obj_new_x_=problem(IS3_new_x)
+        IS3_obj_new_x = IS3_obj_new_x_.clone().unsqueeze(-1)
+        IS3_new_x[:, 2] = 0.1
+        train_x = torch.cat([train_x, IS3_new_x])
+        train_obj = torch.cat([train_obj, IS3_obj_new_x])
+        # TODO
+        delta_J2 = torch.cat([delta_J2, torch.tensor([[0]])])
+        JIS2s_for_delta_J2 = torch.cat([JIS2s_for_delta_J2, IS3_obj_new_x])
 
-            x_ = IS3_new_x.clone().reshape(1, 3)
-            x_[:, 2] = 1.0
-            obj_ = problem(x_).clone().unsqueeze(-1)
-            delta_J = torch.cat([delta_J, IS3_obj_new_x - obj_])
-            JIS1s_for_delta_J = torch.cat([JIS1s_for_delta_J, obj_])
-            caEI_values = torch.cat([caEI_values, torch.tensor([0])])
+        x_ = IS3_new_x.clone().reshape(1, 3)
+        x_[:, 2] = 1.0
+        obj_ = problem(x_).clone().unsqueeze(-1)
+        delta_J = torch.cat([delta_J, IS3_obj_new_x - obj_])
+        JIS1s_for_delta_J = torch.cat([JIS1s_for_delta_J, obj_])
+        caEI_values = torch.cat([caEI_values, torch.tensor([0])])
 
     cumulative_cost = 0.0
     costs_all = np.zeros(N_ITER)
@@ -696,16 +700,20 @@ for exper in range(N_exper):
 
 
             for i in range(N_IS3_sample_each_time):
-                # # (my idea) add IS3 estimations to GP dataset
-                IS3_new_x=new_x.clone()
-                gains_vicinity_noise = torch.normal(mean=0.0, std=0.005, size=(1, 2))
-                IS3_new_x[:, :2] += gains_vicinity_noise
-                # If value > 1, wrap it to 1 - (value - 1) = 2 - value
-                IS3_new_x[:, :2] = torch.where(IS3_new_x[:, :2] > 1, 2 - IS3_new_x[:, :2], IS3_new_x[:, :2])
-                # If value < 0, multiply by -1
-                IS3_new_x[:, :2] = torch.where(IS3_new_x[:, :2] < 0, -IS3_new_x[:, :2], IS3_new_x[:, :2])
-                IS3_new_x[:, :2] = torch.clamp(IS3_new_x[:, :2], 0.0, 1.0)
-                IS3_new_x[:,2]=0.7
+                IS3_obj_new_x_=None
+                while IS3_obj_new_x_==None:
+                    # # (my idea) add IS3 estimations to GP dataset
+                    IS3_new_x=new_x.clone()
+                    # gains_vicinity_noise = torch.normal(mean=0.0, std=0.005, size=(1, 1))
+                    gains_vicinity_noise = np.array([torch.normal(mean=0.0, std=0.005, size=(1, 1)),torch.normal(mean=0.0, std=0.005, size=(1, 1))]).reshape(1,2)
+                    IS3_new_x[:, :2] += gains_vicinity_noise
+                    # If value > 1, wrap it to 1 - (value - 1) = 2 - value
+                    IS3_new_x[:, :2] = torch.where(IS3_new_x[:, :2] > 1, 2 - IS3_new_x[:, :2], IS3_new_x[:, :2])
+                    # If value < 0, multiply by -1
+                    IS3_new_x[:, :2] = torch.where(IS3_new_x[:, :2] < 0, -IS3_new_x[:, :2], IS3_new_x[:, :2])
+                    IS3_new_x[:, :2] = torch.clamp(IS3_new_x[:, :2], 0.0, 1.0)
+                    IS3_new_x[:,2]=0.7
+                    IS3_obj_new_x_=problem(IS3_new_x)
                 IS3_obj_new_x=problem(IS3_new_x).unsqueeze(-1)
                 IS3_new_x[:, 2] = 0.1
                 train_x = torch.cat([train_x, IS3_new_x])
