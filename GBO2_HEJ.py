@@ -484,7 +484,7 @@ BATCH_SIZE = 1
 N_init_IS1 = 2 if not SMOKE_TEST else 2
 N_init_IS2 = 10 if not SMOKE_TEST else 2
 N_ITER = 20 if not SMOKE_TEST else 1
-N_change=5 # iteration that IS1 dynamics changes; disable by N_change>=N_ITER
+N_change=21 # iteration that IS1 dynamics changes; disable by N_change>=N_ITER
 l_g_0=0.4 # GP kernel gamma_0 lenghscale
 N_IS3_sample_each_time=1 # number of repeat IS3 samples in vicinity of IS1 measurement each time
 
@@ -497,7 +497,7 @@ for exper in range(N_exper):
     print("**********Experiment {}**********".format(exper))
     # /home/nobar/codes/GBO2
     # /cluster/home/mnobar/code/GBO2
-    path = "/home/nobar/codes/GBO2/logs/test_0/Exper_{}".format(str(exper))
+    path = "/cluster/home/mnobar/code/GBO2/logs/test_50_0/Exper_{}".format(str(exper))
     # Check i<f the directory exists, if not, create it
     if not os.path.exists(path):
         os.makedirs(path)
@@ -532,281 +532,281 @@ for exper in range(N_exper):
     # np.save(path + "/train_obj_init.npy", train_obj_init)
     # np.save(path + "/train_x_init.npy", train_x_init)
 
-    path_data_init = "/home/nobar/codes/GBO2/logs/test_33_b_1/Exper_{}".format(str(exper))
+    path_data_init = "/cluster/home/mnobar/code/GBO2/logs/test_33_b_1/Exper_{}".format(str(exper))
     train_x_init = torch.as_tensor(np.load(path_data_init+"/train_x_init.npy"))
-    # # train_obj_init =  problem(train_x_init).unsqueeze(-1)
-    #
-    # # train_x = train_x_init
-    # # train_obj = train_obj_init
-    #
-    #
-    # train_x=None
-    # train_obj=None
-    # i_IS1s=None
-    # delta_J=None
-    # JIS1s_for_delta_J=None
-    # delta_J2=None
-    # JIS2s_for_delta_J2=None
-    # caEI_values=None
-    # # for i in range(train_x_init.__len__()):
-    # for i in range(2):
-    #     x = train_x_init[i, :].clone().reshape(1, 3)
-    #     obj_x = problem(x).clone().unsqueeze(-1)
-    #     if train_x is None:
-    #         train_x=x
-    #         train_obj=obj_x
-    #     else:
-    #         train_x = torch.cat([train_x, x])
-    #         train_obj = torch.cat([train_obj, obj_x])
-    #     if train_x_init[i,2]==1:
-    #         if i_IS1s is None:
-    #             i_IS1s = torch.tensor([i])
-    #             JIS1s_for_delta_J = obj_x
-    #             caEI_values = torch.tensor([0])
-    #             delta_J = torch.tensor([[0]])
-    #
-    #             x_ = x.clone().reshape(1, 3)
-    #             x_[:, 2] = 0.1
-    #             obj_x_IS2_ = problem(x_).clone().unsqueeze(-1)
-    #             delta_J2 = obj_x_IS2_ - obj_x
-    #             JIS2s_for_delta_J2 = obj_x_IS2_
-    #         else:
-    #             i_IS1s = torch.cat([i_IS1s, torch.tensor([i])])
-    #             delta_J = torch.cat([delta_J, torch.tensor([[0]])])
-    #             JIS1s_for_delta_J = torch.cat([JIS1s_for_delta_J, obj_x])
-    #             caEI_values = torch.cat([caEI_values, torch.tensor([0])])
-    #             x_ = x.clone().reshape(1, 3)
-    #             x_[:, 2] = 0.1
-    #             obj_x_IS2_ = problem(x_).clone().unsqueeze(-1)
-    #             delta_J2 = torch.cat([delta_J2, obj_x_IS2_ - obj_x])
-    #             JIS2s_for_delta_J2 = torch.cat([JIS2s_for_delta_J2, obj_x_IS2_])
-    #
-    #     else:
-    #         x_ = x.clone().reshape(1,3)
-    #         x_[:, 2] = 1.0
-    #         obj_x_IS1_ = problem(x_).clone().unsqueeze(-1)
-    #         delta_J = torch.cat([delta_J, obj_x-obj_x_IS1_])
-    #         JIS1s_for_delta_J = torch.cat([JIS1s_for_delta_J, obj_x_IS1_])
-    #         caEI_values = torch.cat([caEI_values, torch.tensor([0])])
-    #
-    #         delta_J2 = torch.cat([delta_J2, torch.tensor([[0]])])
-    #         JIS2s_for_delta_J2 = torch.cat([JIS2s_for_delta_J2, obj_x])
-    #
-    # # delta_J2_IS1init_all[exper,:]=delta_J2.squeeze()
-    # # (my idea) add IS3 estimations to GP dataset + add IS3 data after IS1 and IS2 initial data
-    # # (my idea) add IS3 estimations to GP dataset
-    # # Now add IS3 data after initial dataset
-    # for i in i_IS1s:
-    #         IS3_new_x = train_x_init[i,:].clone().reshape(1,3)
-    #         gains_vicinity_noise = torch.normal(mean=0.0, std=0.005, size=(1, 2))
-    #         IS3_new_x[:, :2] += gains_vicinity_noise
-    #         # If value > 1, wrap it to 1 - (value - 1) = 2 - value
-    #         IS3_new_x[:, :2] = torch.where(IS3_new_x[:, :2] > 1, 2 - IS3_new_x[:, :2], IS3_new_x[:, :2])
-    #         # If value < 0, multiply by -1
-    #         IS3_new_x[:, :2] = torch.where(IS3_new_x[:, :2] < 0, -IS3_new_x[:, :2], IS3_new_x[:, :2])
-    #         IS3_new_x[:, :2] = torch.clamp(IS3_new_x[:, :2], 0.0, 1.0)
-    #         IS3_new_x[:, 2] = 0.7
-    #         IS3_obj_new_x = problem(IS3_new_x).clone().unsqueeze(-1)
-    #         IS3_new_x[:, 2] = 0.1
-    #         train_x = torch.cat([train_x, IS3_new_x])
-    #         train_obj = torch.cat([train_obj, IS3_obj_new_x])
-    #         # TODO
-    #         delta_J2 = torch.cat([delta_J2, torch.tensor([[0]])])
-    #         JIS2s_for_delta_J2 = torch.cat([JIS2s_for_delta_J2, IS3_obj_new_x])
-    #
-    #         x_ = IS3_new_x.clone().reshape(1, 3)
-    #         x_[:, 2] = 1.0
-    #         obj_ = problem(x_).clone().unsqueeze(-1)
-    #         delta_J = torch.cat([delta_J, IS3_obj_new_x - obj_])
-    #         JIS1s_for_delta_J = torch.cat([JIS1s_for_delta_J, obj_])
-    #         caEI_values = torch.cat([caEI_values, torch.tensor([0])])
-    #
-    # cumulative_cost = 0.0
-    # costs_all = np.zeros(N_ITER)
-    # for i in range(N_ITER):
-    #     print("batch iteration=", i)
-    #     cost_model.b_iter = i + 1  # batch iteration for adaptive cost
-    #     mll, model = initialize_model(train_x, train_obj, l_g_0)
-    #     # train the GP model
-    #     fit_gpytorch_mll(mll)
-    #     plot_GP(model, i, path, train_x)
-    #     # mfkg_acqf = get_mfkg(model)
-    #     # new_x, new_obj, cost = optimize_mfkg_and_get_observation(mfkg_acqf)
-    #     best_f_s1 = train_obj[np.argwhere(train_x[:, 2] == 1)].squeeze().max()
-    #     # # Attention set initial best_f when no data in IS is still available
-    #     # if sum(train_x[:, 2] == 0.1) == 0:
-    #     #     best_f_s2 = torch.tensor([0], dtype=torch.float64)
-    #     #     best_f_s3 = torch.tensor([0], dtype=torch.float64)
-    #     # else:
-    #     #     best_f_s2 = train_obj[np.argwhere(train_x[:, 2] == 0.1)].squeeze().max()
-    #     #     # Attention set initial best_f when no data in IS is still available
-    #     #     if sum(train_x[:, 2] == 0.7) == 0:
-    #     #         best_f_s3 = torch.tensor([best_f_s2], dtype=torch.float64)
-    #     #     else:
-    #     #         best_f_s3 = train_obj[np.argwhere(train_x[:, 2] == 0.7)].squeeze().max()
-    #     #
-    #     # caEI = get_cost_aware_ei(model, cost_model,
-    #     #                         best_f_s1=best_f_s1,
-    #     #                         best_f_s2=best_f_s2,
-    #     #                         best_f_s3=best_f_s3,
-    #     #                         alpha=1)
-    #
-    #     if sum(train_x[:, 2] == 0.1) == 0:
-    #         best_f_s2 = torch.tensor([0], dtype=torch.float64)
-    #     else:
-    #         best_f_s2 = train_obj[np.argwhere(train_x[:, 2] == 0.1)].squeeze().max()
-    #
-    #     caEI = get_cost_aware_ei(model, cost_model,
-    #                             best_f_s1=best_f_s1,
-    #                             best_f_s2=best_f_s2,
-    #                             alpha=1)
-    #
-    #     if np.sum(np.asarray(train_x[:,2])==1)>N_init_IS1+N_change:
-    #         change_IS1=True
-    #         l_g_0 = 0.3
-    #         cost_model.fixed_cost_2=7.75
-    #     else:
-    #         change_IS1=False
-    #
-    #     new_x, new_obj, cost, caEI_value = optimize_caEI_and_get_observation(caEI,change_IS1)
-    #
-    #     # fixed_features_list = [
-    #     #     {2: 1.0},  # Fix fidelity s = 1.0 (real)
-    #     #     {2: 2.0},  # Fix fidelity s = 2.0 (simulation)
-    #     # ]
-    #     # a, b = optimize_acqf_mixed(acq_function=caEI, bounds=bounds, fixed_features_list=fixed_features_list,
-    #     #                            q=BATCH_SIZE,
-    #     #                            num_restarts=10, raw_samples=512, options={"batch_limit": 5, "maxiter": 200}, )
-    #
-    #     train_x = torch.cat([train_x, new_x])
-    #     train_obj = torch.cat([train_obj, new_obj])
-    #
-    #
-    #
-    #
-    #     if new_x[:,-1]==1:
-    #         delta_J = torch.cat([delta_J, torch.tensor([[0]])])
-    #         JIS1s_for_delta_J = torch.cat([JIS1s_for_delta_J, new_obj])
-    #         caEI_values = torch.cat([caEI_values, caEI_value.reshape(1)])
-    #         x_ = new_x.clone().reshape(1, 3)
-    #         x_[:, 2] = 0.1
-    #         obj_x_IS2_ = problem(x_).clone().unsqueeze(-1)
-    #         delta_J2 = torch.cat([delta_J2, obj_x_IS2_ - new_obj])
-    #         JIS2s_for_delta_J2 = torch.cat([JIS2s_for_delta_J2, obj_x_IS2_])
-    #
-    #
-    #         for i in range(N_IS3_sample_each_time):
-    #             # # (my idea) add IS3 estimations to GP dataset
-    #             IS3_new_x=new_x.clone()
-    #             gains_vicinity_noise = torch.normal(mean=0.0, std=0.005, size=(1, 2))
-    #             IS3_new_x[:, :2] += gains_vicinity_noise
-    #             # If value > 1, wrap it to 1 - (value - 1) = 2 - value
-    #             IS3_new_x[:, :2] = torch.where(IS3_new_x[:, :2] > 1, 2 - IS3_new_x[:, :2], IS3_new_x[:, :2])
-    #             # If value < 0, multiply by -1
-    #             IS3_new_x[:, :2] = torch.where(IS3_new_x[:, :2] < 0, -IS3_new_x[:, :2], IS3_new_x[:, :2])
-    #             IS3_new_x[:, :2] = torch.clamp(IS3_new_x[:, :2], 0.0, 1.0)
-    #             IS3_new_x[:,2]=0.7
-    #             IS3_obj_new_x=problem(IS3_new_x).unsqueeze(-1)
-    #             IS3_new_x[:, 2] = 0.1
-    #             train_x = torch.cat([train_x, IS3_new_x])
-    #             train_obj = torch.cat([train_obj, IS3_obj_new_x])
-    #             x_ = IS3_new_x.clone().reshape(1,3)
-    #             x_[:, 2] = 1.0
-    #             new_obj_ = problem(x_).clone().unsqueeze(-1)
-    #             delta_J = torch.cat([delta_J, IS3_obj_new_x-new_obj_])
-    #             JIS1s_for_delta_J = torch.cat([JIS1s_for_delta_J, IS3_obj_new_x])
-    #             caEI_values = torch.cat([caEI_values, torch.tensor([0])])
-    #             # TODO
-    #             delta_J2 = torch.cat([delta_J2, torch.tensor([[0]])])
-    #             JIS2s_for_delta_J2 = torch.cat([JIS2s_for_delta_J2, new_obj])
-    #
-    #     elif new_x[:,-1] == 0.1:
-    #         x_ = new_x.clone().reshape(1,3)
-    #         x_[:, 2] = 1.0
-    #         obj_x_IS1_ = problem(x_).clone().unsqueeze(-1)
-    #         delta_J = torch.cat([delta_J, new_obj-obj_x_IS1_])
-    #         JIS1s_for_delta_J = torch.cat([JIS1s_for_delta_J, obj_x_IS1_])
-    #         caEI_values = torch.cat([caEI_values, caEI_value.reshape(1)])
-    #         # TODO
-    #         delta_J2 = torch.cat([delta_J2, torch.tensor([[0]])])
-    #         JIS2s_for_delta_J2 = torch.cat([JIS2s_for_delta_J2, new_obj])
-    #
-    #     cumulative_cost += cost
-    #     costs_all[i] = cost
-    #     np.save(path + "/costs_all.npy", costs_all)
-    #     np.save(path + "/train_x.npy", train_x)
-    #     np.save(path + "/train_obj.npy", train_obj)
-    #
-    #     np.save(path + "/i_IS1s.npy", i_IS1s)
-    #     np.save(path + "/delta_J.npy", delta_J)
-    #     np.save(path + "/JIS1s_for_delta_J.npy", JIS1s_for_delta_J)
-    #     np.save(path + "/delta_J2.npy", delta_J2)
-    #     np.save(path + "/JIS2s_for_delta_J2.npy", JIS2s_for_delta_J2)
-    #     np.save(path + "/caEI_values.npy", caEI_values)
-    #
-    # final_rec, objective_value = get_recommendation(model, lower, upper)
-    # np.save(path + "/final_rec.npy", final_rec)
-    # np.save(path + "/objective_value.npy", objective_value)
-    #
-    # final_rec_max_observed, objective_value_max_observed = get_recommendation_max_observed(train_x, train_obj, lower,
-    #                                                                                        upper)
-    # np.save(path + "/final_rec_max_observed.npy", final_rec_max_observed)
-    # np.save(path + "/objective_value_max_observed.npy", objective_value_max_observed)
-    #
-    # print(f"\nMFBO total cost: {cumulative_cost}\n")
+    # train_obj_init =  problem(train_x_init).unsqueeze(-1)
 
-# np.save("/home/nobar/codes/GBO2/logs/test_46/delta_J2_IS1init_all_en_025.npy", delta_J2_IS1init_all)
+    # train_x = train_x_init
+    # train_obj = train_obj_init
 
-    ####################################################################################################################
-    ####################################################################################################################
-    ####################################################################################################################
-    # Baseline Single Fidelity BO with EI
+
+    train_x=None
+    train_obj=None
+    i_IS1s=None
+    delta_J=None
+    JIS1s_for_delta_J=None
+    delta_J2=None
+    JIS2s_for_delta_J2=None
+    caEI_values=None
+    # for i in range(train_x_init.__len__()):
+    for i in range(2):
+        x = train_x_init[i, :].clone().reshape(1, 3)
+        obj_x = problem(x).clone().unsqueeze(-1)
+        if train_x is None:
+            train_x=x
+            train_obj=obj_x
+        else:
+            train_x = torch.cat([train_x, x])
+            train_obj = torch.cat([train_obj, obj_x])
+        if train_x_init[i,2]==1:
+            if i_IS1s is None:
+                i_IS1s = torch.tensor([i])
+                JIS1s_for_delta_J = obj_x
+                caEI_values = torch.tensor([0])
+                delta_J = torch.tensor([[0]])
+
+                x_ = x.clone().reshape(1, 3)
+                x_[:, 2] = 0.1
+                obj_x_IS2_ = problem(x_).clone().unsqueeze(-1)
+                delta_J2 = obj_x_IS2_ - obj_x
+                JIS2s_for_delta_J2 = obj_x_IS2_
+            else:
+                i_IS1s = torch.cat([i_IS1s, torch.tensor([i])])
+                delta_J = torch.cat([delta_J, torch.tensor([[0]])])
+                JIS1s_for_delta_J = torch.cat([JIS1s_for_delta_J, obj_x])
+                caEI_values = torch.cat([caEI_values, torch.tensor([0])])
+                x_ = x.clone().reshape(1, 3)
+                x_[:, 2] = 0.1
+                obj_x_IS2_ = problem(x_).clone().unsqueeze(-1)
+                delta_J2 = torch.cat([delta_J2, obj_x_IS2_ - obj_x])
+                JIS2s_for_delta_J2 = torch.cat([JIS2s_for_delta_J2, obj_x_IS2_])
+
+        else:
+            x_ = x.clone().reshape(1,3)
+            x_[:, 2] = 1.0
+            obj_x_IS1_ = problem(x_).clone().unsqueeze(-1)
+            delta_J = torch.cat([delta_J, obj_x-obj_x_IS1_])
+            JIS1s_for_delta_J = torch.cat([JIS1s_for_delta_J, obj_x_IS1_])
+            caEI_values = torch.cat([caEI_values, torch.tensor([0])])
+
+            delta_J2 = torch.cat([delta_J2, torch.tensor([[0]])])
+            JIS2s_for_delta_J2 = torch.cat([JIS2s_for_delta_J2, obj_x])
+
+    # delta_J2_IS1init_all[exper,:]=delta_J2.squeeze()
+    # (my idea) add IS3 estimations to GP dataset + add IS3 data after IS1 and IS2 initial data
+    # (my idea) add IS3 estimations to GP dataset
+    # Now add IS3 data after initial dataset
+    for i in i_IS1s:
+            IS3_new_x = train_x_init[i,:].clone().reshape(1,3)
+            gains_vicinity_noise = torch.normal(mean=0.0, std=0.005, size=(1, 2))
+            IS3_new_x[:, :2] += gains_vicinity_noise
+            # If value > 1, wrap it to 1 - (value - 1) = 2 - value
+            IS3_new_x[:, :2] = torch.where(IS3_new_x[:, :2] > 1, 2 - IS3_new_x[:, :2], IS3_new_x[:, :2])
+            # If value < 0, multiply by -1
+            IS3_new_x[:, :2] = torch.where(IS3_new_x[:, :2] < 0, -IS3_new_x[:, :2], IS3_new_x[:, :2])
+            IS3_new_x[:, :2] = torch.clamp(IS3_new_x[:, :2], 0.0, 1.0)
+            IS3_new_x[:, 2] = 0.7
+            IS3_obj_new_x = problem(IS3_new_x).clone().unsqueeze(-1)
+            IS3_new_x[:, 2] = 0.1
+            train_x = torch.cat([train_x, IS3_new_x])
+            train_obj = torch.cat([train_obj, IS3_obj_new_x])
+            # TODO
+            delta_J2 = torch.cat([delta_J2, torch.tensor([[0]])])
+            JIS2s_for_delta_J2 = torch.cat([JIS2s_for_delta_J2, IS3_obj_new_x])
+
+            x_ = IS3_new_x.clone().reshape(1, 3)
+            x_[:, 2] = 1.0
+            obj_ = problem(x_).clone().unsqueeze(-1)
+            delta_J = torch.cat([delta_J, IS3_obj_new_x - obj_])
+            JIS1s_for_delta_J = torch.cat([JIS1s_for_delta_J, obj_])
+            caEI_values = torch.cat([caEI_values, torch.tensor([0])])
+
     cumulative_cost = 0.0
     costs_all = np.zeros(N_ITER)
-    train_x = train_x_init[:N_init_IS1]
-
-    train_obj_init = problem(train_x_init[:N_init_IS1]).unsqueeze(-1)
-
-    train_obj = train_obj_init[:N_init_IS1]
-
-    # path2="/home/nobar/codes/GBO2/logs/test_31_b_5*/Exper_{}".format(str(exper))
-    # train_obj_init=np.load(path2 + "/train_obj_init.npy")
-    # train_x_init=np.load(path2 + "/train_x_init.npy")
-    # cumulative_cost = 0.0
-    # costs_all = np.zeros(N_ITER)
-    # train_x = torch.as_tensor(train_x_init[:N_init_IS1])
-    # train_obj = torch.as_tensor(train_obj_init[:N_init_IS1])
-
     for i in range(N_ITER):
-        print("BO-EI batch iteration=", i)
-        mll, model = initialize_model(train_x, train_obj,l_g_0=None)
+        print("batch iteration=", i)
+        cost_model.b_iter = i + 1  # batch iteration for adaptive cost
+        mll, model = initialize_model(train_x, train_obj, l_g_0)
+        # train the GP model
         fit_gpytorch_mll(mll)
-        plot_EIonly_GP(model, i, path, train_x)
-        ei_acqf = get_ei(model, best_f=train_obj.max())
+        plot_GP(model, i, path, train_x)
+        # mfkg_acqf = get_mfkg(model)
+        # new_x, new_obj, cost = optimize_mfkg_and_get_observation(mfkg_acqf)
+        best_f_s1 = train_obj[np.argwhere(train_x[:, 2] == 1)].squeeze().max()
+        # # Attention set initial best_f when no data in IS is still available
+        # if sum(train_x[:, 2] == 0.1) == 0:
+        #     best_f_s2 = torch.tensor([0], dtype=torch.float64)
+        #     best_f_s3 = torch.tensor([0], dtype=torch.float64)
+        # else:
+        #     best_f_s2 = train_obj[np.argwhere(train_x[:, 2] == 0.1)].squeeze().max()
+        #     # Attention set initial best_f when no data in IS is still available
+        #     if sum(train_x[:, 2] == 0.7) == 0:
+        #         best_f_s3 = torch.tensor([best_f_s2], dtype=torch.float64)
+        #     else:
+        #         best_f_s3 = train_obj[np.argwhere(train_x[:, 2] == 0.7)].squeeze().max()
+        #
+        # caEI = get_cost_aware_ei(model, cost_model,
+        #                         best_f_s1=best_f_s1,
+        #                         best_f_s2=best_f_s2,
+        #                         best_f_s3=best_f_s3,
+        #                         alpha=1)
+
+        if sum(train_x[:, 2] == 0.1) == 0:
+            best_f_s2 = torch.tensor([0], dtype=torch.float64)
+        else:
+            best_f_s2 = train_obj[np.argwhere(train_x[:, 2] == 0.1)].squeeze().max()
+
+        caEI = get_cost_aware_ei(model, cost_model,
+                                best_f_s1=best_f_s1,
+                                best_f_s2=best_f_s2,
+                                alpha=1)
+
         if np.sum(np.asarray(train_x[:,2])==1)>N_init_IS1+N_change:
             change_IS1=True
+            l_g_0 = 0.3
+            cost_model.fixed_cost_2=7.75
         else:
             change_IS1=False
-        new_x, new_obj, cost = optimize_ei_and_get_observation(ei_acqf, change_IS1)
+
+        new_x, new_obj, cost, caEI_value = optimize_caEI_and_get_observation(caEI,change_IS1)
+
+        # fixed_features_list = [
+        #     {2: 1.0},  # Fix fidelity s = 1.0 (real)
+        #     {2: 2.0},  # Fix fidelity s = 2.0 (simulation)
+        # ]
+        # a, b = optimize_acqf_mixed(acq_function=caEI, bounds=bounds, fixed_features_list=fixed_features_list,
+        #                            q=BATCH_SIZE,
+        #                            num_restarts=10, raw_samples=512, options={"batch_limit": 5, "maxiter": 200}, )
+
         train_x = torch.cat([train_x, new_x])
         train_obj = torch.cat([train_obj, new_obj])
+
+
+
+
+        if new_x[:,-1]==1:
+            delta_J = torch.cat([delta_J, torch.tensor([[0]])])
+            JIS1s_for_delta_J = torch.cat([JIS1s_for_delta_J, new_obj])
+            caEI_values = torch.cat([caEI_values, caEI_value.reshape(1)])
+            x_ = new_x.clone().reshape(1, 3)
+            x_[:, 2] = 0.1
+            obj_x_IS2_ = problem(x_).clone().unsqueeze(-1)
+            delta_J2 = torch.cat([delta_J2, obj_x_IS2_ - new_obj])
+            JIS2s_for_delta_J2 = torch.cat([JIS2s_for_delta_J2, obj_x_IS2_])
+
+
+            for i in range(N_IS3_sample_each_time):
+                # # (my idea) add IS3 estimations to GP dataset
+                IS3_new_x=new_x.clone()
+                gains_vicinity_noise = torch.normal(mean=0.0, std=0.005, size=(1, 2))
+                IS3_new_x[:, :2] += gains_vicinity_noise
+                # If value > 1, wrap it to 1 - (value - 1) = 2 - value
+                IS3_new_x[:, :2] = torch.where(IS3_new_x[:, :2] > 1, 2 - IS3_new_x[:, :2], IS3_new_x[:, :2])
+                # If value < 0, multiply by -1
+                IS3_new_x[:, :2] = torch.where(IS3_new_x[:, :2] < 0, -IS3_new_x[:, :2], IS3_new_x[:, :2])
+                IS3_new_x[:, :2] = torch.clamp(IS3_new_x[:, :2], 0.0, 1.0)
+                IS3_new_x[:,2]=0.7
+                IS3_obj_new_x=problem(IS3_new_x).unsqueeze(-1)
+                IS3_new_x[:, 2] = 0.1
+                train_x = torch.cat([train_x, IS3_new_x])
+                train_obj = torch.cat([train_obj, IS3_obj_new_x])
+                x_ = IS3_new_x.clone().reshape(1,3)
+                x_[:, 2] = 1.0
+                new_obj_ = problem(x_).clone().unsqueeze(-1)
+                delta_J = torch.cat([delta_J, IS3_obj_new_x-new_obj_])
+                JIS1s_for_delta_J = torch.cat([JIS1s_for_delta_J, IS3_obj_new_x])
+                caEI_values = torch.cat([caEI_values, torch.tensor([0])])
+                # TODO
+                delta_J2 = torch.cat([delta_J2, torch.tensor([[0]])])
+                JIS2s_for_delta_J2 = torch.cat([JIS2s_for_delta_J2, new_obj])
+
+        elif new_x[:,-1] == 0.1:
+            x_ = new_x.clone().reshape(1,3)
+            x_[:, 2] = 1.0
+            obj_x_IS1_ = problem(x_).clone().unsqueeze(-1)
+            delta_J = torch.cat([delta_J, new_obj-obj_x_IS1_])
+            JIS1s_for_delta_J = torch.cat([JIS1s_for_delta_J, obj_x_IS1_])
+            caEI_values = torch.cat([caEI_values, caEI_value.reshape(1)])
+            # TODO
+            delta_J2 = torch.cat([delta_J2, torch.tensor([[0]])])
+            JIS2s_for_delta_J2 = torch.cat([JIS2s_for_delta_J2, new_obj])
+
         cumulative_cost += cost
         costs_all[i] = cost
-        np.save(path + "/costs_all_EIonly.npy", costs_all)
-        np.save(path + "/train_x_EIonly.npy", train_x)
-        np.save(path + "/train_obj_EIonly.npy", train_obj)
+        np.save(path + "/costs_all.npy", costs_all)
+        np.save(path + "/train_x.npy", train_x)
+        np.save(path + "/train_obj.npy", train_obj)
 
-    final_rec_EIonly, objective_value_EIonly = get_recommendation(model, lower, upper)
-    np.save(path + "/final_rec_EIonly.npy", final_rec_EIonly)
-    np.save(path + "/objective_value_EIonly.npy", objective_value_EIonly)
+        np.save(path + "/i_IS1s.npy", i_IS1s)
+        np.save(path + "/delta_J.npy", delta_J)
+        np.save(path + "/JIS1s_for_delta_J.npy", JIS1s_for_delta_J)
+        np.save(path + "/delta_J2.npy", delta_J2)
+        np.save(path + "/JIS2s_for_delta_J2.npy", JIS2s_for_delta_J2)
+        np.save(path + "/caEI_values.npy", caEI_values)
 
-    final_rec_max_observed_EIonly, objective_value_max_observed_EIonly = get_recommendation_max_observed(train_x,
-                                                                                                         train_obj,
-                                                                                                         lower, upper)
-    np.save(path + "/final_rec_max_observed_EIonly.npy", final_rec_max_observed_EIonly)
-    np.save(path + "/objective_value_max_observed_EIonly.npy", objective_value_max_observed_EIonly)
+    final_rec, objective_value = get_recommendation(model, lower, upper)
+    np.save(path + "/final_rec.npy", final_rec)
+    np.save(path + "/objective_value.npy", objective_value)
 
-    print(f"\nEI only total cost: {cumulative_cost}\n")
+    final_rec_max_observed, objective_value_max_observed = get_recommendation_max_observed(train_x, train_obj, lower,
+                                                                                           upper)
+    np.save(path + "/final_rec_max_observed.npy", final_rec_max_observed)
+    np.save(path + "/objective_value_max_observed.npy", objective_value_max_observed)
+
+    print(f"\nMFBO total cost: {cumulative_cost}\n")
+
+    # np.save("/cluster/home/mnobar/code/GBO2/logs/test_46/delta_J2_IS1init_all_en_025.npy", delta_J2_IS1init_all)
+
+    # ####################################################################################################################
+    # ####################################################################################################################
+    # ####################################################################################################################
+    # # Baseline Single Fidelity BO with EI
+    # cumulative_cost = 0.0
+    # costs_all = np.zeros(N_ITER)
+    # train_x = train_x_init[:N_init_IS1]
+    #
+    # train_obj_init = problem(train_x_init[:N_init_IS1]).unsqueeze(-1)
+    #
+    # train_obj = train_obj_init[:N_init_IS1]
+    #
+    # # path2="/cluster/home/mnobar/code/GBO2/logs/test_31_b_5*/Exper_{}".format(str(exper))
+    # # train_obj_init=np.load(path2 + "/train_obj_init.npy")
+    # # train_x_init=np.load(path2 + "/train_x_init.npy")
+    # # cumulative_cost = 0.0
+    # # costs_all = np.zeros(N_ITER)
+    # # train_x = torch.as_tensor(train_x_init[:N_init_IS1])
+    # # train_obj = torch.as_tensor(train_obj_init[:N_init_IS1])
+    #
+    # for i in range(N_ITER):
+    #     print("BO-EI batch iteration=", i)
+    #     mll, model = initialize_model(train_x, train_obj,l_g_0=None)
+    #     fit_gpytorch_mll(mll)
+    #     plot_EIonly_GP(model, i, path, train_x)
+    #     ei_acqf = get_ei(model, best_f=train_obj.max())
+    #     if np.sum(np.asarray(train_x[:,2])==1)>N_init_IS1+N_change:
+    #         change_IS1=True
+    #     else:
+    #         change_IS1=False
+    #     new_x, new_obj, cost = optimize_ei_and_get_observation(ei_acqf, change_IS1)
+    #     train_x = torch.cat([train_x, new_x])
+    #     train_obj = torch.cat([train_obj, new_obj])
+    #     cumulative_cost += cost
+    #     costs_all[i] = cost
+    #     np.save(path + "/costs_all_EIonly.npy", costs_all)
+    #     np.save(path + "/train_x_EIonly.npy", train_x)
+    #     np.save(path + "/train_obj_EIonly.npy", train_obj)
+    #
+    # final_rec_EIonly, objective_value_EIonly = get_recommendation(model, lower, upper)
+    # np.save(path + "/final_rec_EIonly.npy", final_rec_EIonly)
+    # np.save(path + "/objective_value_EIonly.npy", objective_value_EIonly)
+    #
+    # final_rec_max_observed_EIonly, objective_value_max_observed_EIonly = get_recommendation_max_observed(train_x,
+    #                                                                                                      train_obj,
+    #                                                                                                      lower, upper)
+    # np.save(path + "/final_rec_max_observed_EIonly.npy", final_rec_max_observed_EIonly)
+    # np.save(path + "/objective_value_max_observed_EIonly.npy", objective_value_max_observed_EIonly)
+    #
+    # print(f"\nEI only total cost: {cumulative_cost}\n")
 
 
     # # ####################################################################################################################
@@ -818,7 +818,7 @@ for exper in range(N_exper):
     # train_x = train_x_init[:N_init_IS1]
     # train_obj = train_obj_init[:N_init_IS1]
     #
-    # # path2="/home/nobar/codes/GBO2/logs/test_31_b_5*/Exper_{}".format(str(exper))
+    # # path2="/cluster/home/mnobar/code/GBO2/logs/test_31_b_5*/Exper_{}".format(str(exper))
     # # train_obj_init=np.load(path2 + "/train_obj_init.npy")
     # # train_x_init=np.load(path2 + "/train_x_init.npy")
     # # cumulative_cost = 0.0
