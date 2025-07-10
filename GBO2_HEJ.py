@@ -597,7 +597,8 @@ for exper in range(N_exper):
     # Now add IS3 data after initial dataset
     for i in i_IS1s:
         IS3_obj_new_x_ = -1e10
-        while IS3_obj_new_x_==-1e10:
+        i_=0
+        while abs(IS3_obj_new_x_)==1e10:
             IS3_new_x = train_x_init[i,:].clone().reshape(1,3)
             # gains_vicinity_noise = torch.normal(mean=0.0, std=0.005, size=(1, 2))
             gains_vicinity_noise = np.array([torch.normal(mean=0.0, std=0.005, size=(1, 1)),
@@ -610,6 +611,19 @@ for exper in range(N_exper):
             IS3_new_x[:, :2] = torch.clamp(IS3_new_x[:, :2], 0.0, 1.0)
             IS3_new_x[:, 2] = 0.7
             IS3_obj_new_x_=problem(IS3_new_x)
+            if i_>20:
+                print("too long init IS3!, set IS3 location manually!")
+                IS3_new_x = train_x_init[i, :].clone().reshape(1, 3)
+                # gains_vicinity_noise = torch.normal(mean=0.0, std=0.005, size=(1, 2))
+                gains_vicinity_noise = np.array([0.0001,0.0001]).reshape(1, 2)
+                IS3_new_x[:, :2] += gains_vicinity_noise
+                # If value > 1, wrap it to 1 - (value - 1) = 2 - value
+                IS3_new_x[:, :2] = torch.where(IS3_new_x[:, :2] > 1, 2 - IS3_new_x[:, :2], IS3_new_x[:, :2])
+                # If value < 0, multiply by -1
+                IS3_new_x[:, :2] = torch.where(IS3_new_x[:, :2] < 0, -IS3_new_x[:, :2], IS3_new_x[:, :2])
+                IS3_new_x[:, :2] = torch.clamp(IS3_new_x[:, :2], 0.0, 1.0)
+                IS3_new_x[:, 2] = 0.7
+                IS3_obj_new_x_ = problem(IS3_new_x)
         IS3_obj_new_x = IS3_obj_new_x_.clone().unsqueeze(-1)
         IS3_new_x[:, 2] = 0.1
         train_x = torch.cat([train_x, IS3_new_x])
@@ -701,7 +715,8 @@ for exper in range(N_exper):
 
             for i in range(N_IS3_sample_each_time):
                 IS3_obj_new_x_=-1e10
-                while IS3_obj_new_x_==-1e10:
+                i_=0
+                while abs(IS3_obj_new_x_)==1e10:
                     # # (my idea) add IS3 estimations to GP dataset
                     IS3_new_x=new_x.clone()
                     # gains_vicinity_noise = torch.normal(mean=0.0, std=0.005, size=(1, 1))
@@ -714,7 +729,20 @@ for exper in range(N_exper):
                     IS3_new_x[:, :2] = torch.clamp(IS3_new_x[:, :2], 0.0, 1.0)
                     IS3_new_x[:,2]=0.7
                     IS3_obj_new_x_=problem(IS3_new_x)
-                IS3_obj_new_x=problem(IS3_new_x).unsqueeze(-1)
+                    i_+=1
+                    if i_ > 20:
+                        print("too long IS3!, set IS3 location manually!")
+                        IS3_new_x = new_x.clone()
+                        gains_vicinity_noise = np.array([0.0001, 0.0001]).reshape(1, 2)
+                        IS3_new_x[:, :2] += gains_vicinity_noise
+                        # If value > 1, wrap it to 1 - (value - 1) = 2 - value
+                        IS3_new_x[:, :2] = torch.where(IS3_new_x[:, :2] > 1, 2 - IS3_new_x[:, :2], IS3_new_x[:, :2])
+                        # If value < 0, multiply by -1
+                        IS3_new_x[:, :2] = torch.where(IS3_new_x[:, :2] < 0, -IS3_new_x[:, :2], IS3_new_x[:, :2])
+                        IS3_new_x[:, :2] = torch.clamp(IS3_new_x[:, :2], 0.0, 1.0)
+                        IS3_new_x[:, 2] = 0.7
+                        IS3_obj_new_x_ = problem(IS3_new_x)
+                IS3_obj_new_x=IS3_obj_new_x_.unsqueeze(-1)
                 IS3_new_x[:, 2] = 0.1
                 train_x = torch.cat([train_x, IS3_new_x])
                 train_obj = torch.cat([train_obj, IS3_obj_new_x])
