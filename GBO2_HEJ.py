@@ -730,8 +730,10 @@ for exper in range(N_exper):
                     IS3_new_x[:,2]=0.7
                     IS3_obj_new_x_=problem(IS3_new_x)
                     i_+=1
-                    if i_ > 20:
-                        print("too long IS3!, set IS3 location manually!")
+                    # TODO: improve this manual correction
+                    if i_ > 40:
+                        print("!!! too too long IS3!, set IS3 location manually!")
+                        problem.thr_bar_sigma_c = 100
                         IS3_new_x = new_x.clone()
                         gains_vicinity_noise = np.array([0.0001, 0.0001]).reshape(1, 2)
                         IS3_new_x[:, :2] += gains_vicinity_noise
@@ -742,6 +744,24 @@ for exper in range(N_exper):
                         IS3_new_x[:, :2] = torch.clamp(IS3_new_x[:, :2], 0.0, 1.0)
                         IS3_new_x[:, 2] = 0.7
                         IS3_obj_new_x_ = problem(IS3_new_x)
+                        problem.thr_bar_sigma_c = 5
+                        continue
+                    if i_ > 20:
+                        print("too long IS3!, set IS3 location manually!")
+                        problem.thr_bar_sigma_c=10
+                        IS3_new_x = new_x.clone()
+                        gains_vicinity_noise = np.array([0.0001, 0.0001]).reshape(1, 2)
+                        IS3_new_x[:, :2] += gains_vicinity_noise
+                        # If value > 1, wrap it to 1 - (value - 1) = 2 - value
+                        IS3_new_x[:, :2] = torch.where(IS3_new_x[:, :2] > 1, 2 - IS3_new_x[:, :2], IS3_new_x[:, :2])
+                        # If value < 0, multiply by -1
+                        IS3_new_x[:, :2] = torch.where(IS3_new_x[:, :2] < 0, -IS3_new_x[:, :2], IS3_new_x[:, :2])
+                        IS3_new_x[:, :2] = torch.clamp(IS3_new_x[:, :2], 0.0, 1.0)
+                        IS3_new_x[:, 2] = 0.7
+                        IS3_obj_new_x_ = problem(IS3_new_x)
+                        problem.thr_bar_sigma_c=5
+                        continue
+
                 IS3_obj_new_x=IS3_obj_new_x_.unsqueeze(-1)
                 IS3_new_x[:, 2] = 0.1
                 train_x = torch.cat([train_x, IS3_new_x])

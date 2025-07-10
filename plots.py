@@ -985,7 +985,7 @@ def plots_MonteCarlo_objectiveEI_34tests(path, path2,   N_init_IS1,N_init_IS2,  
         train_x_list.append(train_x)
         train_obj_list.append(train_obj)
 
-        A=train_obj
+        A=np.copy(train_obj)
         A[idx_ISDTs_rest]=-np.inf
         train_obj_list_rest_modified.append(-A[N_init_IS1*2+N_init_IS2:])
 
@@ -1262,6 +1262,26 @@ def plots_MonteCarlo_objectiveEI_34tests(path, path2,   N_init_IS1,N_init_IS2,  
     # delta_J2_IS1init_all=np.load(path2 + "delta_J2_IS1init_all_en_050.npy")
     # EE_delta_g=np.mean(abs(delta_J2_IS1init_all))
     # stdE_delta_g = np.std(abs(delta_J2_IS1init_all))
+
+    # Plot
+    plt.figure(figsize=(10, 5))
+    plt.plot(mean_values_costsIS1only, mean_values, marker="o", linewidth=3, label="Mean GMFBO", color='r')
+    # plt.fill_between(mean_values_costsIS1only, mean_values - margin_of_error, mean_values + margin_of_error,
+    #                  color='r', alpha=0.3, label="95% CI GMFBO")
+    # plt.plot(x_baseline, mean_values_baseline, marker="o", linewidth=3, label="Mean MFBO", color='k')
+    # plt.fill_between(x_baseline, mean_values_baseline - margin_of_error_baseline, mean_values_baseline + margin_of_error_baseline,
+    #                  color='k', alpha=0.3, label="95% CI MFBO")
+    plt.plot(x_EI_only, mean_values_EIonly, marker="o", linewidth=3, label="Mean BO-EI", color='b')
+    # plt.fill_between(x_EI_only, mean_values_EIonly - margin_of_error_EIonly, mean_values_EIonly + margin_of_error_EIonly,
+    #                  color='b', alpha=0.3, label="95% CI BO-EI")
+    plt.xlabel('Mean IS1 only Sampling Cost')
+    plt.ylabel('$J^{*}$')
+    plt.legend()
+    plt.grid(True)
+    # plt.ylim(0.9, 1.4)  # Focus range
+    # plt.title("Mean with 95% Confidence Interval")
+    plt.savefig(path+"/debug_{}.png".format(path[-10:-1]))
+    plt.show()
     print("")
 
 
@@ -2853,7 +2873,7 @@ if __name__ == "__main__":
     N_init_IS1=2
     N_init_IS2=10
     sampling_cost_bias=5
-    N_exper=10
+    N_exper=2
     N_iter=20
     s2 = 0.1
     s3 = 0.05
