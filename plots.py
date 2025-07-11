@@ -836,15 +836,15 @@ def plots_MonteCarlo_objectiveEI_34tests(path, path2,   N_init_IS1,N_init_IS2,  
     costs_init_EIonly=[]
 
     for exper in range(N_exper):
-        # if exper==2:
-        #     exper_GMFBO=3
-        # elif exper==0:
-        #     exper_GMFBO=4
-        # elif exper==1:
-        #     exper_GMFBO=3
-        # else:
-        #     exper_GMFBO=exper
-        exp_path = os.path.join(path, f"Exper_{exper}")
+        if exper==2:
+            exper_GMFBO=3
+        elif exper==4:
+            exper_GMFBO=4
+        elif exper==7:
+            exper_GMFBO=3
+        else:
+            exper_GMFBO=exper
+        exp_path = os.path.join(path, f"Exper_{exper_GMFBO}")
         exp_path2 = os.path.join(path2, f"Exper_{exper}")
         # Load files
         train_x = np.load(os.path.join(exp_path, "train_x.npy"))
@@ -2864,7 +2864,7 @@ if __name__ == "__main__":
 
     # plot_cost_coef()
 
-    path = "/home/nobar/codes/GBO2/logs/test_50_1/"
+    path = "/home/nobar/codes/GBO2/logs/test_50_2/"
     # path2 = "/home/nobar/codes/GBO2/logs/test_31_b_UCB_1/"
     path2 = "/home/nobar/codes/GBO2/logs/test_33_b_1/"
     # get EI only when IS1 changes after 5 iter
@@ -2873,7 +2873,7 @@ if __name__ == "__main__":
     N_init_IS1=2
     N_init_IS2=10
     sampling_cost_bias=5
-    N_exper=2
+    N_exper=10
     N_iter=20
     s2 = 0.1
     s3 = 0.05
