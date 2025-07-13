@@ -1110,12 +1110,12 @@ def plots_MonteCarlo_objectiveEI_34tests(path, path2, N_init_IS1, N_init_IS2, sa
     plt.fill_between(x_MFBO_caEI_gamma0, C_mean_MFBO_caEI_gamma0 - margin_of_error_MFBO_caEI_gamma0,
                      C_mean_MFBO_caEI_gamma0 + margin_of_error_MFBO_caEI_gamma0, color='black',
                      alpha=0.3, label='95% CI - modified MFBO with caEI')  # Shaded std region
-    plt.plot(x_MFBO_taKG, C_mean_MFBO_taKG, color='olive', marker="s", linewidth=3,
+    plt.plot(x_MFBO_taKG, C_mean_MFBO_taKG, color='olive', marker="p", linewidth=3,
              label='Mean - baseline MFBO with taKG')  # Thick line for mean
     plt.fill_between(x_MFBO_taKG, C_mean_MFBO_taKG - margin_of_error_MFBO_taKG,
                      C_mean_MFBO_taKG + margin_of_error_MFBO_taKG, color='olive',
                      alpha=0.3, label='95% CI - baseline MFBO with taKG')  # Shaded std region
-    plt.plot(x_MFBO_caEI, C_mean_MFBO_caEI, color='purple', marker="s", linewidth=3,
+    plt.plot(x_MFBO_caEI, C_mean_MFBO_caEI, color='purple', marker="d", linewidth=3,
              label='Mean - baseline MFBO with caEI')  # Thick line for mean
     plt.fill_between(x_MFBO_caEI, C_mean_MFBO_caEI - margin_of_error_MFBO_caEI,
                      C_mean_MFBO_caEI + margin_of_error_MFBO_caEI, color='purple',
@@ -1257,12 +1257,12 @@ def plots_MonteCarlo_objectiveEI_34tests(path, path2, N_init_IS1, N_init_IS2, sa
     plt.plot(mean_values_costsIS1only, mean_values, marker="o", linewidth=3, label="Mean - GMFBO", color="crimson")
     plt.fill_between(mean_values_costsIS1only, mean_values - margin_of_error, mean_values + margin_of_error,
                      color="crimson", alpha=0.3, label="95% CI - GMFBO")
-    plt.plot(mean_values_costsIS1only_MFBO_taKG, mean_values_MFBO_taKG, marker="o", linewidth=3,
+    plt.plot(mean_values_costsIS1only_MFBO_taKG, mean_values_MFBO_taKG, marker="p", linewidth=3,
              label="Mean - baseline MFBO with taKG", color="olive")
     plt.fill_between(mean_values_costsIS1only_MFBO_taKG, mean_values_MFBO_taKG - margin_of_error_MFBO_taKG,
                      mean_values_MFBO_taKG + margin_of_error_MFBO_taKG,
                      color="olive", alpha=0.3, label="95% CI - baseline MFBO with taKG")
-    plt.plot(mean_values_costsIS1only_MFBO_caEI, mean_values_MFBO_caEI, marker="o", linewidth=3,
+    plt.plot(mean_values_costsIS1only_MFBO_caEI, mean_values_MFBO_caEI, marker="d", linewidth=3,
              label="Mean - baseline MFBO with caEI", color="purple")
     plt.fill_between(mean_values_costsIS1only_MFBO_caEI, mean_values_MFBO_caEI - margin_of_error_MFBO_caEI,
                      mean_values_MFBO_caEI + margin_of_error_MFBO_caEI,
