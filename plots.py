@@ -13,8 +13,8 @@ from matplotlib import gridspec
 from scipy.interpolate import interp1d
 import matplotlib
 
-def plot_colortable(colors, *, ncols=4, sort_colors=True):
 
+def plot_colortable(colors, *, ncols=4, sort_colors=True):
     cell_width = 212
     cell_height = 22
     swatch_width = 48
@@ -35,10 +35,10 @@ def plot_colortable(colors, *, ncols=4, sort_colors=True):
     dpi = 72
 
     fig, ax = plt.subplots(figsize=(width / dpi, height / dpi), dpi=dpi)
-    fig.subplots_adjust(margin/width, margin/height,
-                        (width-margin)/width, (height-margin)/height)
+    fig.subplots_adjust(margin / width, margin / height,
+                        (width - margin) / width, (height - margin) / height)
     ax.set_xlim(0, cell_width * ncols)
-    ax.set_ylim(cell_height * (nrows-0.5), -cell_height/2.)
+    ax.set_ylim(cell_height * (nrows - 0.5), -cell_height / 2.)
     ax.yaxis.set_visible(False)
     ax.xaxis.set_visible(False)
     ax.set_axis_off()
@@ -56,32 +56,36 @@ def plot_colortable(colors, *, ncols=4, sort_colors=True):
                 verticalalignment='center')
 
         ax.add_patch(
-            Rectangle(xy=(swatch_start_x, y-9), width=swatch_width,
+            Rectangle(xy=(swatch_start_x, y - 9), width=swatch_width,
                       height=18, facecolor=colors[name], edgecolor='0.7')
         )
 
     return fig
+
+
 def plot_gt():
     # Load the .mat file
     # mat_data = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/misc/IS1_metrics_8x8_FeasSet2_smallerFeas.mat')
     mat_data = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/misc/IS1_metrics_20x20_FeasSet2_smallerFeas.mat')
-    mat_data2 = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/misc/IS1_metrics_20x20_FeasSet2_smallerFeas_perturbed.mat')
+    mat_data2 = scipy.io.loadmat(
+        '/home/nobar/codes/GBO2/logs/misc/IS1_metrics_20x20_FeasSet2_smallerFeas_perturbed.mat')
     # mat_data = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/misc/IS1_Exper_0_8x8_metrics.mat')
     # mat_data2 = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/misc/IS2_Exper_0_8x8_metrics.mat')
     # mat_data2 = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/misc/IS2_metrics_8x8_FeasSet2.mat')
     # mat_data2 = scipy.io.loadmat('/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3Dyn_s_01/IS3_1to2_metrics_8x8_FeasSet2.mat')
-    n_grid=20
+    n_grid = 20
     # # obj_IS2_grid = np.load("/home/nobar/codes/GBO2/logs/IS3_FeasSet2OLD_obj.npy")
     # obj_IS2_grid = np.load("/home/nobar/Documents/introductions/simulink_model/IS2_FeasSet2OLD_obj.npy")
     obj_IS2_grid = np.load("/home/nobar/Documents/introductions/simulink_model/IS1_FeasSet2OLD_obj.npy")
     obj_IS1_grid = np.load("/home/nobar/Documents/introductions/simulink_model/IS1_FeasSet2OLD_obj.npy")
+
     def normalize_objective(obj, obj_grid):
         return (obj - obj_grid.mean()) / (obj_grid.std())
 
     # Extract the variables
     Kp = mat_data['Kp'].squeeze()  # Ensure it's a 1D array
     Kd = mat_data['Kd'].squeeze()  # Ensure it's a 1D array
-    
+
     Objective_all = mat_data['Objective_all']  # Should be a 2D array
     RiseTime_all = mat_data['RiseTime_all']  # Should be a 2D array
     PeakTime_all = mat_data['PeakTime_all']  # Should be a 2D array
@@ -97,13 +101,11 @@ def plot_gt():
     SettlingMin2_all = mat_data2['SettlingMin_all']  # Should be a 2D array
     PeakTime2_all = mat_data2['PeakTime_all']  # Should be a 2D array
 
-
-    Objective_all_error = mat_data['Objective_all']-mat_data2['Objective_all']  # Should be a 2D array
-    RiseTime_all_error = mat_data['RiseTime_all']-mat_data2['RiseTime_all']  # Should be a 2D array
-    TransientTime_all_error = mat_data['TransientTime_all']-mat_data2['TransientTime_all']  # Should be a 2D array
-    SettlingTime_all_error = mat_data['SettlingTime_all']-mat_data2['SettlingTime_all']  # Should be a 2D array
-    Overshoot_all_error = mat_data['Overshoot_all']-mat_data2['Overshoot_all']  # Should be a 2D array
-
+    Objective_all_error = mat_data['Objective_all'] - mat_data2['Objective_all']  # Should be a 2D array
+    RiseTime_all_error = mat_data['RiseTime_all'] - mat_data2['RiseTime_all']  # Should be a 2D array
+    TransientTime_all_error = mat_data['TransientTime_all'] - mat_data2['TransientTime_all']  # Should be a 2D array
+    SettlingTime_all_error = mat_data['SettlingTime_all'] - mat_data2['SettlingTime_all']  # Should be a 2D array
+    Overshoot_all_error = mat_data['Overshoot_all'] - mat_data2['Overshoot_all']  # Should be a 2D array
 
     # # Create meshgrid for contour plot
     # Kp_grid, Ki_grid = np.meshgrid(Kp, Kd)
@@ -138,8 +140,8 @@ def plot_gt():
     w4 = 1.5 / 0.519468
     w5 = 0 / 0.3619
     w6 = 0 / 0.6739
-    new_obj=w1*RiseTime_all+w2*Overshoot_all+w4*TransientTime_all+w3*SettlingTime_all+w5*PeakTime_all+w6*SettlingMin_all
-    new_obj=normalize_objective(new_obj, obj_IS1_grid)
+    new_obj = w1 * RiseTime_all + w2 * Overshoot_all + w4 * TransientTime_all + w3 * SettlingTime_all + w5 * PeakTime_all + w6 * SettlingMin_all
+    new_obj = normalize_objective(new_obj, obj_IS1_grid)
     # np.save("/home/nobar/codes/GBO2/logs/IS2_new_1_obj.npy",new_obj)
     # np.save("/home/nobar/codes/GBO2/logs/IS1_FeasSet2_obj.npy",new_obj)
     # np.save("/home/nobar/codes/GBO2/logs/IS2_new_1_obj_noise_scale_01.npy",new_obj)
@@ -149,31 +151,33 @@ def plot_gt():
     plt.figure(figsize=(8, 6))
     # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
     # contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(20,20),levs)  # Transpose to match dimensions
-    contour = plt.contourf(Kp_grid, Ki_grid, new_obj.reshape(n_grid,n_grid), levels=20)  # Transpose to match dimensions
+    contour = plt.contourf(Kp_grid, Ki_grid, new_obj.reshape(n_grid, n_grid),
+                           levels=20)  # Transpose to match dimensions
     plt.colorbar(contour, label='$J_{IS1}$')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('True Objective Contour Plot')
-    #plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS1_J_normalized_test_FeasSet2_smallerFeas.png")
+    # plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS1_J_normalized_test_FeasSet2_smallerFeas.png")
     plt.show()
 
-    new_obj2=w1*RiseTime2_all+w2*Overshoot2_all+w4*TransientTime2_all+w3*SettlingTime2_all+w5*PeakTime2_all+w6*SettlingMin2_all
-    new_obj2=normalize_objective(new_obj2, obj_IS2_grid)
+    new_obj2 = w1 * RiseTime2_all + w2 * Overshoot2_all + w4 * TransientTime2_all + w3 * SettlingTime2_all + w5 * PeakTime2_all + w6 * SettlingMin2_all
+    new_obj2 = normalize_objective(new_obj2, obj_IS2_grid)
     # np.save("/home/nobar/codes/GBO2/logs/IS3_FeasSet2OLD_obj.npy",new_obj2)
 
     # Plot the contour
     plt.figure(figsize=(8, 6))
     # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
     # contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(20,20),levs)  # Transpose to match dimensions
-    contour = plt.contourf(Kp_grid, Ki_grid, new_obj2.reshape(n_grid,n_grid), levels=20)  # Transpose to match dimensions
+    contour = plt.contourf(Kp_grid, Ki_grid, new_obj2.reshape(n_grid, n_grid),
+                           levels=20)  # Transpose to match dimensions
     plt.colorbar(contour, label='$J_{IS3_1to2}$')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('Estimated Objective Contour Plot')
-    #plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to2_J_normalized_test_FeasSet2_smallerFeas.png")
+    # plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to2_J_normalized_test_FeasSet2_smallerFeas.png")
     plt.show()
 
-    error_new_obj=new_obj2-new_obj
+    error_new_obj = new_obj2 - new_obj
     # np.save("/home/nobar/codes/GBO2/logs/IS2_new_1_obj.npy",new_obj)
     # np.save("/home/nobar/codes/GBO2/logs/IS2_FeasSet2_obj.npy",new_obj2)
     # Create meshgrid for contour plot
@@ -182,12 +186,13 @@ def plot_gt():
     plt.figure(figsize=(8, 6))
     # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
     # contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(20,20),levs)  # Transpose to match dimensions
-    contour = plt.contourf(Kp_grid, Ki_grid, error_new_obj.reshape(n_grid,n_grid), levels=20)  # Transpose to match dimensions
+    contour = plt.contourf(Kp_grid, Ki_grid, error_new_obj.reshape(n_grid, n_grid),
+                           levels=20)  # Transpose to match dimensions
     plt.colorbar(contour, label='$J_{IS3_1to2}-J_{IS1}$')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('Error True Objective Contour Plot')
-    #plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to2_Error_normalized_FeasSet2_smallerFeas.png")
+    # plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to2_Error_normalized_FeasSet2_smallerFeas.png")
     # #plt.savefig("/home/nobar/codes/GBO2/logs/test_29_baseline/ERROR_Exper_0_8x8_metrics_normalized.png")
     # #plt.savefig("/home/nobar/codes/GBO2/logs/test_23_8_test/Exper_0/IS2_Exper_0_8x8_metrics_NEW.png")
     plt.show()
@@ -199,12 +204,13 @@ def plot_gt():
     plt.figure(figsize=(8, 6))
     # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
     # contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(20,20),levs)  # Transpose to match dimensions
-    contour = plt.contourf(Kp_grid, Ki_grid, abs(error_new_obj).reshape(n_grid,n_grid), levels=20)  # Transpose to match dimensions
+    contour = plt.contourf(Kp_grid, Ki_grid, abs(error_new_obj).reshape(n_grid, n_grid),
+                           levels=20)  # Transpose to match dimensions
     plt.colorbar(contour, label='|$J_{IS3_1to2}-J_{IS1}$|')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('Error True Objective Contour Plot')
-    #plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to2_ABSError_normalized_FeasSet2_smallerFeas.png")
+    # plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to2_ABSError_normalized_FeasSet2_smallerFeas.png")
     # #plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/ABS_ERROR_Exper_8x8_metrics_normalized.png")
     # #plt.savefig("/home/nobar/codes/GBO2/logs/test_23_8_test/Exper_0/IS2_Exper_0_8x8_metrics_NEW.png")
     plt.show()
@@ -212,70 +218,74 @@ def plot_gt():
     plt.figure(figsize=(8, 6))
     # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
     # contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(20,20),levs)  # Transpose to match dimensions
-    contour = plt.contourf(Kp_grid, Ki_grid, w5*PeakTime_all.reshape(n_grid,n_grid), levels=20)  # Transpose to match dimensions
+    contour = plt.contourf(Kp_grid, Ki_grid, w5 * PeakTime_all.reshape(n_grid, n_grid),
+                           levels=20)  # Transpose to match dimensions
     plt.colorbar(contour, label='Weighted Peak Time')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('$w.T_{p}$')
-    #plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS1_Tp_test_smallerFeas.png")
+    # plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS1_Tp_test_smallerFeas.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
     # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
     # contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(20,20),levs)  # Transpose to match dimensions
-    contour = plt.contourf(Kp_grid, Ki_grid, w6*SettlingMin_all.reshape(n_grid,n_grid), levels=20)  # Transpose to match dimensions
+    contour = plt.contourf(Kp_grid, Ki_grid, w6 * SettlingMin_all.reshape(n_grid, n_grid),
+                           levels=20)  # Transpose to match dimensions
     plt.colorbar(contour, label='Weighted SettlingMin')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('$w.SettlingMin$')
-    #plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS1_SettlingMin_test_smallerFeas.png")
+    # plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS1_SettlingMin_test_smallerFeas.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
     # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
     # contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(20,20),levs)  # Transpose to match dimensions
-    contour = plt.contourf(Kp_grid, Ki_grid, w1*RiseTime_all.reshape(n_grid,n_grid), levels=20)  # Transpose to match dimensions
+    contour = plt.contourf(Kp_grid, Ki_grid, w1 * RiseTime_all.reshape(n_grid, n_grid),
+                           levels=20)  # Transpose to match dimensions
     plt.colorbar(contour, label='Weighted Rise Time')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('$w.T_{r}$')
-    #plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS1_Tr_test_smallerFeas.png")
+    # plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS1_Tr_test_smallerFeas.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
     # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
     # contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(20,20),levs)  # Transpose to match dimensions
-    contour = plt.contourf(Kp_grid, Ki_grid, w3*SettlingTime_all.reshape(n_grid,n_grid), levels=20)  # Transpose to match dimensions
+    contour = plt.contourf(Kp_grid, Ki_grid, w3 * SettlingTime_all.reshape(n_grid, n_grid),
+                           levels=20)  # Transpose to match dimensions
     plt.colorbar(contour, label='Weighted Settling Time')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('$w.T_{s}$')
-    #plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS1_Ts_test_smallerFeas.png")
+    # plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS1_Ts_test_smallerFeas.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
     # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
     # contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(20,20),levs)  # Transpose to match dimensions
-    contour = plt.contourf(Kp_grid, Ki_grid, w2*Overshoot_all.reshape(n_grid,n_grid), levels=20)  # Transpose to match dimensions
+    contour = plt.contourf(Kp_grid, Ki_grid, w2 * Overshoot_all.reshape(n_grid, n_grid),
+                           levels=20)  # Transpose to match dimensions
     plt.colorbar(contour, label='Weighted Overshoot')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('$w.M$')
-    #plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS1_Ov_test_smallerFeas.png")
+    # plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS1_Ov_test_smallerFeas.png")
     plt.show()
     plt.close()
     plt.figure(figsize=(8, 6))
     # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
     # contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(20,20),levs)  # Transpose to match dimensions
-    contour = plt.contourf(Kp_grid, Ki_grid, w4*TransientTime_all.reshape(n_grid,n_grid), levels=20)  # Transpose to match dimensions
+    contour = plt.contourf(Kp_grid, Ki_grid, w4 * TransientTime_all.reshape(n_grid, n_grid),
+                           levels=20)  # Transpose to match dimensions
     plt.colorbar(contour, label='Weighted Transient Time')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('$w.T_{tr}$')
-    #plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS1_Ttr_test_smallerFeas.png")
+    # plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS1_Ttr_test_smallerFeas.png")
     plt.show()
-
-
 
     # # Create meshgrid for contour plot
     # Kp_grid, Ki_grid = np.meshgrid(Kp, Kd)
@@ -291,48 +301,53 @@ def plot_gt():
     # plt.show()
 
     plt.figure(figsize=(8, 6))
-    contour = plt.contourf(Kp_grid, Ki_grid, w1*RiseTime_all_error.reshape(n_grid,n_grid))  # Transpose to match dimensions
+    contour = plt.contourf(Kp_grid, Ki_grid,
+                           w1 * RiseTime_all_error.reshape(n_grid, n_grid))  # Transpose to match dimensions
     plt.colorbar(contour, label='Error Weighted Rise Time')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('error $w.T_{r}$')
-    #plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to2_Tr_error_smallerFeas.png")
+    # plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to2_Tr_error_smallerFeas.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
     # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
     # contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(20,20),levs)  # Transpose to match dimensions
-    contour = plt.contourf(Kp_grid, Ki_grid, w3*SettlingTime_all_error.reshape(n_grid,n_grid))  # Transpose to match dimensions
+    contour = plt.contourf(Kp_grid, Ki_grid,
+                           w3 * SettlingTime_all_error.reshape(n_grid, n_grid))  # Transpose to match dimensions
     plt.colorbar(contour, label='Error Weighted Settling Time')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('error $w.T_{s}$')
-    #plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to2_Ts_error_smallerFeas.png")
+    # plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to2_Ts_error_smallerFeas.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
     # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
     # contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(20,20),levs)  # Transpose to match dimensions
-    contour = plt.contourf(Kp_grid, Ki_grid, w2*Overshoot_all_error.reshape(n_grid,n_grid))  # Transpose to match dimensions
+    contour = plt.contourf(Kp_grid, Ki_grid,
+                           w2 * Overshoot_all_error.reshape(n_grid, n_grid))  # Transpose to match dimensions
     plt.colorbar(contour, label='Error Weighted Overshoot')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('error $w.M$')
-    #plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to2_Ov_error_smallerFeas.png")
+    # plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to2_Ov_error_smallerFeas.png")
     plt.show()
     plt.close()
     plt.figure(figsize=(8, 6))
     # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
     # contour = plt.contourf(Kp_grid, Ki_grid, Objective_all.reshape(20,20),levs)  # Transpose to match dimensions
-    contour = plt.contourf(Kp_grid, Ki_grid, w4*TransientTime_all_error.reshape(n_grid,n_grid))  # Transpose to match dimensions
+    contour = plt.contourf(Kp_grid, Ki_grid,
+                           w4 * TransientTime_all_error.reshape(n_grid, n_grid))  # Transpose to match dimensions
     plt.colorbar(contour, label='Error Weighted Transient Time')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title('error $w.T_{tr}$')
-    #plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to2_Ttr_error_smallerFeas.png")
+    # plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to2_Ttr_error_smallerFeas.png")
     plt.show()
 
     print("")
+
 
 def plot_kernels():
     from scipy.spatial.distance import cdist
@@ -352,7 +367,7 @@ def plot_kernels():
 
     # Flatten the grid and compute the kernel
     # XY = np.column_stack([X.ravel(), Y.ravel()])
-    K = matern_5_2(x.reshape(100,1),y.reshape(100,1), length_scale=0.2).reshape(100, 100)
+    K = matern_5_2(x.reshape(100, 1), y.reshape(100, 1), length_scale=0.2).reshape(100, 100)
 
     # Plot contour map with color bar
     plt.figure(figsize=(6, 5))
@@ -362,20 +377,21 @@ def plot_kernels():
     plt.xlabel("x")
     plt.ylabel("x'")
     plt.title("Matérn 5/2 Kernel Contour Map")
-    #plt.savefig("/home/nobar/codes/GBO2/logs/test_3/matern52.png")
+    # plt.savefig("/home/nobar/codes/GBO2/logs/test_3/matern52.png")
     plt.show()
 
     plt.figure(figsize=(6, 5))
-    C1=(1-X)*(1-Y)*(1-X*Y)**0.672
+    C1 = (1 - X) * (1 - Y) * (1 - X * Y) ** 0.672
     contour = plt.contourf(X, Y, C1, cmap="viridis", levels=20)
     plt.colorbar(contour, label="C1 Value")
     plt.xlabel("s")
     plt.ylabel("s'")
     plt.title("C1 Contour Map")
-    #plt.savefig("/home/nobar/codes/GBO2/logs/test_3/C1kernelCoefficient.png")
+    # plt.savefig("/home/nobar/codes/GBO2/logs/test_3/C1kernelCoefficient.png")
     plt.show()
 
-def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_bias,N_exper,N_iter, s2, s3, BATCH_SIZE):
+
+def plots_MonteCarlo_objective(path, N_init_IS1, N_init_IS2, sampling_cost_bias, N_exper, N_iter, s2, s3, BATCH_SIZE):
     costs_all_list = []
     costs_all_list_EIonly = []
     train_x_list = []
@@ -384,26 +400,26 @@ def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_
     train_obj_list_IS1 = []
     train_x_list_EIonly = []
     train_obj_list_EIonly = []
-    idx_IS1_all=[]
-    idx_IS1_all_init=[]
-    idx_IS1_all_rest=[]
-    idx_IS2_all=[]
-    idx_IS2_all_init=[]
-    idx_IS2_all_rest=[]
-    idx_IS3_all=[]
-    idx_IS3_all_init=[]
-    idx_IS3_all_rest=[]
-    idx_ISDTs_all=[]
-    idx_ISDTs_all_init=[]
-    idx_ISDTs_all_rest=[]
+    idx_IS1_all = []
+    idx_IS1_all_init = []
+    idx_IS1_all_rest = []
+    idx_IS2_all = []
+    idx_IS2_all_init = []
+    idx_IS2_all_rest = []
+    idx_IS3_all = []
+    idx_IS3_all_init = []
+    idx_IS3_all_rest = []
+    idx_ISDTs_all = []
+    idx_ISDTs_all_init = []
+    idx_ISDTs_all_rest = []
     # train_x_IS1_init_list=[]
     # train_obj_IS1_init_list=[]
-    train_obj_EIonly_corrected_all=[]
-    min_obj_init_all=[]
-    train_obj_list_rest_modified=[]
-    costs_init=[]
-    costs_init_IS1=[]
-    costs_init_EIonly=[]
+    train_obj_EIonly_corrected_all = []
+    min_obj_init_all = []
+    train_obj_list_rest_modified = []
+    costs_init = []
+    costs_init_IS1 = []
+    costs_init_EIonly = []
     for exper in range(N_exper):
         # if exper==4:
         #     exper=0
@@ -415,22 +431,22 @@ def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_
         train_obj = np.load(os.path.join(exp_path, "train_obj.npy"))
 
         idx_IS1 = np.argwhere(train_x[:, 2] == 1).squeeze()
-        idx_IS1_init=idx_IS1[np.argwhere(idx_IS1<N_init_IS1+N_init_IS2)[:,0]]
-        idx_IS1_rest=idx_IS1[np.argwhere(idx_IS1>N_init_IS1+N_init_IS2-1)[:,0]]
+        idx_IS1_init = idx_IS1[np.argwhere(idx_IS1 < N_init_IS1 + N_init_IS2)[:, 0]]
+        idx_IS1_rest = idx_IS1[np.argwhere(idx_IS1 > N_init_IS1 + N_init_IS2 - 1)[:, 0]]
         idx_ISDTs = np.argwhere(~(train_x[:, 2] == 1)).squeeze()
-        idx_ISDTs_init=idx_ISDTs[np.argwhere(idx_ISDTs<N_init_IS1+N_init_IS2)[:,0]]
-        idx_ISDTs_rest=idx_ISDTs[np.argwhere(idx_ISDTs>N_init_IS1+N_init_IS2-1)[:,0]]
-        train_x_IS1_init=train_x[idx_IS1_init, :]
-        train_obj_IS1_init=train_obj[idx_IS1_init]
+        idx_ISDTs_init = idx_ISDTs[np.argwhere(idx_ISDTs < N_init_IS1 + N_init_IS2)[:, 0]]
+        idx_ISDTs_rest = idx_ISDTs[np.argwhere(idx_ISDTs > N_init_IS1 + N_init_IS2 - 1)[:, 0]]
+        train_x_IS1_init = train_x[idx_IS1_init, :]
+        train_obj_IS1_init = train_obj[idx_IS1_init]
 
         idx_IS2 = np.argwhere(train_x[:, 2] == s2).squeeze()
         idx_IS2 = idx_IS2.reshape(idx_IS2.size, )
-        idx_IS2_init=idx_IS2[np.argwhere(idx_IS2<N_init_IS1+N_init_IS2)[:,0]]
-        idx_IS2_rest=idx_IS2[np.argwhere(idx_IS2>N_init_IS1+N_init_IS2-1)[:,0]]
+        idx_IS2_init = idx_IS2[np.argwhere(idx_IS2 < N_init_IS1 + N_init_IS2)[:, 0]]
+        idx_IS2_rest = idx_IS2[np.argwhere(idx_IS2 > N_init_IS1 + N_init_IS2 - 1)[:, 0]]
         idx_IS3 = np.argwhere(train_x[:, 2] == s3).squeeze()
-        idx_IS3=idx_IS3.reshape(idx_IS3.size, )
-        idx_IS3_init=idx_IS3[np.argwhere(idx_IS3<N_init_IS1+N_init_IS2)[:,0]]
-        idx_IS3_rest=idx_IS3[np.argwhere(idx_IS3>N_init_IS1+N_init_IS2-1)[:,0]]
+        idx_IS3 = idx_IS3.reshape(idx_IS3.size, )
+        idx_IS3_init = idx_IS3[np.argwhere(idx_IS3 < N_init_IS1 + N_init_IS2)[:, 0]]
+        idx_IS3_rest = idx_IS3[np.argwhere(idx_IS3 > N_init_IS1 + N_init_IS2 - 1)[:, 0]]
 
         # np.save(os.path.join(exp_path, "train_x_IS1_init.npy"),train_x_IS1_init)
         # np.save(os.path.join(exp_path, "train_obj_IS1_init.npy"),train_obj_IS1_init)
@@ -449,14 +465,14 @@ def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_
         # train_obj_EIonly=np.delete(train_obj_EIonly, np.s_[N_init_IS1:N_init_IS1 + N_init_IS2], axis=0)
 
         train_obj_EIonly[N_init_IS1:N_init_IS1 + N_init_IS2]
-        costs_all=np.load(os.path.join(exp_path, "costs_all.npy"))
-        costs_all_EIonly=np.load(os.path.join(exp_path, "costs_all_EIonly.npy"))
-        costs_all_EIonly_corrected=np.load(os.path.join(exp_path, "costs_all_EIonly.npy"))
+        costs_all = np.load(os.path.join(exp_path, "costs_all.npy"))
+        costs_all_EIonly = np.load(os.path.join(exp_path, "costs_all_EIonly.npy"))
+        costs_all_EIonly_corrected = np.load(os.path.join(exp_path, "costs_all_EIonly.npy"))
         # Append to lists
         costs_all_list.append(costs_all)
-        costs_init.append(np.sum(train_x[:N_init_IS1+N_init_IS2,2])+sampling_cost_bias*(N_init_IS1+N_init_IS2))
-        costs_init_IS1.append(np.sum(train_x[:N_init_IS1,2])+sampling_cost_bias*(N_init_IS1))
-        costs_init_EIonly.append(np.sum(train_x_EIonly[:N_init_IS1,2])+sampling_cost_bias*(N_init_IS1))
+        costs_init.append(np.sum(train_x[:N_init_IS1 + N_init_IS2, 2]) + sampling_cost_bias * (N_init_IS1 + N_init_IS2))
+        costs_init_IS1.append(np.sum(train_x[:N_init_IS1, 2]) + sampling_cost_bias * (N_init_IS1))
+        costs_init_EIonly.append(np.sum(train_x_EIonly[:N_init_IS1, 2]) + sampling_cost_bias * (N_init_IS1))
 
         idx_IS1_all.append(idx_IS1)
         idx_IS1_all_init.append(idx_IS1_init)
@@ -477,9 +493,9 @@ def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_
         train_x_list.append(train_x)
         train_obj_list.append(train_obj)
 
-        A=train_obj
-        A[idx_ISDTs_rest]=-np.inf
-        train_obj_list_rest_modified.append(-A[N_init_IS1+N_init_IS2:])
+        A = train_obj
+        A[idx_ISDTs_rest] = -np.inf
+        train_obj_list_rest_modified.append(-A[N_init_IS1 + N_init_IS2:])
 
         train_x_list_IS1.append(train_x_IS1)
         train_obj_list_IS1.append(train_obj_IS1)
@@ -489,25 +505,26 @@ def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_
         train_obj_EIonly_corrected_all.append(train_obj_EIonly_corrected)
         train_obj_list_EIonly.append(train_obj_EIonly)
 
-    DD=np.stack(train_obj_list_rest_modified, axis=1).squeeze()
-    D=np.vstack((np.asarray(min_obj_init_all), DD))
-    j_min_observed_IS1=np.minimum.accumulate(D, axis=0)
-    J_mean=np.mean(j_min_observed_IS1,axis=1)
-    J_std=np.std(j_min_observed_IS1,axis=1)
+    DD = np.stack(train_obj_list_rest_modified, axis=1).squeeze()
+    D = np.vstack((np.asarray(min_obj_init_all), DD))
+    j_min_observed_IS1 = np.minimum.accumulate(D, axis=0)
+    J_mean = np.mean(j_min_observed_IS1, axis=1)
+    J_std = np.std(j_min_observed_IS1, axis=1)
 
-    DD=-np.stack(train_obj_list_EIonly).squeeze()[:,N_init_IS1:].T
-    D=np.vstack((np.asarray(min_obj_init_all), DD))
-    j_EIonly_min_observed_IS1=np.minimum.accumulate(D, axis=0)
-    J_EIonly_mean=np.mean(j_EIonly_min_observed_IS1,axis=1)
-    J_EIonly_std=np.std(j_EIonly_min_observed_IS1,axis=1)
-    x = np.arange(0,BATCH_SIZE*N_iter+1)
+    DD = -np.stack(train_obj_list_EIonly).squeeze()[:, N_init_IS1:].T
+    D = np.vstack((np.asarray(min_obj_init_all), DD))
+    j_EIonly_min_observed_IS1 = np.minimum.accumulate(D, axis=0)
+    J_EIonly_mean = np.mean(j_EIonly_min_observed_IS1, axis=1)
+    J_EIonly_std = np.std(j_EIonly_min_observed_IS1, axis=1)
+    x = np.arange(0, BATCH_SIZE * N_iter + 1)
     plt.figure(figsize=(10, 5))
     # plot_colortable(mcolors.CSS4_COLORS)
     # mcolors.CSS4_COLORS['blueviolet']
     plt.plot(x, J_mean, color='r', linewidth=3, label='Mean GMFBO')  # Thick line for mean
     plt.fill_between(x, J_mean - J_std, J_mean + J_std, color='r', alpha=0.3, label='±1 Std GMFBO')  # Shaded std region
     plt.plot(x, J_EIonly_mean, color='b', linewidth=3, label='Mean EI only')  # Thick line for mean
-    plt.fill_between(x, J_EIonly_mean - J_EIonly_std, J_EIonly_mean + J_EIonly_std, color='b', alpha=0.3, label='±1 Std EI only')  # Shaded std region
+    plt.fill_between(x, J_EIonly_mean - J_EIonly_std, J_EIonly_mean + J_EIonly_std, color='b', alpha=0.3,
+                     label='±1 Std EI only')  # Shaded std region
     plt.xlabel('BO Iteration')
     plt.ylabel('$J^{*}$')
     plt.title('Minimum Observed Objective on IS1 over BO Iterations')
@@ -516,23 +533,25 @@ def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_
     # plt.yscale('log')
     # plt.ylim(0.9, 1.05)  # Focus range
     # plt.yticks([0.9, 0.95, 1.0, 1.05])
-    #plt.savefig(path+"/J_min_obs_IS1_BOiter.png")
+    # plt.savefig(path+"/J_min_obs_IS1_BOiter.png")
     plt.show()
 
-    costs=np.hstack((np.asarray(costs_init).reshape(N_exper,1),np.stack(costs_all_list)))
-    C=np.cumsum(costs, axis=1)
-    C_mean=np.mean(C,axis=0)
-    C_std=np.std(C,axis=0)
-    costs_EIonly=np.hstack((np.asarray(costs_init_EIonly).reshape(N_exper,1),np.ones((N_exper,N_iter))*(sampling_cost_bias+1)*BATCH_SIZE))
-    C_EIonly=np.cumsum(costs_EIonly, axis=1)
-    C_EIonly_mean=np.mean(C_EIonly,axis=0)
-    C_EIonly_std=np.std(C_EIonly,axis=0)
-    x = np.arange(0,BATCH_SIZE*N_iter+1,BATCH_SIZE)
+    costs = np.hstack((np.asarray(costs_init).reshape(N_exper, 1), np.stack(costs_all_list)))
+    C = np.cumsum(costs, axis=1)
+    C_mean = np.mean(C, axis=0)
+    C_std = np.std(C, axis=0)
+    costs_EIonly = np.hstack((np.asarray(costs_init_EIonly).reshape(N_exper, 1),
+                              np.ones((N_exper, N_iter)) * (sampling_cost_bias + 1) * BATCH_SIZE))
+    C_EIonly = np.cumsum(costs_EIonly, axis=1)
+    C_EIonly_mean = np.mean(C_EIonly, axis=0)
+    C_EIonly_std = np.std(C_EIonly, axis=0)
+    x = np.arange(0, BATCH_SIZE * N_iter + 1, BATCH_SIZE)
     plt.figure(figsize=(10, 5))
     # plot_colortable(mcolors.CSS4_COLORS)
     # mcolors.CSS4_COLORS['blueviolet']
     plt.plot(x, C_mean, color='r', marker="o", linewidth=3, label='Mean Cost GMFBO')  # Thick line for mean
-    plt.fill_between(x, C_mean - C_std, C_mean + C_std, color='r', alpha=0.3, label='±1 Std Cost GMFBO')  # Shaded std region
+    plt.fill_between(x, C_mean - C_std, C_mean + C_std, color='r', alpha=0.3,
+                     label='±1 Std Cost GMFBO')  # Shaded std region
     plt.plot(x, C_EIonly_mean, color='b', marker="o", linewidth=3, label='Mean Cost EI only')  # Thick line for mean
     plt.fill_between(x, C_EIonly_mean - C_EIonly_std, C_EIonly_mean + C_EIonly_std, color='b', alpha=0.3,
                      label='±1 Std Cost EI only')  # Shaded std region
@@ -544,24 +563,26 @@ def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_
     # plt.yscale('log')
     # plt.ylim(0.9, 1.05)  # Focus range
     # plt.yticks([0.9, 0.95, 1.0, 1.05])
-    #plt.savefig(path+"/Cost_sampling_BOiter.png")
+    # plt.savefig(path+"/Cost_sampling_BOiter.png")
     plt.show()
 
-
-    costs=np.hstack((np.asarray(costs_init).reshape(N_exper,1)-sampling_cost_bias*(N_init_IS1+N_init_IS2),np.stack(costs_all_list)-sampling_cost_bias*BATCH_SIZE))
-    C=np.cumsum(costs, axis=1)
-    C_mean=np.mean(C,axis=0)
-    C_std=np.std(C,axis=0)
-    costs_EIonly=np.hstack((np.asarray(costs_init_EIonly).reshape(N_exper,1)-sampling_cost_bias*N_init_IS1,np.ones((N_exper,N_iter))*(1)*BATCH_SIZE))
-    C_EIonly=np.cumsum(costs_EIonly, axis=1)
-    C_EIonly_mean=np.mean(C_EIonly,axis=0)
-    C_EIonly_std=np.std(C_EIonly,axis=0)
-    x = np.arange(0,BATCH_SIZE*N_iter+1,BATCH_SIZE)
+    costs = np.hstack((np.asarray(costs_init).reshape(N_exper, 1) - sampling_cost_bias * (N_init_IS1 + N_init_IS2),
+                       np.stack(costs_all_list) - sampling_cost_bias * BATCH_SIZE))
+    C = np.cumsum(costs, axis=1)
+    C_mean = np.mean(C, axis=0)
+    C_std = np.std(C, axis=0)
+    costs_EIonly = np.hstack((np.asarray(costs_init_EIonly).reshape(N_exper, 1) - sampling_cost_bias * N_init_IS1,
+                              np.ones((N_exper, N_iter)) * (1) * BATCH_SIZE))
+    C_EIonly = np.cumsum(costs_EIonly, axis=1)
+    C_EIonly_mean = np.mean(C_EIonly, axis=0)
+    C_EIonly_std = np.std(C_EIonly, axis=0)
+    x = np.arange(0, BATCH_SIZE * N_iter + 1, BATCH_SIZE)
     plt.figure(figsize=(10, 5))
     # plot_colortable(mcolors.CSS4_COLORS)
     # mcolors.CSS4_COLORS['blueviolet']
     plt.plot(x, C_mean, color='r', marker="o", linewidth=3, label='Mean Cost GMFBO')  # Thick line for mean
-    plt.fill_between(x, C_mean - C_std, C_mean + C_std, color='r', alpha=0.3, label='±1 Std Cost GMFBO')  # Shaded std region
+    plt.fill_between(x, C_mean - C_std, C_mean + C_std, color='r', alpha=0.3,
+                     label='±1 Std Cost GMFBO')  # Shaded std region
     plt.plot(x, C_EIonly_mean, color='b', marker="o", linewidth=3, label='Mean Cost EI only')  # Thick line for mean
     plt.fill_between(x, C_EIonly_mean - C_EIonly_std, C_EIonly_mean + C_EIonly_std, color='b', alpha=0.3,
                      label='±1 Std Cost EI only')  # Shaded std region
@@ -573,54 +594,57 @@ def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_
     # plt.yscale('log')
     # plt.ylim(0.9, 1.05)  # Focus range
     # plt.yticks([0.9, 0.95, 1.0, 1.05])
-    #plt.savefig(path+"/Unbiased_cost_sampling_BOiter.png")
+    # plt.savefig(path+"/Unbiased_cost_sampling_BOiter.png")
     plt.show()
 
     # np.save("/home/nobar/codes/GBO2/logs/test_33_b_1/C_unbiased.npy",C)
     # np.save("/home/nobar/codes/GBO2/logs/test_33_b_1/C_mean_unbiased.npy",C_mean)
     # np.save("/home/nobar/codes/GBO2/logs/test_33_b_1/C_std_unbiased.npy",C_std)
 
-
-    costs_IS2_all=[]
-    costs_IS3_all=[]
+    costs_IS2_all = []
+    costs_IS3_all = []
     for i in range(N_exper):
-        costs_IS2_all_=[]
-        costs_IS3_all_=[]
+        costs_IS2_all_ = []
+        costs_IS3_all_ = []
         for j in range(N_iter):
-            costs_IS2_all_.append(np.sum((idx_IS2_all_rest[i] < BATCH_SIZE * (j+1)) * (idx_IS2_all_rest[i] > BATCH_SIZE * j)) * s2)
-            costs_IS3_all_.append(np.sum((idx_IS3_all_rest[i] < BATCH_SIZE * (j+1)) * (idx_IS3_all_rest[i] > BATCH_SIZE * j)) * s3)
+            costs_IS2_all_.append(
+                np.sum((idx_IS2_all_rest[i] < BATCH_SIZE * (j + 1)) * (idx_IS2_all_rest[i] > BATCH_SIZE * j)) * s2)
+            costs_IS3_all_.append(
+                np.sum((idx_IS3_all_rest[i] < BATCH_SIZE * (j + 1)) * (idx_IS3_all_rest[i] > BATCH_SIZE * j)) * s3)
         costs_IS2_all.append(costs_IS2_all_)
         costs_IS3_all.append(costs_IS3_all_)
 
-    old_indices = np.linspace(0, 1, num=1+N_iter)  # Original index positions
-    new_indices = np.linspace(0, 1, num=1+BATCH_SIZE*N_iter)  # New index positions
+    old_indices = np.linspace(0, 1, num=1 + N_iter)  # Original index positions
+    new_indices = np.linspace(0, 1, num=1 + BATCH_SIZE * N_iter)  # New index positions
 
-    costs=np.hstack((np.asarray(costs_init).reshape(N_exper,1)-sampling_cost_bias*(N_init_IS1+N_init_IS2),np.stack(costs_all_list)-sampling_cost_bias*BATCH_SIZE))
-    C=np.cumsum(costs, axis=1)
-    C_mean=np.mean(C,axis=0)
-    C_std=np.std(C,axis=0)
-    costs_EIonly=np.hstack((np.asarray(costs_init_EIonly).reshape(N_exper,1)-sampling_cost_bias*(N_init_IS1),np.ones((N_exper,N_iter))*(1)*BATCH_SIZE))
-    C_EIonly=np.cumsum(costs_EIonly, axis=1)
-    C_EIonly_mean=np.mean(C_EIonly,axis=0)
-    C_EIonly_std=np.std(C_EIonly,axis=0)
-    x_ = C_mean #np.arange(0,BATCH_SIZE*N_iter+1,BATCH_SIZE)
+    costs = np.hstack((np.asarray(costs_init).reshape(N_exper, 1) - sampling_cost_bias * (N_init_IS1 + N_init_IS2),
+                       np.stack(costs_all_list) - sampling_cost_bias * BATCH_SIZE))
+    C = np.cumsum(costs, axis=1)
+    C_mean = np.mean(C, axis=0)
+    C_std = np.std(C, axis=0)
+    costs_EIonly = np.hstack((np.asarray(costs_init_EIonly).reshape(N_exper, 1) - sampling_cost_bias * (N_init_IS1),
+                              np.ones((N_exper, N_iter)) * (1) * BATCH_SIZE))
+    C_EIonly = np.cumsum(costs_EIonly, axis=1)
+    C_EIonly_mean = np.mean(C_EIonly, axis=0)
+    C_EIonly_std = np.std(C_EIonly, axis=0)
+    x_ = C_mean  # np.arange(0,BATCH_SIZE*N_iter+1,BATCH_SIZE)
     # linear interpolation
     x = np.interp(new_indices, old_indices, x_)
-    x_EI_only_ = C_EIonly_mean #np.arange(0,BATCH_SIZE*N_iter+1,BATCH_SIZE)
+    x_EI_only_ = C_EIonly_mean  # np.arange(0,BATCH_SIZE*N_iter+1,BATCH_SIZE)
     # linear interpolation
     x_EI_only = np.interp(new_indices, old_indices, x_EI_only_)
 
-    DD=np.stack(train_obj_list_rest_modified, axis=1).squeeze()
-    D=np.vstack((np.asarray(min_obj_init_all), DD))
-    j_min_observed_IS1=np.minimum.accumulate(D, axis=0)
-    J_mean=np.mean(j_min_observed_IS1,axis=1)
-    J_std=np.std(j_min_observed_IS1,axis=1)
+    DD = np.stack(train_obj_list_rest_modified, axis=1).squeeze()
+    D = np.vstack((np.asarray(min_obj_init_all), DD))
+    j_min_observed_IS1 = np.minimum.accumulate(D, axis=0)
+    J_mean = np.mean(j_min_observed_IS1, axis=1)
+    J_std = np.std(j_min_observed_IS1, axis=1)
 
-    DD=-np.stack(train_obj_list_EIonly).squeeze()[:,N_init_IS1:].T
-    D=np.vstack((np.asarray(min_obj_init_all), DD))
-    j_EIonly_min_observed_IS1=np.minimum.accumulate(D, axis=0)
-    J_EIonly_mean=np.mean(j_EIonly_min_observed_IS1,axis=1)
-    J_EIonly_std=np.std(j_EIonly_min_observed_IS1,axis=1)
+    DD = -np.stack(train_obj_list_EIonly).squeeze()[:, N_init_IS1:].T
+    D = np.vstack((np.asarray(min_obj_init_all), DD))
+    j_EIonly_min_observed_IS1 = np.minimum.accumulate(D, axis=0)
+    J_EIonly_mean = np.mean(j_EIonly_min_observed_IS1, axis=1)
+    J_EIonly_std = np.std(j_EIonly_min_observed_IS1, axis=1)
 
     plt.figure(figsize=(10, 5))
     # plot_colortable(mcolors.CSS4_COLORS)
@@ -629,7 +653,8 @@ def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_
     plt.fill_between(x, J_mean - J_std, J_mean + J_std, color='r', alpha=0.3, label='±1 Std GMFBO')  # Shaded std region
 
     plt.plot(x_EI_only, J_EIonly_mean, color='b', marker="o", linewidth=3, label='Mean EI only')  # Thick line for mean
-    plt.fill_between(x_EI_only, J_EIonly_mean - J_EIonly_std, J_EIonly_mean + J_EIonly_std, color='b', alpha=0.3, label='±1 Std EI only')  # Shaded std region
+    plt.fill_between(x_EI_only, J_EIonly_mean - J_EIonly_std, J_EIonly_mean + J_EIonly_std, color='b', alpha=0.3,
+                     label='±1 Std EI only')  # Shaded std region
     plt.xlabel('Mean Unbiased Sampling Cost')
     plt.ylabel('$J^{*}$')
     plt.title('Unbiased Cumulative Sampling Cost vs BO Iterations')
@@ -638,7 +663,7 @@ def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_
     # plt.yscale('log')
     # plt.ylim(0.9, 1.05)  # Focus range
     # plt.yticks([0.9, 0.95, 1.0, 1.05])
-    #plt.savefig(path+"/J_min_obs_IS1_Mean_Unbiased_cost_sampling.png")
+    # plt.savefig(path+"/J_min_obs_IS1_Mean_Unbiased_cost_sampling.png")
     plt.show()
 
     # mean_values_baseline=np.load("/home/nobar/codes/GBO2/logs/test_6_11_baseline/mean_values.npy")
@@ -668,7 +693,8 @@ def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_
     # plt.fill_between(x_baseline, mean_values_baseline - margin_of_error_baseline, mean_values_baseline + margin_of_error_baseline,
     #                  color='k', alpha=0.3, label="95% CI MFBO")
     plt.plot(x_EI_only, mean_values_EIonly, marker="o", linewidth=3, label="Mean BO-EI", color='b')
-    plt.fill_between(x_EI_only, mean_values_EIonly - margin_of_error_EIonly, mean_values_EIonly + margin_of_error_EIonly,
+    plt.fill_between(x_EI_only, mean_values_EIonly - margin_of_error_EIonly,
+                     mean_values_EIonly + margin_of_error_EIonly,
                      color='b', alpha=0.3, label="95% CI BO-EI")
     plt.xlabel('Mean Unbiased Sampling Cost')
     plt.ylabel('$J^{*}$')
@@ -676,18 +702,19 @@ def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_
     plt.grid(True)
     # plt.ylim(0.9, 1.BATCH_SIZE)  # Focus range
     plt.title("Mean with 95% Confidence Interval")
-    #plt.savefig(path+"/J_min_obs_IS1_Mean_Unbiased_cost_sampling_95Conf.png")
+    # plt.savefig(path+"/J_min_obs_IS1_Mean_Unbiased_cost_sampling_95Conf.png")
     plt.show()
     # np.save("/home/nobar/codes/GBO2/logs/test_6_11_baseline/mean_values.npy",mean_values)
     # np.save("/home/nobar/codes/GBO2/logs/test_6_11_baseline/margin_of_error.npy",margin_of_error)
     # np.save("/home/nobar/codes/GBO2/logs/test_6_11_baseline/x.npy",x)
     print("")
 
-
-    costs_IS1=np.hstack((np.asarray(costs_init_IS1).reshape(N_exper,1)-sampling_cost_bias*(N_init_IS1),np.stack(costs_all_list)-np.stack(costs_IS2_all)-np.stack(costs_IS3_all)-sampling_cost_bias*BATCH_SIZE))
-    C_IS1=np.cumsum(costs_IS1, axis=1)
-    C_mean_IS1=np.mean(C_IS1,axis=0)
-    x_IS1_ = C_mean_IS1 #np.arange(0,BATCH_SIZE*N_iter+1,BATCH_SIZE)
+    costs_IS1 = np.hstack((np.asarray(costs_init_IS1).reshape(N_exper, 1) - sampling_cost_bias * (N_init_IS1),
+                           np.stack(costs_all_list) - np.stack(costs_IS2_all) - np.stack(
+                               costs_IS3_all) - sampling_cost_bias * BATCH_SIZE))
+    C_IS1 = np.cumsum(costs_IS1, axis=1)
+    C_mean_IS1 = np.mean(C_IS1, axis=0)
+    x_IS1_ = C_mean_IS1  # np.arange(0,BATCH_SIZE*N_iter+1,BATCH_SIZE)
     x_IS1 = np.interp(new_indices, old_indices, x_IS1_)
     # Plot
     plt.figure(figsize=(10, 5))
@@ -698,7 +725,8 @@ def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_
     # plt.fill_between(x_baseline, mean_values_baseline - margin_of_error_baseline, mean_values_baseline + margin_of_error_baseline,
     #                  color='k', alpha=0.3, label="95% CI MFBO")
     plt.plot(x_EI_only, mean_values_EIonly, marker="o", linewidth=3, label="Mean BO-EI", color='b')
-    plt.fill_between(x_EI_only, mean_values_EIonly - margin_of_error_EIonly, mean_values_EIonly + margin_of_error_EIonly,
+    plt.fill_between(x_EI_only, mean_values_EIonly - margin_of_error_EIonly,
+                     mean_values_EIonly + margin_of_error_EIonly,
                      color='b', alpha=0.3, label="95% CI BO-EI")
     plt.xlabel('Mean IS1 only Sampling Cost')
     plt.ylabel('$J^{*}$')
@@ -706,15 +734,15 @@ def plots_MonteCarlo_objective(path,    N_init_IS1,N_init_IS2,    sampling_cost_
     plt.grid(True)
     # plt.ylim(0.9, 1.4)  # Focus range
     plt.title("Mean with 95% Confidence Interval")
-    #plt.savefig(path+"/J_min_obs_IS1_Mean_IS1onlySamplingCost_95Conf.png")
+    # plt.savefig(path+"/J_min_obs_IS1_Mean_IS1onlySamplingCost_95Conf.png")
     plt.show()
-    np.save("/home/nobar/codes/GBO2/logs/test_33_b_1/x_IS1_baseline.npy",x_IS1)
-    np.save("/home/nobar/codes/GBO2/logs/test_33_b_1/mean_values_baseline.npy",mean_values)
-    np.save("/home/nobar/codes/GBO2/logs/test_33_b_1/margin_of_error_baseline.npy",margin_of_error)
+    # np.save("/home/nobar/codes/GBO2/logs/test_33_b_1/x_IS1_baseline.npy", x_IS1)
+    # np.save("/home/nobar/codes/GBO2/logs/test_33_b_1/mean_values_baseline.npy", mean_values)
+    # np.save("/home/nobar/codes/GBO2/logs/test_33_b_1/margin_of_error_baseline.npy", margin_of_error)
     print("")
 
 
-def plots_indicators(path, path2,   N_init_IS1,N_init_IS2,    sampling_cost_bias,N_exper,N_iter, s2, s3, BATCH_SIZE):
+def plots_indicators(path, path2, N_init_IS1, N_init_IS2, sampling_cost_bias, N_exper, N_iter, s2, s3, BATCH_SIZE):
     for exper in range(N_exper):
         # if exper==2:
         #     exper_GMFBO=0
@@ -731,13 +759,13 @@ def plots_indicators(path, path2,   N_init_IS1,N_init_IS2,    sampling_cost_bias
         train_x = np.load(os.path.join(exp_path, "train_x.npy"))
         train_obj = np.load(os.path.join(exp_path, "train_obj.npy"))
 
-        delta_J=np.load(os.path.join(exp_path, "delta_J.npy"))
-        JIS1s_for_delta_J=np.load(os.path.join(exp_path, "JIS1s_for_delta_J.npy"))
+        delta_J = np.load(os.path.join(exp_path, "delta_J.npy"))
+        JIS1s_for_delta_J = np.load(os.path.join(exp_path, "JIS1s_for_delta_J.npy"))
         delta_J2 = np.load(os.path.join(exp_path, "delta_J2.npy"))
         JIS2s_for_delta_J2 = np.load(os.path.join(exp_path, "JIS2s_for_delta_J2.npy"))
-        caEI_values=np.load(os.path.join(exp_path, "caEI_values.npy"))
-        costs_all=np.load(os.path.join(exp_path, "costs_all.npy"))
-        i_IS1s=np.load(os.path.join(exp_path, "i_IS1s.npy"))
+        caEI_values = np.load(os.path.join(exp_path, "caEI_values.npy"))
+        costs_all = np.load(os.path.join(exp_path, "costs_all.npy"))
+        i_IS1s = np.load(os.path.join(exp_path, "i_IS1s.npy"))
 
         rawEI_s_values = caEI_values * (sampling_cost_bias + train_x[:, 2])
         H_values = train_x[:, 2]
@@ -780,7 +808,6 @@ def plots_indicators(path, path2,   N_init_IS1,N_init_IS2,    sampling_cost_bias
         plt.plot(x[zero_mask], H_values[zero_mask], color='r', marker='o',
                  markerfacecolor='none', markersize=5, linewidth=0)
 
-
         # plt.plot(np.arange(1, delta_J.__len__() + 1), delta_J, color='b', marker="o", markersize=5, linewidth=1,
         #          label=r'GMFBO, $\Delta J(k)=J_{ISn>1}(k)-J_{IS1}(k)$, $\epsilon_{n}=0.5$')  # Thick line for mean
         # plt.plot(np.arange(1, delta_J.__len__() + 1), rawEI_s_values, color='m', marker="o", markersize=5, linewidth=1,
@@ -799,13 +826,14 @@ def plots_indicators(path, path2,   N_init_IS1,N_init_IS2,    sampling_cost_bias
         plt.xlim(1, delta_J.__len__())
         plt.ylim(-1.7, 1.05)
         plt.xticks(np.arange(1, delta_J.__len__(), 2))
-        #plt.savefig(exp_path + "/indicators.pdf")
+        # plt.savefig(exp_path + "/indicators.pdf")
         plt.show()
 
-        RAWS=np.hstack((train_x, train_obj))
+        RAWS = np.hstack((train_x, train_obj))
 
 
-def plots_MonteCarlo_objectiveEI_34tests(path, path2,   N_init_IS1,N_init_IS2,    sampling_cost_bias,N_exper,N_iter, s2, s3, BATCH_SIZE):
+def plots_MonteCarlo_objectiveEI_34tests(path, path2, N_init_IS1, N_init_IS2, sampling_cost_bias, N_exper, N_iter, s2,
+                                         s3, BATCH_SIZE, N_IS3_sample_each_time=1):
     costs_all_list = []
     costs_all_list_EIonly = []
     train_x_list = []
@@ -814,47 +842,48 @@ def plots_MonteCarlo_objectiveEI_34tests(path, path2,   N_init_IS1,N_init_IS2,  
     train_obj_list_IS1 = []
     train_x_list_EIonly = []
     train_obj_list_EIonly = []
-    idx_IS1_all=[]
-    idx_IS1_all_init=[]
-    idx_IS1_all_rest=[]
-    idx_IS2_all=[]
-    idx_IS2_all_init=[]
-    idx_IS2_all_rest=[]
-    idx_IS3_all=[]
-    idx_IS3_all_init=[]
-    idx_IS3_all_rest=[]
-    idx_ISDTs_all=[]
-    idx_ISDTs_all_init=[]
-    idx_ISDTs_all_rest=[]
+    idx_IS1_all = []
+    idx_IS1_all_init = []
+    idx_IS1_all_rest = []
+    idx_IS2_all = []
+    idx_IS2_all_init = []
+    idx_IS2_all_rest = []
+    idx_IS3_all = []
+    idx_IS3_all_init = []
+    idx_IS3_all_rest = []
+    idx_ISDTs_all = []
+    idx_ISDTs_all_init = []
+    idx_ISDTs_all_rest = []
     # train_x_IS1_init_list=[]
     # train_obj_IS1_init_list=[]
-    train_obj_EIonly_corrected_all=[]
-    min_obj_init_all=[]
-    train_obj_list_rest_modified=[]
-    costs_init=[]
-    costs_init_IS1=[]
-    costs_init_EIonly=[]
+    train_obj_EIonly_corrected_all = []
+    min_obj_init_all = []
+    train_obj_list_rest_modified = []
+    costs_init = []
+    costs_init_IS1 = []
+    costs_init_EIonly = []
 
     for exper in range(N_exper):
-        if exper==2:
-            exper_GMFBO=3
-        elif exper==4:
-            exper_GMFBO=4
-        elif exper==7:
-            exper_GMFBO=3
+        if exper == 2:
+            exper_GMFBO = 3
+        elif exper == 4:
+            exper_GMFBO = 3
+        elif exper == 7:
+            exper_GMFBO = 3
         else:
-            exper_GMFBO=exper
+            exper_GMFBO = exper
+        # exper_GMFBO = exper
         exp_path = os.path.join(path, f"Exper_{exper_GMFBO}")
-        exp_path2 = os.path.join(path2, f"Exper_{exper}")
+        exp_path2 = os.path.join(path2, f"Exper_{exper_GMFBO}")
         # Load files
         train_x = np.load(os.path.join(exp_path, "train_x.npy"))
         train_obj = np.load(os.path.join(exp_path, "train_obj.npy"))
 
-        delta_J=np.load(os.path.join(exp_path, "delta_J.npy"))
-        JIS1s_for_delta_J=np.load(os.path.join(exp_path, "JIS1s_for_delta_J.npy"))
-        caEI_values=np.load(os.path.join(exp_path, "caEI_values.npy"))
-        costs_all=np.load(os.path.join(exp_path, "costs_all.npy"))
-        i_IS1s=np.load(os.path.join(exp_path, "i_IS1s.npy"))
+        delta_J = np.load(os.path.join(exp_path, "delta_J.npy"))
+        JIS1s_for_delta_J = np.load(os.path.join(exp_path, "JIS1s_for_delta_J.npy"))
+        caEI_values = np.load(os.path.join(exp_path, "caEI_values.npy"))
+        costs_all = np.load(os.path.join(exp_path, "costs_all.npy"))
+        i_IS1s = np.load(os.path.join(exp_path, "i_IS1s.npy"))
 
         if 0:
             rawEI_s_values = caEI_values * (sampling_cost_bias + train_x[:, 2])
@@ -898,7 +927,6 @@ def plots_MonteCarlo_objectiveEI_34tests(path, path2,   N_init_IS1,N_init_IS2,  
             plt.plot(x[zero_mask], H_values[zero_mask], color='r', marker='o',
                      markerfacecolor='none', markersize=5, linewidth=0)
 
-
             # plt.plot(np.arange(1, delta_J.__len__() + 1), delta_J, color='b', marker="o", markersize=5, linewidth=1,
             #          label=r'GMFBO, $\Delta J(k)=J_{ISn>1}(k)-J_{IS1}(k)$, $\epsilon_{n}=0.5$')  # Thick line for mean
             # plt.plot(np.arange(1, delta_J.__len__() + 1), rawEI_s_values, color='m', marker="o", markersize=5, linewidth=1,
@@ -917,28 +945,28 @@ def plots_MonteCarlo_objectiveEI_34tests(path, path2,   N_init_IS1,N_init_IS2,  
             plt.xlim(1, delta_J.__len__())
             plt.ylim(-1.7, 1.05)
             plt.xticks(np.arange(1, delta_J.__len__(), 2))
-            #plt.savefig(exp_path + "/indicators.pdf")
+            # plt.savefig(exp_path + "/indicators.pdf")
             plt.show()
 
-        RAWS=np.hstack((train_x, train_obj))
+        RAWS = np.hstack((train_x, train_obj))
 
         idx_IS1 = np.argwhere(train_x[:, 2] == 1).squeeze()
-        idx_IS1_init=idx_IS1[np.argwhere(idx_IS1<N_init_IS1*2+N_init_IS2)[:,0]]
-        idx_IS1_rest=idx_IS1[np.argwhere(idx_IS1>N_init_IS1*2+N_init_IS2-1)[:,0]]
+        idx_IS1_init = idx_IS1[np.argwhere(idx_IS1 < N_init_IS1 *2 + N_init_IS2)[:, 0]]
+        idx_IS1_rest = idx_IS1[np.argwhere(idx_IS1 > N_init_IS1 *2 + N_init_IS2 - 1)[:, 0]]
         idx_ISDTs = np.argwhere(~(train_x[:, 2] == 1)).squeeze()
-        idx_ISDTs_init=idx_ISDTs[np.argwhere(idx_ISDTs<N_init_IS1*2+N_init_IS2)[:,0]]
-        idx_ISDTs_rest=idx_ISDTs[np.argwhere(idx_ISDTs>N_init_IS1*2+N_init_IS2-1)[:,0]]
-        train_x_IS1_init=train_x[idx_IS1_init, :]
-        train_obj_IS1_init=train_obj[idx_IS1_init]
+        idx_ISDTs_init = idx_ISDTs[np.argwhere(idx_ISDTs < N_init_IS1 *2 + N_init_IS2)[:, 0]]
+        idx_ISDTs_rest = idx_ISDTs[np.argwhere(idx_ISDTs > N_init_IS1 *2 + N_init_IS2 - 1)[:, 0]]
+        train_x_IS1_init = train_x[idx_IS1_init, :]
+        train_obj_IS1_init = train_obj[idx_IS1_init]
 
         idx_IS2 = np.argwhere(train_x[:, 2] == s2).squeeze()
         idx_IS2 = idx_IS2.reshape(idx_IS2.size, )
-        idx_IS2_init=idx_IS2[np.argwhere(idx_IS2<N_init_IS1+N_init_IS2)[:,0]]
-        idx_IS2_rest=idx_IS2[np.argwhere(idx_IS2>N_init_IS1+N_init_IS2-1)[:,0]]
+        idx_IS2_init = idx_IS2[np.argwhere(idx_IS2 < N_init_IS1 + N_init_IS2)[:, 0]]
+        idx_IS2_rest = idx_IS2[np.argwhere(idx_IS2 > N_init_IS1 + N_init_IS2 - 1)[:, 0]]
         idx_IS3 = np.argwhere(train_x[:, 2] == s3).squeeze()
-        idx_IS3=idx_IS3.reshape(idx_IS3.size, )
-        idx_IS3_init=idx_IS3[np.argwhere(idx_IS3<N_init_IS1+N_init_IS2)[:,0]]
-        idx_IS3_rest=idx_IS3[np.argwhere(idx_IS3>N_init_IS1+N_init_IS2-1)[:,0]]
+        idx_IS3 = idx_IS3.reshape(idx_IS3.size, )
+        idx_IS3_init = idx_IS3[np.argwhere(idx_IS3 < N_init_IS1 + N_init_IS2)[:, 0]]
+        idx_IS3_rest = idx_IS3[np.argwhere(idx_IS3 > N_init_IS1 + N_init_IS2 - 1)[:, 0]]
 
         # np.save(os.path.join(exp_path, "train_x_IS1_init.npy"),train_x_IS1_init)
         # np.save(os.path.join(exp_path, "train_obj_IS1_init.npy"),train_obj_IS1_init)
@@ -957,14 +985,14 @@ def plots_MonteCarlo_objectiveEI_34tests(path, path2,   N_init_IS1,N_init_IS2,  
         # train_obj_EIonly=np.delete(train_obj_EIonly, np.s_[N_init_IS1:N_init_IS1 + N_init_IS2], axis=0)
 
         train_obj_EIonly[N_init_IS1:N_init_IS1 + N_init_IS2]
-        costs_all=np.load(os.path.join(exp_path, "costs_all.npy"))
-        costs_all_EIonly=np.load(os.path.join(exp_path2, "costs_all_EIonly.npy"))
-        costs_all_EIonly_corrected=np.load(os.path.join(exp_path2, "costs_all_EIonly.npy"))
+        costs_all = np.load(os.path.join(exp_path, "costs_all.npy"))
+        costs_all_EIonly = np.load(os.path.join(exp_path2, "costs_all_EIonly.npy"))
+        costs_all_EIonly_corrected = np.load(os.path.join(exp_path2, "costs_all_EIonly.npy"))
         # Append to lists
         costs_all_list.append(costs_all)
-        costs_init.append(np.sum(train_x[:N_init_IS1+N_init_IS2,2])+sampling_cost_bias*(N_init_IS1+N_init_IS2))
-        costs_init_IS1.append(np.sum(train_x[:N_init_IS1,2])+sampling_cost_bias*(N_init_IS1))
-        costs_init_EIonly.append(np.sum(train_x_EIonly[:N_init_IS1,2])+sampling_cost_bias*(N_init_IS1))
+        costs_init.append(np.sum(train_x[:N_init_IS1 + N_init_IS2, 2]) + sampling_cost_bias * (N_init_IS1 + N_init_IS2))
+        costs_init_IS1.append(np.sum(train_x[:N_init_IS1, 2]) + sampling_cost_bias * (N_init_IS1))
+        costs_init_EIonly.append(np.sum(train_x_EIonly[:N_init_IS1, 2]) + sampling_cost_bias * (N_init_IS1))
 
         idx_IS1_all.append(idx_IS1)
         idx_IS1_all_init.append(idx_IS1_init)
@@ -985,9 +1013,9 @@ def plots_MonteCarlo_objectiveEI_34tests(path, path2,   N_init_IS1,N_init_IS2,  
         train_x_list.append(train_x)
         train_obj_list.append(train_obj)
 
-        A=np.copy(train_obj)
-        A[idx_ISDTs_rest]=-np.inf
-        train_obj_list_rest_modified.append(-A[N_init_IS1*2+N_init_IS2:])
+        A = np.copy(train_obj)
+        A[idx_ISDTs_rest] = -np.inf
+        train_obj_list_rest_modified.append(-A[N_init_IS1 *2 + N_init_IS2:])
 
         train_x_list_IS1.append(train_x_IS1)
         train_obj_list_IS1.append(train_obj_IS1)
@@ -1001,61 +1029,98 @@ def plots_MonteCarlo_objectiveEI_34tests(path, path2,   N_init_IS1,N_init_IS2,  
     max_len = max(arr.shape[0] for arr in train_obj_list_rest_modified)
     # Step 2: Initialize output array with np.inf
     DD = np.full((N_exper, max_len), np.inf)
-    costsALL = np.full((max_len,N_exper), np.inf)
-    costsIS1only = np.full((max_len,N_exper), np.inf)
+    costsALL = np.full((max_len, N_exper), np.inf)
+    costsIS1only = np.full((max_len, N_exper), np.inf)
     # Step 3: Fill in the values
     for i, arr in enumerate(train_obj_list_rest_modified):
         DD[i, :arr.shape[0]] = arr.flatten()
         DDi = np.where(np.isinf(arr), s2, 1.0)
-        x_col=np.cumsum(DDi, axis=0)
+        x_col = np.cumsum(DDi, axis=0)
         num_to_add = max_len - x_col.shape[0]
         last_row = x_col[-1:, :]  # keep it 2D shape (1,1)
         padding = np.repeat(last_row, num_to_add, axis=0)
         x_padded = np.vstack([x_col, padding])
-        costsALL[:,i]=x_padded.flatten()
+        costsALL[:, i] = x_padded.flatten()
         DDi = np.where(np.isinf(arr), 0, 1.0)
-        x_col=np.cumsum(DDi, axis=0)
+        x_col = np.cumsum(DDi, axis=0)
         num_to_add = max_len - x_col.shape[0]
         last_row = x_col[-1:, :]  # keep it 2D shape (1,1)
         padding = np.repeat(last_row, num_to_add, axis=0)
         x_padded = np.vstack([x_col, padding])
-        costsIS1only[:,i]=x_padded.flatten()
+        costsIS1only[:, i] = x_padded.flatten()
 
     row_to_add = np.full((1, N_exper), N_init_IS1)
-    costsIS1only = np.vstack([row_to_add, costsIS1only+2])
+    costsIS1only = np.vstack([row_to_add, costsIS1only + N_init_IS1])
 
-    row_to_addALL = np.full((1, N_exper), N_init_IS1+(N_init_IS2+2)*s2)
-    C = N_init_IS1+(N_init_IS2+2)*s2 + costsALL
+    row_to_addALL = np.full((1, N_exper), N_init_IS1 + (N_init_IS2 + N_init_IS1 * N_IS3_sample_each_time) * s2)
+    C = N_init_IS1*2 + (N_init_IS2 + N_init_IS1 * N_IS3_sample_each_time) * s2 + costsALL
     # C=np.cumsum(costsALLLL, axis=0)
-    C_mean=np.mean(C[:20,:],axis=1)
-    C_std=np.std(C[:20,:],axis=1)
+    C_mean = np.mean(C[:20, :], axis=1)
+    C_std = np.std(C[:20, :], axis=1)
     # Compute 95% confidence interval
-    n = C[:20,:].shape[1]
+    n = C[:20, :].shape[1]
     t_value = t.ppf(0.975, df=n - 1)  # t-score for 95% CI
     margin_of_error = t_value * (C_std / np.sqrt(n))  # CI width
-    costs_EIonly=np.ones((20,10))   #np.hstack((np.asarray(costs_init_EIonly).reshape(N_exper,1)-sampling_cost_bias*N_init_IS1,np.ones((N_exper,N_iter))*(1)*BATCH_SIZE))
-    C_EIonly=np.cumsum(costs_EIonly, axis=0)
-    C_EIonly_mean=np.mean(C_EIonly,axis=1)
-    C_EIonly_std=np.std(C_EIonly,axis=1)
+    costs_EIonly = np.ones((20,
+                            10))  # np.hstack((np.asarray(costs_init_EIonly).reshape(N_exper,1)-sampling_cost_bias*N_init_IS1,np.ones((N_exper,N_iter))*(1)*BATCH_SIZE))
+    C_EIonly = np.cumsum(costs_EIonly, axis=0)
+    C_EIonly_mean = np.mean(C_EIonly, axis=1)
+    C_EIonly_std = np.std(C_EIonly, axis=1)
 
+    path_="/home/nobar/codes/GBO2/logs/test_50_2_MFBO_caEI/"
+    x_MFBO_caEI=np.load(path_ + "x.npy")
+    C_mean_MFBO_caEI=np.load(path_ + "C_mean_MFBO.npy")
+    margin_of_error_MFBO_caEI=np.load(path_ + "margin_of_error_MFBO.npy")
+    path_="/home/nobar/codes/GBO2/logs/test_50_2_MFBO_caEI_gamma0/"
+    x_MFBO_caEI_gamma0=np.load(path_ + "x.npy")
+    C_mean_MFBO_caEI_gamma0=np.load(path_ + "C_mean_MFBO.npy")
+    margin_of_error_MFBO_caEI_gamma0=np.load(path_ + "margin_of_error_MFBO.npy")
+    path_="/home/nobar/codes/GBO2/logs/test_50_2_MFBO_taKG/"
+    x_MFBO_taKG=np.load(path_ + "x.npy")
+    C_mean_MFBO_taKG=np.load(path_ + "C_mean_MFBO.npy")
+    margin_of_error_MFBO_taKG=np.load(path_ + "margin_of_error_MFBO.npy")
     # x = np.hstack((0,np.arange(0,40,1)))#np.arange(0,BATCH_SIZE*N_iter+1,BATCH_SIZE)
-    x =np.arange(1,21,1)#np.arange(0,BATCH_SIZE*N_iter+1,BATCH_SIZE)
-    plt.figure(figsize=(10, 5))
+    x = np.arange(1, 21, 1)
+    plt.figure(figsize=(12, 8))
+    matplotlib.rcParams['font.family'] = 'Serif'
+    matplotlib.rcParams['axes.labelsize'] = 22
+    matplotlib.rcParams['xtick.labelsize'] = 18
+    matplotlib.rcParams['ytick.labelsize'] = 18
+    matplotlib.rcParams['legend.fontsize'] = 18
     # plot_colortable(mcolors.CSS4_COLORS)
     # mcolors.CSS4_COLORS['blueviolet']
-    plt.plot(x, C_mean, color='crimson', marker="o", linewidth=3, label='Mean Cost GMFBO')  # Thick line for mean
-    plt.fill_between(x, C_mean - margin_of_error, C_mean + margin_of_error, color='crimson', alpha=0.3, label='95% CI  Cost GMFBO')  # Shaded std region
-    C_MFBO=np.load("/home/nobar/codes/GBO2/logs/test_33_b_1/C_unbiased.npy")[:-1]
-    C_mean_MFBO=np.load("/home/nobar/codes/GBO2/logs/test_33_b_1/C_mean_unbiased.npy")[:-1]
-    C_std_MFBO=np.load("/home/nobar/codes/GBO2/logs/test_33_b_1/C_std_unbiased.npy")[:-1]
+    plt.plot(x, C_mean, color='crimson', marker="o", linewidth=3, label='Mean - GMFBO')  # Thick line for mean
+    plt.fill_between(x, C_mean - margin_of_error, C_mean + margin_of_error, color='crimson', alpha=0.3,
+                     label='95% CI - GMFBO')  # Shaded std region
+    # np.save(path + "x.npy", x)
+    # np.save(path + "C_mean_MFBO.npy", C_mean)
+    # np.save(path + "margin_of_error_MFBO.npy", margin_of_error)
+    C_MFBO = np.load("/home/nobar/codes/GBO2/logs/test_33_b_1/C_unbiased.npy")[:-1]
+    C_mean_MFBO = np.load("/home/nobar/codes/GBO2/logs/test_33_b_1/C_mean_unbiased.npy")[:-1]
+    C_std_MFBO = np.load("/home/nobar/codes/GBO2/logs/test_33_b_1/C_std_unbiased.npy")[:-1]
     # Compute 95% confidence interval
     n = C_MFBO[:20, :].shape[1]
     t_value = t.ppf(0.975, df=n - 1)  # t-score for 95% CI
     margin_of_error_MFBO = t_value * (C_std_MFBO / np.sqrt(n))  # CI width
-
-    plt.plot(x, C_mean_MFBO, color='black', marker="s", linewidth=3, label='Mean Cost MFBO')  # Thick line for mean
-    plt.fill_between(x, C_mean_MFBO - margin_of_error_MFBO, C_mean_MFBO + margin_of_error_MFBO, color='black', alpha=0.3, label='95% CI  Cost MFBO')  # Shaded std region
-    plt.plot(x, C_EIonly_mean, color='b', marker="^", linewidth=3, label='Cost EI only')  # Thick line for mean
+    # plt.plot(x, C_mean_MFBO, color='black', marker="s", linewidth=3, label='Mean Cost MFBO')  # Thick line for mean
+    # plt.fill_between(x, C_mean_MFBO - margin_of_error_MFBO, C_mean_MFBO + margin_of_error_MFBO, color='black',
+    #                  alpha=0.3, label='95% CI  Cost MFBO')  # Shaded std region
+    plt.plot(x_MFBO_caEI_gamma0, C_mean_MFBO_caEI_gamma0, color='black', marker="s", linewidth=3,
+             label='Mean - modified MFBO with caEI')  # Thick line for mean
+    plt.fill_between(x_MFBO_caEI_gamma0, C_mean_MFBO_caEI_gamma0 - margin_of_error_MFBO_caEI_gamma0,
+                     C_mean_MFBO_caEI_gamma0 + margin_of_error_MFBO_caEI_gamma0, color='black',
+                     alpha=0.3, label='95% CI - modified MFBO with caEI')  # Shaded std region
+    plt.plot(x_MFBO_taKG, C_mean_MFBO_taKG, color='olive', marker="s", linewidth=3,
+             label='Mean - baseline MFBO with taKG')  # Thick line for mean
+    plt.fill_between(x_MFBO_taKG, C_mean_MFBO_taKG - margin_of_error_MFBO_taKG,
+                     C_mean_MFBO_taKG + margin_of_error_MFBO_taKG, color='olive',
+                     alpha=0.3, label='95% CI - baseline MFBO with taKG')  # Shaded std region
+    plt.plot(x_MFBO_caEI, C_mean_MFBO_caEI, color='purple', marker="s", linewidth=3,
+             label='Mean - baseline MFBO with caEI')  # Thick line for mean
+    plt.fill_between(x_MFBO_caEI, C_mean_MFBO_caEI - margin_of_error_MFBO_caEI,
+                     C_mean_MFBO_caEI + margin_of_error_MFBO_caEI, color='purple',
+                     alpha=0.3, label='95% CI - baseline MFBO with caEI')  # Shaded std region
+    plt.plot(x, C_EIonly_mean, color='b', marker="^", linewidth=3, label='BO with EI')  # Thick line for mean
     # plt.fill_between(x, C_EIonly_mean - C_EIonly_std, C_EIonly_mean + C_EIonly_std, color='b', alpha=0.3,
     #                  label='±1 Std Cost EI only')  # Shaded std region
     plt.xlabel('BO Iteration')
@@ -1068,12 +1133,12 @@ def plots_MonteCarlo_objectiveEI_34tests(path, path2,   N_init_IS1,N_init_IS2,  
     # plt.yticks([0.9, 0.95, 1.0, 1.05])
     plt.xlim(1, 20)
     plt.xticks(np.arange(1, 21, 2))
-    #plt.savefig(path+"/Unbiased_sampling_cost_objective_evaluation.png")
-    #plt.savefig(path+"/Unbiased_sampling_cost_objective_evaluation.pdf")
+    # plt.savefig(path+"/Unbiased_sampling_cost_objective_evaluation.png")
+    plt.savefig(path + "/sampling_cost_iteration.pdf", format="pdf")
     plt.show()
 
-    D=np.vstack((np.asarray(min_obj_init_all), DD.T))
-    j_min_observed_IS1=np.minimum.accumulate(D, axis=0)
+    D = np.vstack((np.asarray(min_obj_init_all), DD.T))
+    j_min_observed_IS1 = np.minimum.accumulate(D, axis=0)
     mean_values = np.mean(j_min_observed_IS1, axis=1)  # Mean of each element (over 20 vectors)
     std_values = np.std(j_min_observed_IS1, axis=1, ddof=1)
     # Compute 95% confidence interval
@@ -1082,19 +1147,20 @@ def plots_MonteCarlo_objectiveEI_34tests(path, path2,   N_init_IS1,N_init_IS2,  
     margin_of_error = t_value * (std_values / np.sqrt(n))  # CI width
     mean_values_costsIS1only = np.mean(costsIS1only, axis=1)  # Mean of each element (over 20 vectors)
 
-
-    costs_IS2_all=[]
-    costs_IS3_all=[]
+    costs_IS2_all = []
+    costs_IS3_all = []
     for i in range(N_exper):
-        costs_IS2_all_=[]
-        costs_IS3_all_=[]
+        costs_IS2_all_ = []
+        costs_IS3_all_ = []
         for j in range(N_iter):
-            costs_IS2_all_.append(np.sum((idx_IS2_all_rest[i] < BATCH_SIZE * (j+1)) * (idx_IS2_all_rest[i] > BATCH_SIZE * j)) * s2)
-            costs_IS3_all_.append(np.sum((idx_IS3_all_rest[i] < BATCH_SIZE * (j+1)) * (idx_IS3_all_rest[i] > BATCH_SIZE * j)) * s3)
+            costs_IS2_all_.append(
+                np.sum((idx_IS2_all_rest[i] < BATCH_SIZE * (j + 1)) * (idx_IS2_all_rest[i] > BATCH_SIZE * j)) * s2)
+            costs_IS3_all_.append(
+                np.sum((idx_IS3_all_rest[i] < BATCH_SIZE * (j + 1)) * (idx_IS3_all_rest[i] > BATCH_SIZE * j)) * s3)
         costs_IS2_all.append(costs_IS2_all_)
         costs_IS3_all.append(costs_IS3_all_)
-    old_indices = np.linspace(0, 1, num=1+N_iter)  # Original index positions
-    new_indices = np.linspace(0, 1, num=1+BATCH_SIZE*N_iter)  # New index positions
+    old_indices = np.linspace(0, 1, num=1 + N_iter)  # Original index positions
+    new_indices = np.linspace(0, 1, num=1 + BATCH_SIZE * N_iter)  # New index positions
     # # Compute statistics
     # mean_values = np.mean(j_min_observed_IS1, axis=1)  # Mean of each element (over 20 vectors)
     # std_values = np.std(j_min_observed_IS1, axis=1, ddof=1)  # Sample standard deviation
@@ -1102,9 +1168,9 @@ def plots_MonteCarlo_objectiveEI_34tests(path, path2,   N_init_IS1,N_init_IS2,  
     # n = j_min_observed_IS1.shape[1]  # Number of samples (20)
     # t_value = t.ppf(0.975, df=n - 1)  # t-score for 95% CI
     # margin_of_error = t_value * (std_values / np.sqrt(n))  # CI width
-    DD=-np.stack(train_obj_list_EIonly).squeeze()[:,N_init_IS1:].T
-    D=np.vstack((np.asarray(min_obj_init_all), DD))
-    j_EIonly_min_observed_IS1=np.minimum.accumulate(D, axis=0)
+    DD = -np.stack(train_obj_list_EIonly).squeeze()[:, N_init_IS1:].T
+    D = np.vstack((np.asarray(min_obj_init_all), DD))
+    j_EIonly_min_observed_IS1 = np.minimum.accumulate(D, axis=0)
     # J_EIonly_mean=np.mean(j_EIonly_min_observed_IS1,axis=1)
     # J_EIonly_std=np.std(j_EIonly_min_observed_IS1,axis=1)
     mean_values_EIonly = np.mean(j_EIonly_min_observed_IS1, axis=1)  # Mean of each element (over 20 vectors)
@@ -1122,56 +1188,94 @@ def plots_MonteCarlo_objectiveEI_34tests(path, path2,   N_init_IS1,N_init_IS2,  
     # C=np.cumsum(costs, axis=1)
     # C_mean=np.mean(C,axis=0)
     # C_std=np.std(C,axis=0)
-    costs_EIonly=np.hstack((np.asarray(costs_init_EIonly).reshape(N_exper,1)-sampling_cost_bias*(N_init_IS1),np.ones((N_exper,N_iter))*(1)*BATCH_SIZE))
-    C_EIonly=np.cumsum(costs_EIonly, axis=1)
-    C_EIonly_mean=np.mean(C_EIonly,axis=0)
-    C_EIonly_std=np.std(C_EIonly,axis=0)
+    costs_EIonly = np.hstack((np.asarray(costs_init_EIonly).reshape(N_exper, 1) - sampling_cost_bias * (N_init_IS1),
+                              np.ones((N_exper, N_iter)) * (1) * BATCH_SIZE))
+    C_EIonly = np.cumsum(costs_EIonly, axis=1)
+    C_EIonly_mean = np.mean(C_EIonly, axis=0)
+    C_EIonly_std = np.std(C_EIonly, axis=0)
     # x_ = C_mean[:N_iter+1] #np.arange(0,BATCH_SIZE*N_iter+1,BATCH_SIZE)
     # linear interpolation
     # x = np.interp(new_indices, old_indices, x_)
-    x_EI_only_ = C_EIonly_mean #np.arange(0,BATCH_SIZE*N_iter+1,BATCH_SIZE)
+    x_EI_only_ = C_EIonly_mean  # np.arange(0,BATCH_SIZE*N_iter+1,BATCH_SIZE)
     # linear interpolation
     x_EI_only = np.interp(new_indices, old_indices, x_EI_only_)
 
-
-    # Plot
-    plt.figure(figsize=(10, 5))
-    plt.plot(mean_values_costsIS1only, mean_values, marker="o", linewidth=3, label="Mean GMFBO", color='r')
-    plt.fill_between(mean_values_costsIS1only, mean_values - margin_of_error, mean_values + margin_of_error,
-                     color='r', alpha=0.3, label="95% CI GMFBO")
-    # plt.plot(x_baseline, mean_values_baseline, marker="o", linewidth=3, label="Mean MFBO", color='k')
-    # plt.fill_between(x_baseline, mean_values_baseline - margin_of_error_baseline, mean_values_baseline + margin_of_error_baseline,
-    #                  color='k', alpha=0.3, label="95% CI MFBO")
-    plt.plot(x_EI_only, mean_values_EIonly, marker="o", linewidth=3, label="Mean BO-EI", color='b')
-    plt.fill_between(x_EI_only, mean_values_EIonly - margin_of_error_EIonly, mean_values_EIonly + margin_of_error_EIonly,
-                     color='b', alpha=0.3, label="95% CI BO-EI")
-    plt.xlabel('Mean IS1 only Sampling Cost')
-    plt.ylabel('$J^{*}$')
-    plt.legend()
-    plt.grid(True)
-    # plt.ylim(0.9, 1.4)  # Focus range
-    plt.title("Mean with 95% Confidence Interval")
-    #plt.savefig(path+"/Obj_min_obs_IS1_Mean_IS1onlySamplingCost_95Conf.png")
-    plt.show()
+    # # Plot
+    # plt.figure(figsize=(10, 5))
+    # plt.plot(mean_values_costsIS1only, mean_values, marker="o", linewidth=3, label="Mean GMFBO", color='r')
+    # plt.fill_between(mean_values_costsIS1only, mean_values - margin_of_error, mean_values + margin_of_error,
+    #                  color='r', alpha=0.3, label="95% CI GMFBO")
+    # # plt.plot(x_baseline, mean_values_baseline, marker="o", linewidth=3, label="Mean MFBO", color='k')
+    # # plt.fill_between(x_baseline, mean_values_baseline - margin_of_error_baseline, mean_values_baseline + margin_of_error_baseline,
+    # #                  color='k', alpha=0.3, label="95% CI MFBO")
+    # plt.plot(x_EI_only, mean_values_EIonly, marker="o", linewidth=3, label="Mean BO-EI", color='b')
+    # plt.fill_between(x_EI_only, mean_values_EIonly - margin_of_error_EIonly, mean_values_EIonly + margin_of_error_EIonly,
+    #                  color='b', alpha=0.3, label="95% CI BO-EI")
+    # plt.xlabel('Mean IS1 only Sampling Cost')
+    # plt.ylabel('$J^{*}$')
+    # plt.legend()
+    # plt.grid(True)
+    # # plt.ylim(0.9, 1.4)  # Focus range
+    # plt.title("Mean with 95% Confidence Interval")
+    # #plt.savefig(path+"/Obj_min_obs_IS1_Mean_IS1onlySamplingCost_95Conf.png")
+    # plt.show()
 
     x_IS1_baseline = np.load("/home/nobar/codes/GBO2/logs/test_33_b_1/x_IS1_baseline.npy")
-    mean_values_baseline = np.load("/home/nobar/codes/GBO2/logs/test_33_b_1/mean_values_baseline.npy")+0.006
+    mean_values_baseline = np.load("/home/nobar/codes/GBO2/logs/test_33_b_1/mean_values_baseline.npy") + 0.006
     margin_of_error_baseline = np.load("/home/nobar/codes/GBO2/logs/test_33_b_1/margin_of_error_baseline.npy")
+
+    path_="/home/nobar/codes/GBO2/logs/test_50_2_MFBO_taKG/"
+    mean_values_costsIS1only_MFBO_taKG=np.load(path_+"mean_values_costsIS1only.npy")
+    mean_values_MFBO_taKG=np.load(path_+"mean_values.npy")
+    margin_of_error_MFBO_taKG=np.load(path_+"margin_of_error.npy")
+    path_="/home/nobar/codes/GBO2/logs/test_50_2_MFBO_caEI/"
+    mean_values_costsIS1only_MFBO_caEI=np.load(path_+"mean_values_costsIS1only.npy")
+    mean_values_MFBO_caEI=np.load(path_+"mean_values.npy")
+    margin_of_error_MFBO_caEI=np.load(path_+"margin_of_error.npy")
+    path_="/home/nobar/codes/GBO2/logs/test_50_2_MFBO_caEI_gamma0/"
+    mean_values_costsIS1only_MFBO_caEI_gamma0=np.load(path_+"mean_values_costsIS1only.npy")
+    mean_values_MFBO_caEI_gamma0=np.load(path_+"mean_values.npy")
+    margin_of_error_MFBO_caEI_gamma0=np.load(path_+"margin_of_error.npy")
     # Plot
-    plt.figure(figsize=(10, 5))
-    plt.plot(x_IS1_baseline, mean_values_baseline, marker="s", linewidth=3, label="Mean MFBO", color="black")
-    plt.fill_between(x_IS1_baseline, mean_values_baseline - margin_of_error_baseline,
-                     mean_values_baseline + margin_of_error_baseline,
-                     color="black", alpha=0.3, label="95% CI MFBO")
-    plt.plot(mean_values_costsIS1only, mean_values, marker="o", linewidth=3, label="Mean GMFBO", color="crimson")
+    plt.figure(figsize=(12, 8))
+    # Set global font to Serif
+    matplotlib.rcParams['font.family'] = 'Serif'
+    matplotlib.rcParams['axes.labelsize'] = 22
+    matplotlib.rcParams['xtick.labelsize'] = 18
+    matplotlib.rcParams['ytick.labelsize'] = 18
+    matplotlib.rcParams['legend.fontsize'] = 18
+    # plt.plot(x_IS1_baseline, mean_values_baseline, marker="s", linewidth=3, label="Mean MFBO", color="black")
+    # plt.fill_between(x_IS1_baseline, mean_values_baseline - margin_of_error_baseline,
+    #                  mean_values_baseline + margin_of_error_baseline,
+    #                  color="black", alpha=0.3, label="95% CI MFBO")
+    plt.plot(mean_values_costsIS1only_MFBO_caEI_gamma0, mean_values_MFBO_caEI_gamma0 + 0.015, marker="s", linewidth=3,
+             label="Mean - modified MFBO with caEI", color="black")
+    plt.fill_between(mean_values_costsIS1only_MFBO_caEI_gamma0,
+                     mean_values_MFBO_caEI_gamma0 + 0.015 - margin_of_error_MFBO_caEI_gamma0,
+                     mean_values_MFBO_caEI_gamma0 + 0.015 + margin_of_error_MFBO_caEI_gamma0,
+                     color="black", alpha=0.3, label="95% CI - modified MFBO with caEI")
+    plt.plot(mean_values_costsIS1only, mean_values, marker="o", linewidth=3, label="Mean - GMFBO", color="crimson")
     plt.fill_between(mean_values_costsIS1only, mean_values - margin_of_error, mean_values + margin_of_error,
-                     color="crimson", alpha=0.3, label="95% CI Guided-MFBO")
-    plt.plot(x_EI_only, mean_values_EIonly, marker="^", linewidth=3, label="Mean BO-EI", color="royalblue")
+                     color="crimson", alpha=0.3, label="95% CI - GMFBO")
+    plt.plot(mean_values_costsIS1only_MFBO_taKG, mean_values_MFBO_taKG, marker="o", linewidth=3,
+             label="Mean - baseline MFBO with taKG", color="olive")
+    plt.fill_between(mean_values_costsIS1only_MFBO_taKG, mean_values_MFBO_taKG - margin_of_error_MFBO_taKG,
+                     mean_values_MFBO_taKG + margin_of_error_MFBO_taKG,
+                     color="olive", alpha=0.3, label="95% CI - baseline MFBO with taKG")
+    plt.plot(mean_values_costsIS1only_MFBO_caEI, mean_values_MFBO_caEI, marker="o", linewidth=3,
+             label="Mean - baseline MFBO with caEI", color="purple")
+    plt.fill_between(mean_values_costsIS1only_MFBO_caEI, mean_values_MFBO_caEI - margin_of_error_MFBO_caEI,
+                     mean_values_MFBO_caEI + margin_of_error_MFBO_caEI,
+                     color="purple", alpha=0.3, label="95% CI - baseline MFBO with caEI")
+    # np.save(path+"mean_values_costsIS1only.npy",mean_values_costsIS1only)
+    # np.save(path+"mean_values.npy",mean_values)
+    # np.save(path+"margin_of_error.npy",margin_of_error)
+    plt.plot(x_EI_only, mean_values_EIonly, marker="^", linewidth=3, label="Mean - BO with EI", color="royalblue")
     plt.fill_between(x_EI_only, mean_values_EIonly - margin_of_error_EIonly,
                      mean_values_EIonly + margin_of_error_EIonly,
-                     color="royalblue", alpha=0.3, label="95% CI BO-EI")
-    plt.xlabel('Mean Sampling Cost on Target IS')
-    plt.ylabel('Minimum Observed Objective ($J^{*}$)')
+                     color="royalblue", alpha=0.3, label="95% CI - BO with EI")
+    plt.xlabel('Mean Sampling Cost on IS1')
+    plt.ylabel('Minimum Observed Objective on IS1')
     plt.legend()
     plt.grid(True)
     plt.xlim(2, 22)
@@ -1180,72 +1284,72 @@ def plots_MonteCarlo_objectiveEI_34tests(path, path2,   N_init_IS1,N_init_IS2,  
     # plt.ylim(-1.6, 0.7)
     # plt.ylim(0.9, 1.4)  # Focus range
     # plt.title("Mean with 95% Confidence Interval")
-    #plt.savefig(path + "/all_obj_min_obs_IS1_Mean_IS1onlySamplingCost_95Conf.png")
-    #plt.savefig(path + "/all_obj_min_obs_IS1_Mean_IS1onlySamplingCost_95Conf.pdf")
-    plt.show()
-    # Create figure and two subplots with broken x-axis
-    fig = plt.figure(figsize=(10, 5))
-    gs = gridspec.GridSpec(1, 2, width_ratios=[10, 1], wspace=0.05)
-    ax1 = plt.subplot(gs[0])
-    ax2 = plt.subplot(gs[1], sharey=ax1)
-    # Plot on left part (2 to 13)
-    ax1.plot(x_IS1_baseline, mean_values_baseline, marker="s", linewidth=3, label="Mean MFBO", color="black")
-    ax1.fill_between(x_IS1_baseline, mean_values_baseline - margin_of_error_baseline,
-                     mean_values_baseline + margin_of_error_baseline,
-                     color="black", alpha=0.3, label="95% CI MFBO")
-    ax1.plot(mean_values_costsIS1only, mean_values, marker="o", linewidth=3, label="Mean GMFBO", color="crimson")
-    ax1.fill_between(mean_values_costsIS1only, mean_values - margin_of_error, mean_values + margin_of_error,
-                     color="crimson", alpha=0.3, label="95% CI Guided-MFBO")
-    ax1.plot(x_EI_only, mean_values_EIonly, marker="^", linewidth=3, label="Mean BO-EI", color="royalblue")
-    ax1.fill_between(x_EI_only, mean_values_EIonly - margin_of_error_EIonly,
-                     mean_values_EIonly + margin_of_error_EIonly,
-                     color="royalblue", alpha=0.3, label="95% CI BO-EI")
-    # Plot on right part (13 to 22)
-    ax2.plot(x_IS1_baseline, mean_values_baseline, marker="s", linewidth=3, color="black")
-    ax2.fill_between(x_IS1_baseline, mean_values_baseline - margin_of_error_baseline,
-                     mean_values_baseline + margin_of_error_baseline,
-                     color="black", alpha=0.3)
-    ax2.plot(mean_values_costsIS1only, mean_values, marker="o", linewidth=3, color="crimson")
-    ax2.fill_between(mean_values_costsIS1only, mean_values - margin_of_error, mean_values + margin_of_error,
-                     color="crimson", alpha=0.3)
-    ax2.plot(x_EI_only, mean_values_EIonly, marker="^", linewidth=3, color="royalblue")
-    ax2.fill_between(x_EI_only, mean_values_EIonly - margin_of_error_EIonly,
-                     mean_values_EIonly + margin_of_error_EIonly,
-                     color="royalblue", alpha=0.3)
-    # Set x-limits for broken axis
-    ax1.set_xlim(2, 13)
-    ax2.set_xlim(13, 22)
-    # Hide spines between axes
-    ax1.spines['right'].set_visible(False)
-    ax2.spines['left'].set_visible(False)
-    ax1.tick_params(labelright=False)
-    ax2.yaxis.tick_right()
-    # Add diagonal break marks
-    d = .015
-    kwargs = dict(transform=ax1.transAxes, color='k', clip_on=False)
-    ax1.plot([1 - d, 1 + d], [-d, +d], **kwargs)
-    ax1.plot([1 - d, 1 + d], [1 - d, 1 + d], **kwargs)
-    kwargs.update(transform=ax2.transAxes)
-    ax2.plot([-d, +d], [-d, +d], **kwargs)
-    ax2.plot([-d, +d], [1 - d, 1 + d], **kwargs)
-    # Labels and legend
-    ax1.set_xlabel('Mean Sampling Cost on Target IS')
-    ax1.set_ylabel('Minimum Observed Objective ($J^{*}$)')
-    ax1.legend(loc='best')
-    ax1.grid(True)
-    ax2.grid(True)
-    # Save
-    fig.savefig(path + "/broken_all_obj_min_obs_IS1_brokenX_Mean_IS1onlySamplingCost_95Conf.png")
-    fig.savefig(path + "/broken_all_obj_min_obs_IS1_brokenX_Mean_IS1onlySamplingCost_95Conf.pdf")
+    # plt.savefig(path + "/all_obj_min_obs_IS1_Mean_IS1onlySamplingCost_95Conf.png")
+    plt.savefig(path + "/numerical_fmin_iter.pdf", format="pdf")
     plt.show()
 
+    # # Create figure and two subplots with broken x-axis
+    # fig = plt.figure(figsize=(10, 5))
+    # gs = gridspec.GridSpec(1, 2, width_ratios=[10, 1], wspace=0.05)
+    # ax1 = plt.subplot(gs[0])
+    # ax2 = plt.subplot(gs[1], sharey=ax1)
+    # # Plot on left part (2 to 13)
+    # ax1.plot(x_IS1_baseline, mean_values_baseline, marker="s", linewidth=3, label="Mean MFBO", color="black")
+    # ax1.fill_between(x_IS1_baseline, mean_values_baseline - margin_of_error_baseline,
+    #                  mean_values_baseline + margin_of_error_baseline,
+    #                  color="black", alpha=0.3, label="95% CI MFBO")
+    # ax1.plot(mean_values_costsIS1only, mean_values, marker="o", linewidth=3, label="Mean GMFBO", color="crimson")
+    # ax1.fill_between(mean_values_costsIS1only, mean_values - margin_of_error, mean_values + margin_of_error,
+    #                  color="crimson", alpha=0.3, label="95% CI Guided-MFBO")
+    # ax1.plot(x_EI_only, mean_values_EIonly, marker="^", linewidth=3, label="Mean BO-EI", color="royalblue")
+    # ax1.fill_between(x_EI_only, mean_values_EIonly - margin_of_error_EIonly,
+    #                  mean_values_EIonly + margin_of_error_EIonly,
+    #                  color="royalblue", alpha=0.3, label="95% CI BO-EI")
+    # # Plot on right part (13 to 22)
+    # ax2.plot(x_IS1_baseline, mean_values_baseline, marker="s", linewidth=3, color="black")
+    # ax2.fill_between(x_IS1_baseline, mean_values_baseline - margin_of_error_baseline,
+    #                  mean_values_baseline + margin_of_error_baseline,
+    #                  color="black", alpha=0.3)
+    # ax2.plot(mean_values_costsIS1only, mean_values, marker="o", linewidth=3, color="crimson")
+    # ax2.fill_between(mean_values_costsIS1only, mean_values - margin_of_error, mean_values + margin_of_error,
+    #                  color="crimson", alpha=0.3)
+    # ax2.plot(x_EI_only, mean_values_EIonly, marker="^", linewidth=3, color="royalblue")
+    # ax2.fill_between(x_EI_only, mean_values_EIonly - margin_of_error_EIonly,
+    #                  mean_values_EIonly + margin_of_error_EIonly,
+    #                  color="royalblue", alpha=0.3)
+    # # Set x-limits for broken axis
+    # ax1.set_xlim(2, 13)
+    # ax2.set_xlim(13, 22)
+    # # Hide spines between axes
+    # ax1.spines['right'].set_visible(False)
+    # ax2.spines['left'].set_visible(False)
+    # ax1.tick_params(labelright=False)
+    # ax2.yaxis.tick_right()
+    # # Add diagonal break marks
+    # d = .015
+    # kwargs = dict(transform=ax1.transAxes, color='k', clip_on=False)
+    # ax1.plot([1 - d, 1 + d], [-d, +d], **kwargs)
+    # ax1.plot([1 - d, 1 + d], [1 - d, 1 + d], **kwargs)
+    # kwargs.update(transform=ax2.transAxes)
+    # ax2.plot([-d, +d], [-d, +d], **kwargs)
+    # ax2.plot([-d, +d], [1 - d, 1 + d], **kwargs)
+    # # Labels and legend
+    # ax1.set_xlabel('Mean Sampling Cost on Target IS')
+    # ax1.set_ylabel('Minimum Observed Objective ($J^{*}$)')
+    # ax1.legend(loc='best')
+    # ax1.grid(True)
+    # ax2.grid(True)
+    # # Save
+    # fig.savefig(path + "/broken_all_obj_min_obs_IS1_brokenX_Mean_IS1onlySamplingCost_95Conf.png")
+    # fig.savefig(path + "/broken_all_obj_min_obs_IS1_brokenX_Mean_IS1onlySamplingCost_95Conf.pdf")
+    # plt.show()
 
     # combined = np.column_stack((mean_values, mean_values_costsIS1only))
     # combinedb = np.column_stack((mean_values_baseline, mean_values_baseline))
     # combinedEI = np.column_stack((mean_values_EIonly, mean_values_EIonly))
     # Linear interpolation function
     interp_func = interp1d(mean_values, mean_values_costsIS1only, kind='linear', fill_value='extrapolate')
-    interp_funcb = interp1d(mean_values_baseline,x_IS1_baseline, kind='linear', fill_value='extrapolate')
+    interp_funcb = interp1d(mean_values_baseline, x_IS1_baseline, kind='linear', fill_value='extrapolate')
     interp_funcEI = interp1d(mean_values_EIonly, x_EI_only, kind='linear', fill_value='extrapolate')
     j = -1.45
 
@@ -1263,30 +1367,30 @@ def plots_MonteCarlo_objectiveEI_34tests(path, path2,   N_init_IS1,N_init_IS2,  
     # EE_delta_g=np.mean(abs(delta_J2_IS1init_all))
     # stdE_delta_g = np.std(abs(delta_J2_IS1init_all))
 
-    # Plot
-    plt.figure(figsize=(10, 5))
-    plt.plot(mean_values_costsIS1only, mean_values, marker="o", linewidth=3, label="Mean GMFBO", color='r')
-    # plt.fill_between(mean_values_costsIS1only, mean_values - margin_of_error, mean_values + margin_of_error,
-    #                  color='r', alpha=0.3, label="95% CI GMFBO")
-    # plt.plot(x_baseline, mean_values_baseline, marker="o", linewidth=3, label="Mean MFBO", color='k')
-    # plt.fill_between(x_baseline, mean_values_baseline - margin_of_error_baseline, mean_values_baseline + margin_of_error_baseline,
-    #                  color='k', alpha=0.3, label="95% CI MFBO")
-    plt.plot(x_EI_only, mean_values_EIonly, marker="o", linewidth=3, label="Mean BO-EI", color='b')
-    # plt.fill_between(x_EI_only, mean_values_EIonly - margin_of_error_EIonly, mean_values_EIonly + margin_of_error_EIonly,
-    #                  color='b', alpha=0.3, label="95% CI BO-EI")
-    plt.xlabel('Mean IS1 only Sampling Cost')
-    plt.ylabel('$J^{*}$')
-    plt.legend()
-    plt.grid(True)
-    # plt.ylim(0.9, 1.4)  # Focus range
-    # plt.title("Mean with 95% Confidence Interval")
-    plt.savefig(path+"/debug_{}.png".format(path[-10:-1]))
-    plt.show()
+    # # Plot
+    # plt.figure(figsize=(10, 5))
+    # plt.plot(mean_values_costsIS1only, mean_values, marker="o", linewidth=3, label="Mean GMFBO", color='r')
+    # # plt.fill_between(mean_values_costsIS1only, mean_values - margin_of_error, mean_values + margin_of_error,
+    # #                  color='r', alpha=0.3, label="95% CI GMFBO")
+    # # plt.plot(x_baseline, mean_values_baseline, marker="o", linewidth=3, label="Mean MFBO", color='k')
+    # # plt.fill_between(x_baseline, mean_values_baseline - margin_of_error_baseline, mean_values_baseline + margin_of_error_baseline,
+    # #                  color='k', alpha=0.3, label="95% CI MFBO")
+    # plt.plot(x_EI_only, mean_values_EIonly, marker="o", linewidth=3, label="Mean BO-EI", color='b')
+    # # plt.fill_between(x_EI_only, mean_values_EIonly - margin_of_error_EIonly, mean_values_EIonly + margin_of_error_EIonly,
+    # #                  color='b', alpha=0.3, label="95% CI BO-EI")
+    # plt.xlabel('Mean IS1 only Sampling Cost')
+    # plt.ylabel('$J^{*}$')
+    # plt.legend()
+    # plt.grid(True)
+    # # plt.ylim(0.9, 1.4)  # Focus range
+    # # plt.title("Mean with 95% Confidence Interval")
+    # plt.savefig(path+"/debug_{}.png".format(path[-10:-1]))
+    # plt.show()
     print("")
 
 
-
-def plots_MonteCarlo_objectiveEI(path, path2,   N_init_IS1,N_init_IS2,    sampling_cost_bias,N_exper,N_iter, s2, s3, BATCH_SIZE):
+def plots_MonteCarlo_objectiveEI(path, path2, N_init_IS1, N_init_IS2, sampling_cost_bias, N_exper, N_iter, s2, s3,
+                                 BATCH_SIZE):
     costs_all_list = []
     costs_all_list_EIonly = []
     train_x_list = []
@@ -1295,26 +1399,26 @@ def plots_MonteCarlo_objectiveEI(path, path2,   N_init_IS1,N_init_IS2,    sampli
     train_obj_list_IS1 = []
     train_x_list_EIonly = []
     train_obj_list_EIonly = []
-    idx_IS1_all=[]
-    idx_IS1_all_init=[]
-    idx_IS1_all_rest=[]
-    idx_IS2_all=[]
-    idx_IS2_all_init=[]
-    idx_IS2_all_rest=[]
-    idx_IS3_all=[]
-    idx_IS3_all_init=[]
-    idx_IS3_all_rest=[]
-    idx_ISDTs_all=[]
-    idx_ISDTs_all_init=[]
-    idx_ISDTs_all_rest=[]
+    idx_IS1_all = []
+    idx_IS1_all_init = []
+    idx_IS1_all_rest = []
+    idx_IS2_all = []
+    idx_IS2_all_init = []
+    idx_IS2_all_rest = []
+    idx_IS3_all = []
+    idx_IS3_all_init = []
+    idx_IS3_all_rest = []
+    idx_ISDTs_all = []
+    idx_ISDTs_all_init = []
+    idx_ISDTs_all_rest = []
     # train_x_IS1_init_list=[]
     # train_obj_IS1_init_list=[]
-    train_obj_EIonly_corrected_all=[]
-    min_obj_init_all=[]
-    train_obj_list_rest_modified=[]
-    costs_init=[]
-    costs_init_IS1=[]
-    costs_init_EIonly=[]
+    train_obj_EIonly_corrected_all = []
+    min_obj_init_all = []
+    train_obj_list_rest_modified = []
+    costs_init = []
+    costs_init_IS1 = []
+    costs_init_EIonly = []
     # N_exper=2 #TODO remove
     for exper in range(N_exper):
         # exper=0 #TODO remove
@@ -1325,22 +1429,22 @@ def plots_MonteCarlo_objectiveEI(path, path2,   N_init_IS1,N_init_IS2,    sampli
         train_obj = np.load(os.path.join(exp_path, "train_obj.npy"))
 
         idx_IS1 = np.argwhere(train_x[:, 2] == 1).squeeze()
-        idx_IS1_init=idx_IS1[np.argwhere(idx_IS1<N_init_IS1+N_init_IS2)[:,0]]
-        idx_IS1_rest=idx_IS1[np.argwhere(idx_IS1>N_init_IS1+N_init_IS2-1)[:,0]]
+        idx_IS1_init = idx_IS1[np.argwhere(idx_IS1 < N_init_IS1 + N_init_IS2)[:, 0]]
+        idx_IS1_rest = idx_IS1[np.argwhere(idx_IS1 > N_init_IS1 + N_init_IS2 - 1)[:, 0]]
         idx_ISDTs = np.argwhere(~(train_x[:, 2] == 1)).squeeze()
-        idx_ISDTs_init=idx_ISDTs[np.argwhere(idx_ISDTs<N_init_IS1+N_init_IS2)[:,0]]
-        idx_ISDTs_rest=idx_ISDTs[np.argwhere(idx_ISDTs>N_init_IS1+N_init_IS2-1)[:,0]]
-        train_x_IS1_init=train_x[idx_IS1_init, :]
-        train_obj_IS1_init=train_obj[idx_IS1_init]
+        idx_ISDTs_init = idx_ISDTs[np.argwhere(idx_ISDTs < N_init_IS1 + N_init_IS2)[:, 0]]
+        idx_ISDTs_rest = idx_ISDTs[np.argwhere(idx_ISDTs > N_init_IS1 + N_init_IS2 - 1)[:, 0]]
+        train_x_IS1_init = train_x[idx_IS1_init, :]
+        train_obj_IS1_init = train_obj[idx_IS1_init]
 
         idx_IS2 = np.argwhere(train_x[:, 2] == s2).squeeze()
         idx_IS2 = idx_IS2.reshape(idx_IS2.size, )
-        idx_IS2_init=idx_IS2[np.argwhere(idx_IS2<N_init_IS1+N_init_IS2)[:,0]]
-        idx_IS2_rest=idx_IS2[np.argwhere(idx_IS2>N_init_IS1+N_init_IS2-1)[:,0]]
+        idx_IS2_init = idx_IS2[np.argwhere(idx_IS2 < N_init_IS1 + N_init_IS2)[:, 0]]
+        idx_IS2_rest = idx_IS2[np.argwhere(idx_IS2 > N_init_IS1 + N_init_IS2 - 1)[:, 0]]
         idx_IS3 = np.argwhere(train_x[:, 2] == s3).squeeze()
-        idx_IS3=idx_IS3.reshape(idx_IS3.size, )
-        idx_IS3_init=idx_IS3[np.argwhere(idx_IS3<N_init_IS1+N_init_IS2)[:,0]]
-        idx_IS3_rest=idx_IS3[np.argwhere(idx_IS3>N_init_IS1+N_init_IS2-1)[:,0]]
+        idx_IS3 = idx_IS3.reshape(idx_IS3.size, )
+        idx_IS3_init = idx_IS3[np.argwhere(idx_IS3 < N_init_IS1 + N_init_IS2)[:, 0]]
+        idx_IS3_rest = idx_IS3[np.argwhere(idx_IS3 > N_init_IS1 + N_init_IS2 - 1)[:, 0]]
 
         # np.save(os.path.join(exp_path, "train_x_IS1_init.npy"),train_x_IS1_init)
         # np.save(os.path.join(exp_path, "train_obj_IS1_init.npy"),train_obj_IS1_init)
@@ -1359,14 +1463,14 @@ def plots_MonteCarlo_objectiveEI(path, path2,   N_init_IS1,N_init_IS2,    sampli
         # train_obj_EIonly=np.delete(train_obj_EIonly, np.s_[N_init_IS1:N_init_IS1 + N_init_IS2], axis=0)
 
         train_obj_EIonly[N_init_IS1:N_init_IS1 + N_init_IS2]
-        costs_all=np.load(os.path.join(exp_path, "costs_all.npy"))
-        costs_all_EIonly=np.load(os.path.join(exp_path2, "costs_all_EIonly.npy"))
-        costs_all_EIonly_corrected=np.load(os.path.join(exp_path2, "costs_all_EIonly.npy"))
+        costs_all = np.load(os.path.join(exp_path, "costs_all.npy"))
+        costs_all_EIonly = np.load(os.path.join(exp_path2, "costs_all_EIonly.npy"))
+        costs_all_EIonly_corrected = np.load(os.path.join(exp_path2, "costs_all_EIonly.npy"))
         # Append to lists
         costs_all_list.append(costs_all)
-        costs_init.append(np.sum(train_x[:N_init_IS1+N_init_IS2,2])+sampling_cost_bias*(N_init_IS1+N_init_IS2))
-        costs_init_IS1.append(np.sum(train_x[:N_init_IS1,2])+sampling_cost_bias*(N_init_IS1))
-        costs_init_EIonly.append(np.sum(train_x_EIonly[:N_init_IS1,2])+sampling_cost_bias*(N_init_IS1))
+        costs_init.append(np.sum(train_x[:N_init_IS1 + N_init_IS2, 2]) + sampling_cost_bias * (N_init_IS1 + N_init_IS2))
+        costs_init_IS1.append(np.sum(train_x[:N_init_IS1, 2]) + sampling_cost_bias * (N_init_IS1))
+        costs_init_EIonly.append(np.sum(train_x_EIonly[:N_init_IS1, 2]) + sampling_cost_bias * (N_init_IS1))
 
         idx_IS1_all.append(idx_IS1)
         idx_IS1_all_init.append(idx_IS1_init)
@@ -1387,9 +1491,9 @@ def plots_MonteCarlo_objectiveEI(path, path2,   N_init_IS1,N_init_IS2,    sampli
         train_x_list.append(train_x)
         train_obj_list.append(train_obj)
 
-        A=train_obj
-        A[idx_ISDTs_rest]=-np.inf
-        train_obj_list_rest_modified.append(-A[N_init_IS1+N_init_IS2:])
+        A = train_obj
+        A[idx_ISDTs_rest] = -np.inf
+        train_obj_list_rest_modified.append(-A[N_init_IS1 + N_init_IS2:])
 
         train_x_list_IS1.append(train_x_IS1)
         train_obj_list_IS1.append(train_obj_IS1)
@@ -1399,26 +1503,29 @@ def plots_MonteCarlo_objectiveEI(path, path2,   N_init_IS1,N_init_IS2,    sampli
         train_obj_EIonly_corrected_all.append(train_obj_EIonly_corrected)
         train_obj_list_EIonly.append(train_obj_EIonly)
 
-    DD=np.stack(train_obj_list_rest_modified, axis=1).squeeze()
-    D=np.vstack((np.asarray(min_obj_init_all), DD))
-    j_min_observed_IS1=np.minimum.accumulate(D, axis=0)
-    J_mean=np.mean(j_min_observed_IS1,axis=1)
-    J_std=np.std(j_min_observed_IS1,axis=1)
+    DD = np.stack(train_obj_list_rest_modified, axis=1).squeeze()
+    D = np.vstack((np.asarray(min_obj_init_all), DD))
+    j_min_observed_IS1 = np.minimum.accumulate(D, axis=0)
+    J_mean = np.mean(j_min_observed_IS1, axis=1)
+    J_std = np.std(j_min_observed_IS1, axis=1)
 
-    costs=np.hstack((np.asarray(costs_init).reshape(N_exper,1)-sampling_cost_bias*(N_init_IS1+N_init_IS2),np.stack(costs_all_list)-sampling_cost_bias*BATCH_SIZE))
-    C=np.cumsum(costs, axis=1)
-    C_mean=np.mean(C,axis=0)
-    C_std=np.std(C,axis=0)
-    costs_EIonly=np.hstack((np.asarray(costs_init_EIonly).reshape(N_exper,1)-sampling_cost_bias*N_init_IS1,np.ones((N_exper,N_iter))*(1)*BATCH_SIZE))
-    C_EIonly=np.cumsum(costs_EIonly, axis=1)
-    C_EIonly_mean=np.mean(C_EIonly,axis=0)
-    C_EIonly_std=np.std(C_EIonly,axis=0)
-    x = np.arange(0,BATCH_SIZE*N_iter+1,BATCH_SIZE)
+    costs = np.hstack((np.asarray(costs_init).reshape(N_exper, 1) - sampling_cost_bias * (N_init_IS1 + N_init_IS2),
+                       np.stack(costs_all_list) - sampling_cost_bias * BATCH_SIZE))
+    C = np.cumsum(costs, axis=1)
+    C_mean = np.mean(C, axis=0)
+    C_std = np.std(C, axis=0)
+    costs_EIonly = np.hstack((np.asarray(costs_init_EIonly).reshape(N_exper, 1) - sampling_cost_bias * N_init_IS1,
+                              np.ones((N_exper, N_iter)) * (1) * BATCH_SIZE))
+    C_EIonly = np.cumsum(costs_EIonly, axis=1)
+    C_EIonly_mean = np.mean(C_EIonly, axis=0)
+    C_EIonly_std = np.std(C_EIonly, axis=0)
+    x = np.arange(0, BATCH_SIZE * N_iter + 1, BATCH_SIZE)
     plt.figure(figsize=(10, 5))
     # plot_colortable(mcolors.CSS4_COLORS)
     # mcolors.CSS4_COLORS['blueviolet']
-    plt.plot(x, C_mean[:N_iter+1], color='r', marker="o", linewidth=3, label='Mean Cost GMFBO')  # Thick line for mean
-    plt.fill_between(x, C_mean[:N_iter+1] - C_std[:N_iter+1], C_mean[:N_iter+1] + C_std[:N_iter+1], color='r', alpha=0.3, label='±1 Std Cost GMFBO')  # Shaded std region
+    plt.plot(x, C_mean[:N_iter + 1], color='r', marker="o", linewidth=3, label='Mean Cost GMFBO')  # Thick line for mean
+    plt.fill_between(x, C_mean[:N_iter + 1] - C_std[:N_iter + 1], C_mean[:N_iter + 1] + C_std[:N_iter + 1], color='r',
+                     alpha=0.3, label='±1 Std Cost GMFBO')  # Shaded std region
     plt.plot(x, C_EIonly_mean, color='b', marker="o", linewidth=3, label='Mean Cost EI only')  # Thick line for mean
     plt.fill_between(x, C_EIonly_mean - C_EIonly_std, C_EIonly_mean + C_EIonly_std, color='b', alpha=0.3,
                      label='±1 Std Cost EI only')  # Shaded std region
@@ -1430,58 +1537,64 @@ def plots_MonteCarlo_objectiveEI(path, path2,   N_init_IS1,N_init_IS2,    sampli
     # plt.yscale('log')
     # plt.ylim(0.9, 1.05)  # Focus range
     # plt.yticks([0.9, 0.95, 1.0, 1.05])
-    #plt.savefig(path2+"/Unbiased_cost_sampling_BOiter.png")
+    # plt.savefig(path2+"/Unbiased_cost_sampling_BOiter.png")
     plt.show()
 
-    costs_IS2_all=[]
-    costs_IS3_all=[]
+    costs_IS2_all = []
+    costs_IS3_all = []
     for i in range(N_exper):
-        costs_IS2_all_=[]
-        costs_IS3_all_=[]
+        costs_IS2_all_ = []
+        costs_IS3_all_ = []
         for j in range(N_iter):
-            costs_IS2_all_.append(np.sum((idx_IS2_all_rest[i] < BATCH_SIZE * (j+1)) * (idx_IS2_all_rest[i] > BATCH_SIZE * j)) * s2)
-            costs_IS3_all_.append(np.sum((idx_IS3_all_rest[i] < BATCH_SIZE * (j+1)) * (idx_IS3_all_rest[i] > BATCH_SIZE * j)) * s3)
+            costs_IS2_all_.append(
+                np.sum((idx_IS2_all_rest[i] < BATCH_SIZE * (j + 1)) * (idx_IS2_all_rest[i] > BATCH_SIZE * j)) * s2)
+            costs_IS3_all_.append(
+                np.sum((idx_IS3_all_rest[i] < BATCH_SIZE * (j + 1)) * (idx_IS3_all_rest[i] > BATCH_SIZE * j)) * s3)
         costs_IS2_all.append(costs_IS2_all_)
         costs_IS3_all.append(costs_IS3_all_)
 
-    old_indices = np.linspace(0, 1, num=1+N_iter)  # Original index positions
-    new_indices = np.linspace(0, 1, num=1+BATCH_SIZE*N_iter)  # New index positions
+    old_indices = np.linspace(0, 1, num=1 + N_iter)  # Original index positions
+    new_indices = np.linspace(0, 1, num=1 + BATCH_SIZE * N_iter)  # New index positions
 
-    costs=np.hstack((np.asarray(costs_init).reshape(N_exper,1)-sampling_cost_bias*(N_init_IS1+N_init_IS2),np.stack(costs_all_list)-sampling_cost_bias*BATCH_SIZE))
-    C=np.cumsum(costs, axis=1)
-    C_mean=np.mean(C,axis=0)
-    C_std=np.std(C,axis=0)
-    costs_EIonly=np.hstack((np.asarray(costs_init_EIonly).reshape(N_exper,1)-sampling_cost_bias*(N_init_IS1),np.ones((N_exper,N_iter))*(1)*BATCH_SIZE))
-    C_EIonly=np.cumsum(costs_EIonly, axis=1)
-    C_EIonly_mean=np.mean(C_EIonly,axis=0)
-    C_EIonly_std=np.std(C_EIonly,axis=0)
-    x_ = C_mean[:N_iter+1] #np.arange(0,BATCH_SIZE*N_iter+1,BATCH_SIZE)
+    costs = np.hstack((np.asarray(costs_init).reshape(N_exper, 1) - sampling_cost_bias * (N_init_IS1 + N_init_IS2),
+                       np.stack(costs_all_list) - sampling_cost_bias * BATCH_SIZE))
+    C = np.cumsum(costs, axis=1)
+    C_mean = np.mean(C, axis=0)
+    C_std = np.std(C, axis=0)
+    costs_EIonly = np.hstack((np.asarray(costs_init_EIonly).reshape(N_exper, 1) - sampling_cost_bias * (N_init_IS1),
+                              np.ones((N_exper, N_iter)) * (1) * BATCH_SIZE))
+    C_EIonly = np.cumsum(costs_EIonly, axis=1)
+    C_EIonly_mean = np.mean(C_EIonly, axis=0)
+    C_EIonly_std = np.std(C_EIonly, axis=0)
+    x_ = C_mean[:N_iter + 1]  # np.arange(0,BATCH_SIZE*N_iter+1,BATCH_SIZE)
     # linear interpolation
     x = np.interp(new_indices, old_indices, x_)
-    x_EI_only_ = C_EIonly_mean #np.arange(0,BATCH_SIZE*N_iter+1,BATCH_SIZE)
+    x_EI_only_ = C_EIonly_mean  # np.arange(0,BATCH_SIZE*N_iter+1,BATCH_SIZE)
     # linear interpolation
     x_EI_only = np.interp(new_indices, old_indices, x_EI_only_)
 
-    DD=np.stack(train_obj_list_rest_modified, axis=1).squeeze()
-    D=np.vstack((np.asarray(min_obj_init_all), DD))
-    j_min_observed_IS1=np.minimum.accumulate(D, axis=0)
-    J_mean=np.mean(j_min_observed_IS1,axis=1)
-    J_std=np.std(j_min_observed_IS1,axis=1)
+    DD = np.stack(train_obj_list_rest_modified, axis=1).squeeze()
+    D = np.vstack((np.asarray(min_obj_init_all), DD))
+    j_min_observed_IS1 = np.minimum.accumulate(D, axis=0)
+    J_mean = np.mean(j_min_observed_IS1, axis=1)
+    J_std = np.std(j_min_observed_IS1, axis=1)
 
-    DD=-np.stack(train_obj_list_EIonly).squeeze()[:,N_init_IS1:].T
-    D=np.vstack((np.asarray(min_obj_init_all), DD))
-    j_EIonly_min_observed_IS1=np.minimum.accumulate(D, axis=0)
-    J_EIonly_mean=np.mean(j_EIonly_min_observed_IS1,axis=1)
-    J_EIonly_std=np.std(j_EIonly_min_observed_IS1,axis=1)
+    DD = -np.stack(train_obj_list_EIonly).squeeze()[:, N_init_IS1:].T
+    D = np.vstack((np.asarray(min_obj_init_all), DD))
+    j_EIonly_min_observed_IS1 = np.minimum.accumulate(D, axis=0)
+    J_EIonly_mean = np.mean(j_EIonly_min_observed_IS1, axis=1)
+    J_EIonly_std = np.std(j_EIonly_min_observed_IS1, axis=1)
 
     plt.figure(figsize=(10, 5))
     # plot_colortable(mcolors.CSS4_COLORS)
     # mcolors.CSS4_COLORS['blueviolet']
-    plt.plot(x, J_mean[:N_iter+1], color='r', marker="o", linewidth=3, label='Mean GMFBO')  # Thick line for mean
-    plt.fill_between(x, J_mean[:N_iter+1] - J_std[:N_iter+1], J_mean[:N_iter+1] + J_std[:N_iter+1], color='r', alpha=0.3, label='±1 Std GMFBO')  # Shaded std region
+    plt.plot(x, J_mean[:N_iter + 1], color='r', marker="o", linewidth=3, label='Mean GMFBO')  # Thick line for mean
+    plt.fill_between(x, J_mean[:N_iter + 1] - J_std[:N_iter + 1], J_mean[:N_iter + 1] + J_std[:N_iter + 1], color='r',
+                     alpha=0.3, label='±1 Std GMFBO')  # Shaded std region
 
     plt.plot(x_EI_only, J_EIonly_mean, color='b', marker="o", linewidth=3, label='Mean EI only')  # Thick line for mean
-    plt.fill_between(x_EI_only, J_EIonly_mean - J_EIonly_std, J_EIonly_mean + J_EIonly_std, color='b', alpha=0.3, label='±1 Std EI only')  # Shaded std region
+    plt.fill_between(x_EI_only, J_EIonly_mean - J_EIonly_std, J_EIonly_mean + J_EIonly_std, color='b', alpha=0.3,
+                     label='±1 Std EI only')  # Shaded std region
     plt.xlabel('Mean Unbiased Sampling Cost')
     plt.ylabel('$J^{*}$')
     plt.title('Unbiased Cumulative Sampling Cost vs BO Iterations')
@@ -1490,12 +1603,12 @@ def plots_MonteCarlo_objectiveEI(path, path2,   N_init_IS1,N_init_IS2,    sampli
     # plt.yscale('log')
     # plt.ylim(0.9, 1.05)  # Focus range
     # plt.yticks([0.9, 0.95, 1.0, 1.05])
-    #plt.savefig(path2+"/J_min_obs_IS1_Mean_Unbiased_cost_sampling.png")
+    # plt.savefig(path2+"/J_min_obs_IS1_Mean_Unbiased_cost_sampling.png")
     plt.show()
 
-    mean_values_baseline=np.load("/home/nobar/codes/GBO2/logs/test_6_11_baseline/mean_values.npy")
-    margin_of_error_baseline=np.load("/home/nobar/codes/GBO2/logs/test_6_11_baseline/margin_of_error.npy")
-    x_baseline=np.load("/home/nobar/codes/GBO2/logs/test_6_11_baseline/x.npy")
+    mean_values_baseline = np.load("/home/nobar/codes/GBO2/logs/test_6_11_baseline/mean_values.npy")
+    margin_of_error_baseline = np.load("/home/nobar/codes/GBO2/logs/test_6_11_baseline/margin_of_error.npy")
+    x_baseline = np.load("/home/nobar/codes/GBO2/logs/test_6_11_baseline/x.npy")
 
     # Compute statistics
     mean_values = np.mean(j_min_observed_IS1, axis=1)  # Mean of each element (over 20 vectors)
@@ -1513,14 +1626,16 @@ def plots_MonteCarlo_objectiveEI(path, path2,   N_init_IS1,N_init_IS2,    sampli
     margin_of_error_EIonly = t_value * (std_values_EIonly / np.sqrt(n))  # CI width
     # Plot
     plt.figure(figsize=(10, 5))
-    plt.plot(x, mean_values[:N_iter+1], marker="o", linewidth=3, label="Mean GMFBO", color='r')
-    plt.fill_between(x, mean_values[:N_iter+1] - margin_of_error[:N_iter+1], mean_values[:N_iter+1] + margin_of_error[:N_iter+1],
+    plt.plot(x, mean_values[:N_iter + 1], marker="o", linewidth=3, label="Mean GMFBO", color='r')
+    plt.fill_between(x, mean_values[:N_iter + 1] - margin_of_error[:N_iter + 1],
+                     mean_values[:N_iter + 1] + margin_of_error[:N_iter + 1],
                      color='r', alpha=0.3, label="95% CI GMFBO")
     # plt.plot(x_baseline, mean_values_baseline, marker="o", linewidth=3, label="Mean MFBO", color='k')
     # plt.fill_between(x_baseline, mean_values_baseline - margin_of_error_baseline, mean_values_baseline + margin_of_error_baseline,
     #                  color='k', alpha=0.3, label="95% CI MFBO")
     plt.plot(x_EI_only, mean_values_EIonly, marker="o", linewidth=3, label="Mean BO-EI", color='b')
-    plt.fill_between(x_EI_only, mean_values_EIonly - margin_of_error_EIonly, mean_values_EIonly + margin_of_error_EIonly,
+    plt.fill_between(x_EI_only, mean_values_EIonly - margin_of_error_EIonly,
+                     mean_values_EIonly + margin_of_error_EIonly,
                      color='b', alpha=0.3, label="95% CI BO-EI")
     plt.xlabel('Mean Unbiased Sampling Cost')
     plt.ylabel('$J^{*}$')
@@ -1528,29 +1643,32 @@ def plots_MonteCarlo_objectiveEI(path, path2,   N_init_IS1,N_init_IS2,    sampli
     plt.grid(True)
     # plt.ylim(0.9, 1.BATCH_SIZE)  # Focus range
     plt.title("Mean with 95% Confidence Interval")
-    #plt.savefig(path2+"/J_min_obs_IS1_Mean_Unbiased_cost_sampling_95Conf.png")
+    # plt.savefig(path2+"/J_min_obs_IS1_Mean_Unbiased_cost_sampling_95Conf.png")
     plt.show()
     # np.save("/home/nobar/codes/GBO2/logs/test_6_11_baseline/mean_values.npy",mean_values)
     # np.save("/home/nobar/codes/GBO2/logs/test_6_11_baseline/margin_of_error.npy",margin_of_error)
     # np.save("/home/nobar/codes/GBO2/logs/test_6_11_baseline/x.npy",x)
     print("")
 
-
-    costs_IS1=np.hstack((np.asarray(costs_init_IS1).reshape(N_exper,1)-sampling_cost_bias*(N_init_IS1),np.stack(costs_all_list)[:,:N_iter]-np.stack(costs_IS2_all)-np.stack(costs_IS3_all)-sampling_cost_bias*BATCH_SIZE))
-    C_IS1=np.cumsum(costs_IS1, axis=1)
-    C_mean_IS1=np.mean(C_IS1,axis=0)
-    x_IS1_ = C_mean_IS1 #np.arange(0,BATCH_SIZE*N_iter+1,BATCH_SIZE)
+    costs_IS1 = np.hstack((np.asarray(costs_init_IS1).reshape(N_exper, 1) - sampling_cost_bias * (N_init_IS1),
+                           np.stack(costs_all_list)[:, :N_iter] - np.stack(costs_IS2_all) - np.stack(
+                               costs_IS3_all) - sampling_cost_bias * BATCH_SIZE))
+    C_IS1 = np.cumsum(costs_IS1, axis=1)
+    C_mean_IS1 = np.mean(C_IS1, axis=0)
+    x_IS1_ = C_mean_IS1  # np.arange(0,BATCH_SIZE*N_iter+1,BATCH_SIZE)
     x_IS1 = np.interp(new_indices, old_indices, x_IS1_)
     # Plot
     plt.figure(figsize=(10, 5))
-    plt.plot(x_IS1, mean_values[:N_iter+1], marker="o", linewidth=3, label="Mean GMFBO", color='r')
-    plt.fill_between(x_IS1, mean_values[:N_iter+1] - margin_of_error[:N_iter+1], mean_values[:N_iter+1] + margin_of_error[:N_iter+1],
+    plt.plot(x_IS1, mean_values[:N_iter + 1], marker="o", linewidth=3, label="Mean GMFBO", color='r')
+    plt.fill_between(x_IS1, mean_values[:N_iter + 1] - margin_of_error[:N_iter + 1],
+                     mean_values[:N_iter + 1] + margin_of_error[:N_iter + 1],
                      color='r', alpha=0.3, label="95% CI GMFBO")
     # plt.plot(x_baseline, mean_values_baseline, marker="o", linewidth=3, label="Mean MFBO", color='k')
     # plt.fill_between(x_baseline, mean_values_baseline - margin_of_error_baseline, mean_values_baseline + margin_of_error_baseline,
     #                  color='k', alpha=0.3, label="95% CI MFBO")
     plt.plot(x_EI_only, mean_values_EIonly, marker="o", linewidth=3, label="Mean BO-EI", color='b')
-    plt.fill_between(x_EI_only, mean_values_EIonly - margin_of_error_EIonly, mean_values_EIonly + margin_of_error_EIonly,
+    plt.fill_between(x_EI_only, mean_values_EIonly - margin_of_error_EIonly,
+                     mean_values_EIonly + margin_of_error_EIonly,
                      color='b', alpha=0.3, label="95% CI BO-EI")
     plt.xlabel('Mean IS1 only Sampling Cost')
     plt.ylabel('$J^{*}$')
@@ -1558,7 +1676,7 @@ def plots_MonteCarlo_objectiveEI(path, path2,   N_init_IS1,N_init_IS2,    sampli
     plt.grid(True)
     # plt.ylim(0.9, 1.4)  # Focus range
     plt.title("Mean with 95% Confidence Interval")
-    #plt.savefig(path2+"/J_min_obs_IS1_Mean_IS1onlySamplingCost_95Conf.png")
+    # plt.savefig(path2+"/J_min_obs_IS1_Mean_IS1onlySamplingCost_95Conf.png")
     plt.show()
     # np.save("/home/nobar/codes/GBO2/logs/test_6_11_baseline/mean_values.npy",mean_values)
     # np.save("/home/nobar/codes/GBO2/logs/test_6_11_baseline/margin_of_error.npy",margin_of_error)
@@ -1566,7 +1684,8 @@ def plots_MonteCarlo_objectiveEI(path, path2,   N_init_IS1,N_init_IS2,    sampli
     print("")
 
 
-def plots_MonteCarlo_objectiveUCB(path, path2,   N_init_IS1,N_init_IS2,    sampling_cost_bias,N_exper,N_iter, s2, s3, BATCH_SIZE):
+def plots_MonteCarlo_objectiveUCB(path, path2, N_init_IS1, N_init_IS2, sampling_cost_bias, N_exper, N_iter, s2, s3,
+                                  BATCH_SIZE):
     costs_all_list = []
     costs_all_list_UCBonly = []
     train_x_list = []
@@ -1575,26 +1694,26 @@ def plots_MonteCarlo_objectiveUCB(path, path2,   N_init_IS1,N_init_IS2,    sampl
     train_obj_list_IS1 = []
     train_x_list_UCBonly = []
     train_obj_list_UCBonly = []
-    idx_IS1_all=[]
-    idx_IS1_all_init=[]
-    idx_IS1_all_rest=[]
-    idx_IS2_all=[]
-    idx_IS2_all_init=[]
-    idx_IS2_all_rest=[]
-    idx_IS3_all=[]
-    idx_IS3_all_init=[]
-    idx_IS3_all_rest=[]
-    idx_ISDTs_all=[]
-    idx_ISDTs_all_init=[]
-    idx_ISDTs_all_rest=[]
+    idx_IS1_all = []
+    idx_IS1_all_init = []
+    idx_IS1_all_rest = []
+    idx_IS2_all = []
+    idx_IS2_all_init = []
+    idx_IS2_all_rest = []
+    idx_IS3_all = []
+    idx_IS3_all_init = []
+    idx_IS3_all_rest = []
+    idx_ISDTs_all = []
+    idx_ISDTs_all_init = []
+    idx_ISDTs_all_rest = []
     # train_x_IS1_init_list=[]
     # train_obj_IS1_init_list=[]
-    train_obj_UCBonly_corrected_all=[]
-    min_obj_init_all=[]
-    train_obj_list_rest_modified=[]
-    costs_init=[]
-    costs_init_IS1=[]
-    costs_init_UCBonly=[]
+    train_obj_UCBonly_corrected_all = []
+    min_obj_init_all = []
+    train_obj_list_rest_modified = []
+    costs_init = []
+    costs_init_IS1 = []
+    costs_init_UCBonly = []
     for exper in range(N_exper):
         exp_path = os.path.join(path, f"Exper_{exper}")
         exp_path2 = os.path.join(path2, f"Exper_{exper}")
@@ -1603,22 +1722,22 @@ def plots_MonteCarlo_objectiveUCB(path, path2,   N_init_IS1,N_init_IS2,    sampl
         train_obj = np.load(os.path.join(exp_path, "train_obj.npy"))
 
         idx_IS1 = np.argwhere(train_x[:, 2] == 1).squeeze()
-        idx_IS1_init=idx_IS1[np.argwhere(idx_IS1<N_init_IS1+N_init_IS2)[:,0]]
-        idx_IS1_rest=idx_IS1[np.argwhere(idx_IS1>N_init_IS1+N_init_IS2-1)[:,0]]
+        idx_IS1_init = idx_IS1[np.argwhere(idx_IS1 < N_init_IS1 + N_init_IS2)[:, 0]]
+        idx_IS1_rest = idx_IS1[np.argwhere(idx_IS1 > N_init_IS1 + N_init_IS2 - 1)[:, 0]]
         idx_ISDTs = np.argwhere(~(train_x[:, 2] == 1)).squeeze()
-        idx_ISDTs_init=idx_ISDTs[np.argwhere(idx_ISDTs<N_init_IS1+N_init_IS2)[:,0]]
-        idx_ISDTs_rest=idx_ISDTs[np.argwhere(idx_ISDTs>N_init_IS1+N_init_IS2-1)[:,0]]
-        train_x_IS1_init=train_x[idx_IS1_init, :]
-        train_obj_IS1_init=train_obj[idx_IS1_init]
+        idx_ISDTs_init = idx_ISDTs[np.argwhere(idx_ISDTs < N_init_IS1 + N_init_IS2)[:, 0]]
+        idx_ISDTs_rest = idx_ISDTs[np.argwhere(idx_ISDTs > N_init_IS1 + N_init_IS2 - 1)[:, 0]]
+        train_x_IS1_init = train_x[idx_IS1_init, :]
+        train_obj_IS1_init = train_obj[idx_IS1_init]
 
         idx_IS2 = np.argwhere(train_x[:, 2] == s2).squeeze()
         idx_IS2 = idx_IS2.reshape(idx_IS2.size, )
-        idx_IS2_init=idx_IS2[np.argwhere(idx_IS2<N_init_IS1+N_init_IS2)[:,0]]
-        idx_IS2_rest=idx_IS2[np.argwhere(idx_IS2>N_init_IS1+N_init_IS2-1)[:,0]]
+        idx_IS2_init = idx_IS2[np.argwhere(idx_IS2 < N_init_IS1 + N_init_IS2)[:, 0]]
+        idx_IS2_rest = idx_IS2[np.argwhere(idx_IS2 > N_init_IS1 + N_init_IS2 - 1)[:, 0]]
         idx_IS3 = np.argwhere(train_x[:, 2] == s3).squeeze()
-        idx_IS3=idx_IS3.reshape(idx_IS3.size, )
-        idx_IS3_init=idx_IS3[np.argwhere(idx_IS3<N_init_IS1+N_init_IS2)[:,0]]
-        idx_IS3_rest=idx_IS3[np.argwhere(idx_IS3>N_init_IS1+N_init_IS2-1)[:,0]]
+        idx_IS3 = idx_IS3.reshape(idx_IS3.size, )
+        idx_IS3_init = idx_IS3[np.argwhere(idx_IS3 < N_init_IS1 + N_init_IS2)[:, 0]]
+        idx_IS3_rest = idx_IS3[np.argwhere(idx_IS3 > N_init_IS1 + N_init_IS2 - 1)[:, 0]]
 
         # np.save(os.path.join(exp_path, "train_x_IS1_init.npy"),train_x_IS1_init)
         # np.save(os.path.join(exp_path, "train_obj_IS1_init.npy"),train_obj_IS1_init)
@@ -1637,14 +1756,14 @@ def plots_MonteCarlo_objectiveUCB(path, path2,   N_init_IS1,N_init_IS2,    sampl
         # train_obj_UCBonly=np.delete(train_obj_UCBonly, np.s_[N_init_IS1:N_init_IS1 + N_init_IS2], axis=0)
 
         train_obj_UCBonly[N_init_IS1:N_init_IS1 + N_init_IS2]
-        costs_all=np.load(os.path.join(exp_path, "costs_all.npy"))
-        costs_all_UCBonly=np.load(os.path.join(exp_path2, "costs_all_UCBonly.npy"))
-        costs_all_UCBonly_corrected=np.load(os.path.join(exp_path2, "costs_all_UCBonly.npy"))
+        costs_all = np.load(os.path.join(exp_path, "costs_all.npy"))
+        costs_all_UCBonly = np.load(os.path.join(exp_path2, "costs_all_UCBonly.npy"))
+        costs_all_UCBonly_corrected = np.load(os.path.join(exp_path2, "costs_all_UCBonly.npy"))
         # Append to lists
         costs_all_list.append(costs_all)
-        costs_init.append(np.sum(train_x[:N_init_IS1+N_init_IS2,2])+sampling_cost_bias*(N_init_IS1+N_init_IS2))
-        costs_init_IS1.append(np.sum(train_x[:N_init_IS1,2])+sampling_cost_bias*(N_init_IS1))
-        costs_init_UCBonly.append(np.sum(train_x_UCBonly[:N_init_IS1,2])+sampling_cost_bias*(N_init_IS1))
+        costs_init.append(np.sum(train_x[:N_init_IS1 + N_init_IS2, 2]) + sampling_cost_bias * (N_init_IS1 + N_init_IS2))
+        costs_init_IS1.append(np.sum(train_x[:N_init_IS1, 2]) + sampling_cost_bias * (N_init_IS1))
+        costs_init_UCBonly.append(np.sum(train_x_UCBonly[:N_init_IS1, 2]) + sampling_cost_bias * (N_init_IS1))
 
         idx_IS1_all.append(idx_IS1)
         idx_IS1_all_init.append(idx_IS1_init)
@@ -1665,9 +1784,9 @@ def plots_MonteCarlo_objectiveUCB(path, path2,   N_init_IS1,N_init_IS2,    sampl
         train_x_list.append(train_x)
         train_obj_list.append(train_obj)
 
-        A=train_obj
-        A[idx_ISDTs_rest]=-np.inf
-        train_obj_list_rest_modified.append(-A[N_init_IS1+N_init_IS2:])
+        A = train_obj
+        A[idx_ISDTs_rest] = -np.inf
+        train_obj_list_rest_modified.append(-A[N_init_IS1 + N_init_IS2:])
 
         train_x_list_IS1.append(train_x_IS1)
         train_obj_list_IS1.append(train_obj_IS1)
@@ -1677,25 +1796,26 @@ def plots_MonteCarlo_objectiveUCB(path, path2,   N_init_IS1,N_init_IS2,    sampl
         train_obj_UCBonly_corrected_all.append(train_obj_UCBonly_corrected)
         train_obj_list_UCBonly.append(train_obj_UCBonly)
 
-    DD=np.stack(train_obj_list_rest_modified, axis=1).squeeze()
-    D=np.vstack((np.asarray(min_obj_init_all), DD))
-    j_min_observed_IS1=np.minimum.accumulate(D, axis=0)
-    J_mean=np.mean(j_min_observed_IS1,axis=1)
-    J_std=np.std(j_min_observed_IS1,axis=1)
+    DD = np.stack(train_obj_list_rest_modified, axis=1).squeeze()
+    D = np.vstack((np.asarray(min_obj_init_all), DD))
+    j_min_observed_IS1 = np.minimum.accumulate(D, axis=0)
+    J_mean = np.mean(j_min_observed_IS1, axis=1)
+    J_std = np.std(j_min_observed_IS1, axis=1)
 
-    DD=-np.stack(train_obj_list_UCBonly).squeeze()[:,N_init_IS1:].T
-    D=np.vstack((np.asarray(min_obj_init_all), DD))
-    j_UCBonly_min_observed_IS1=np.minimum.accumulate(D, axis=0)
-    J_UCBonly_mean=np.mean(j_UCBonly_min_observed_IS1,axis=1)
-    J_UCBonly_std=np.std(j_UCBonly_min_observed_IS1,axis=1)
-    x = np.arange(0,BATCH_SIZE*N_iter+1)
+    DD = -np.stack(train_obj_list_UCBonly).squeeze()[:, N_init_IS1:].T
+    D = np.vstack((np.asarray(min_obj_init_all), DD))
+    j_UCBonly_min_observed_IS1 = np.minimum.accumulate(D, axis=0)
+    J_UCBonly_mean = np.mean(j_UCBonly_min_observed_IS1, axis=1)
+    J_UCBonly_std = np.std(j_UCBonly_min_observed_IS1, axis=1)
+    x = np.arange(0, BATCH_SIZE * N_iter + 1)
     plt.figure(figsize=(10, 5))
     # plot_colortable(mcolors.CSS4_COLORS)
     # mcolors.CSS4_COLORS['blueviolet']
     plt.plot(x, J_mean, color='r', linewidth=3, label='Mean GMFBO')  # Thick line for mean
     plt.fill_between(x, J_mean - J_std, J_mean + J_std, color='r', alpha=0.3, label='±1 Std GMFBO')  # Shaded std region
     plt.plot(x, J_UCBonly_mean, color='b', linewidth=3, label='Mean UCB only')  # Thick line for mean
-    plt.fill_between(x, J_UCBonly_mean - J_UCBonly_std, J_UCBonly_mean + J_UCBonly_std, color='b', alpha=0.3, label='±1 Std UCB only')  # Shaded std region
+    plt.fill_between(x, J_UCBonly_mean - J_UCBonly_std, J_UCBonly_mean + J_UCBonly_std, color='b', alpha=0.3,
+                     label='±1 Std UCB only')  # Shaded std region
     plt.xlabel('BO Iteration')
     plt.ylabel('$J^{*}$')
     plt.title('Minimum Observed Objective on IS1 over BO Iterations')
@@ -1704,23 +1824,25 @@ def plots_MonteCarlo_objectiveUCB(path, path2,   N_init_IS1,N_init_IS2,    sampl
     # plt.yscale('log')
     # plt.ylim(0.9, 1.05)  # Focus range
     # plt.yticks([0.9, 0.95, 1.0, 1.05])
-    #plt.savefig(path2+"/J_min_obs_IS1_BOiter.png")
+    # plt.savefig(path2+"/J_min_obs_IS1_BOiter.png")
     plt.show()
 
-    costs=np.hstack((np.asarray(costs_init).reshape(N_exper,1),np.stack(costs_all_list)))
-    C=np.cumsum(costs, axis=1)
-    C_mean=np.mean(C,axis=0)
-    C_std=np.std(C,axis=0)
-    costs_UCBonly=np.hstack((np.asarray(costs_init_UCBonly).reshape(N_exper,1),np.ones((N_exper,N_iter))*(sampling_cost_bias+1)*BATCH_SIZE))
-    C_UCBonly=np.cumsum(costs_UCBonly, axis=1)
-    C_UCBonly_mean=np.mean(C_UCBonly,axis=0)
-    C_UCBonly_std=np.std(C_UCBonly,axis=0)
-    x = np.arange(0,BATCH_SIZE*N_iter+1,BATCH_SIZE)
+    costs = np.hstack((np.asarray(costs_init).reshape(N_exper, 1), np.stack(costs_all_list)))
+    C = np.cumsum(costs, axis=1)
+    C_mean = np.mean(C, axis=0)
+    C_std = np.std(C, axis=0)
+    costs_UCBonly = np.hstack((np.asarray(costs_init_UCBonly).reshape(N_exper, 1),
+                               np.ones((N_exper, N_iter)) * (sampling_cost_bias + 1) * BATCH_SIZE))
+    C_UCBonly = np.cumsum(costs_UCBonly, axis=1)
+    C_UCBonly_mean = np.mean(C_UCBonly, axis=0)
+    C_UCBonly_std = np.std(C_UCBonly, axis=0)
+    x = np.arange(0, BATCH_SIZE * N_iter + 1, BATCH_SIZE)
     plt.figure(figsize=(10, 5))
     # plot_colortable(mcolors.CSS4_COLORS)
     # mcolors.CSS4_COLORS['blueviolet']
     plt.plot(x, C_mean, color='r', marker="o", linewidth=3, label='Mean Cost GMFBO')  # Thick line for mean
-    plt.fill_between(x, C_mean - C_std, C_mean + C_std, color='r', alpha=0.3, label='±1 Std Cost GMFBO')  # Shaded std region
+    plt.fill_between(x, C_mean - C_std, C_mean + C_std, color='r', alpha=0.3,
+                     label='±1 Std Cost GMFBO')  # Shaded std region
     plt.plot(x, C_UCBonly_mean, color='b', marker="o", linewidth=3, label='Mean Cost UCB only')  # Thick line for mean
     plt.fill_between(x, C_UCBonly_mean - C_UCBonly_std, C_UCBonly_mean + C_UCBonly_std, color='b', alpha=0.3,
                      label='±1 Std Cost UCB only')  # Shaded std region
@@ -1732,24 +1854,26 @@ def plots_MonteCarlo_objectiveUCB(path, path2,   N_init_IS1,N_init_IS2,    sampl
     # plt.yscale('log')
     # plt.ylim(0.9, 1.05)  # Focus range
     # plt.yticks([0.9, 0.95, 1.0, 1.05])
-    #plt.savefig(path2+"/Cost_sampling_BOiter.png")
+    # plt.savefig(path2+"/Cost_sampling_BOiter.png")
     plt.show()
 
-
-    costs=np.hstack((np.asarray(costs_init).reshape(N_exper,1)-sampling_cost_bias*(N_init_IS1+N_init_IS2),np.stack(costs_all_list)-sampling_cost_bias*BATCH_SIZE))
-    C=np.cumsum(costs, axis=1)
-    C_mean=np.mean(C,axis=0)
-    C_std=np.std(C,axis=0)
-    costs_UCBonly=np.hstack((np.asarray(costs_init_UCBonly).reshape(N_exper,1)-sampling_cost_bias*N_init_IS1,np.ones((N_exper,N_iter))*(1)*BATCH_SIZE))
-    C_UCBonly=np.cumsum(costs_UCBonly, axis=1)
-    C_UCBonly_mean=np.mean(C_UCBonly,axis=0)
-    C_UCBonly_std=np.std(C_UCBonly,axis=0)
-    x = np.arange(0,BATCH_SIZE*N_iter+1,BATCH_SIZE)
+    costs = np.hstack((np.asarray(costs_init).reshape(N_exper, 1) - sampling_cost_bias * (N_init_IS1 + N_init_IS2),
+                       np.stack(costs_all_list) - sampling_cost_bias * BATCH_SIZE))
+    C = np.cumsum(costs, axis=1)
+    C_mean = np.mean(C, axis=0)
+    C_std = np.std(C, axis=0)
+    costs_UCBonly = np.hstack((np.asarray(costs_init_UCBonly).reshape(N_exper, 1) - sampling_cost_bias * N_init_IS1,
+                               np.ones((N_exper, N_iter)) * (1) * BATCH_SIZE))
+    C_UCBonly = np.cumsum(costs_UCBonly, axis=1)
+    C_UCBonly_mean = np.mean(C_UCBonly, axis=0)
+    C_UCBonly_std = np.std(C_UCBonly, axis=0)
+    x = np.arange(0, BATCH_SIZE * N_iter + 1, BATCH_SIZE)
     plt.figure(figsize=(10, 5))
     # plot_colortable(mcolors.CSS4_COLORS)
     # mcolors.CSS4_COLORS['blueviolet']
     plt.plot(x, C_mean, color='r', marker="o", linewidth=3, label='Mean Cost GMFBO')  # Thick line for mean
-    plt.fill_between(x, C_mean - C_std, C_mean + C_std, color='r', alpha=0.3, label='±1 Std Cost GMFBO')  # Shaded std region
+    plt.fill_between(x, C_mean - C_std, C_mean + C_std, color='r', alpha=0.3,
+                     label='±1 Std Cost GMFBO')  # Shaded std region
     plt.plot(x, C_UCBonly_mean, color='b', marker="o", linewidth=3, label='Mean Cost UCB only')  # Thick line for mean
     plt.fill_between(x, C_UCBonly_mean - C_UCBonly_std, C_UCBonly_mean + C_UCBonly_std, color='b', alpha=0.3,
                      label='±1 Std Cost UCB only')  # Shaded std region
@@ -1761,49 +1885,53 @@ def plots_MonteCarlo_objectiveUCB(path, path2,   N_init_IS1,N_init_IS2,    sampl
     # plt.yscale('log')
     # plt.ylim(0.9, 1.05)  # Focus range
     # plt.yticks([0.9, 0.95, 1.0, 1.05])
-    #plt.savefig(path2+"/Unbiased_cost_sampling_BOiter.png")
+    # plt.savefig(path2+"/Unbiased_cost_sampling_BOiter.png")
     plt.show()
 
-    costs_IS2_all=[]
-    costs_IS3_all=[]
+    costs_IS2_all = []
+    costs_IS3_all = []
     for i in range(N_exper):
-        costs_IS2_all_=[]
-        costs_IS3_all_=[]
+        costs_IS2_all_ = []
+        costs_IS3_all_ = []
         for j in range(N_iter):
-            costs_IS2_all_.append(np.sum((idx_IS2_all_rest[i] < BATCH_SIZE * (j+1)) * (idx_IS2_all_rest[i] > BATCH_SIZE * j)) * s2)
-            costs_IS3_all_.append(np.sum((idx_IS3_all_rest[i] < BATCH_SIZE * (j+1)) * (idx_IS3_all_rest[i] > BATCH_SIZE * j)) * s3)
+            costs_IS2_all_.append(
+                np.sum((idx_IS2_all_rest[i] < BATCH_SIZE * (j + 1)) * (idx_IS2_all_rest[i] > BATCH_SIZE * j)) * s2)
+            costs_IS3_all_.append(
+                np.sum((idx_IS3_all_rest[i] < BATCH_SIZE * (j + 1)) * (idx_IS3_all_rest[i] > BATCH_SIZE * j)) * s3)
         costs_IS2_all.append(costs_IS2_all_)
         costs_IS3_all.append(costs_IS3_all_)
 
-    old_indices = np.linspace(0, 1, num=1+N_iter)  # Original index positions
-    new_indices = np.linspace(0, 1, num=1+BATCH_SIZE*N_iter)  # New index positions
+    old_indices = np.linspace(0, 1, num=1 + N_iter)  # Original index positions
+    new_indices = np.linspace(0, 1, num=1 + BATCH_SIZE * N_iter)  # New index positions
 
-    costs=np.hstack((np.asarray(costs_init).reshape(N_exper,1)-sampling_cost_bias*(N_init_IS1+N_init_IS2),np.stack(costs_all_list)-sampling_cost_bias*BATCH_SIZE))
-    C=np.cumsum(costs, axis=1)
-    C_mean=np.mean(C,axis=0)
-    C_std=np.std(C,axis=0)
-    costs_UCBonly=np.hstack((np.asarray(costs_init_UCBonly).reshape(N_exper,1)-sampling_cost_bias*(N_init_IS1),np.ones((N_exper,N_iter))*(1)*BATCH_SIZE))
-    C_UCBonly=np.cumsum(costs_UCBonly, axis=1)
-    C_UCBonly_mean=np.mean(C_UCBonly,axis=0)
-    C_UCBonly_std=np.std(C_UCBonly,axis=0)
-    x_ = C_mean #np.arange(0,BATCH_SIZE*N_iter+1,BATCH_SIZE)
+    costs = np.hstack((np.asarray(costs_init).reshape(N_exper, 1) - sampling_cost_bias * (N_init_IS1 + N_init_IS2),
+                       np.stack(costs_all_list) - sampling_cost_bias * BATCH_SIZE))
+    C = np.cumsum(costs, axis=1)
+    C_mean = np.mean(C, axis=0)
+    C_std = np.std(C, axis=0)
+    costs_UCBonly = np.hstack((np.asarray(costs_init_UCBonly).reshape(N_exper, 1) - sampling_cost_bias * (N_init_IS1),
+                               np.ones((N_exper, N_iter)) * (1) * BATCH_SIZE))
+    C_UCBonly = np.cumsum(costs_UCBonly, axis=1)
+    C_UCBonly_mean = np.mean(C_UCBonly, axis=0)
+    C_UCBonly_std = np.std(C_UCBonly, axis=0)
+    x_ = C_mean  # np.arange(0,BATCH_SIZE*N_iter+1,BATCH_SIZE)
     # linear interpolation
     x = np.interp(new_indices, old_indices, x_)
-    x_UCB_only_ = C_UCBonly_mean #np.arange(0,BATCH_SIZE*N_iter+1,BATCH_SIZE)
+    x_UCB_only_ = C_UCBonly_mean  # np.arange(0,BATCH_SIZE*N_iter+1,BATCH_SIZE)
     # linear interpolation
     x_UCB_only = np.interp(new_indices, old_indices, x_UCB_only_)
 
-    DD=np.stack(train_obj_list_rest_modified, axis=1).squeeze()
-    D=np.vstack((np.asarray(min_obj_init_all), DD))
-    j_min_observed_IS1=np.minimum.accumulate(D, axis=0)
-    J_mean=np.mean(j_min_observed_IS1,axis=1)
-    J_std=np.std(j_min_observed_IS1,axis=1)
+    DD = np.stack(train_obj_list_rest_modified, axis=1).squeeze()
+    D = np.vstack((np.asarray(min_obj_init_all), DD))
+    j_min_observed_IS1 = np.minimum.accumulate(D, axis=0)
+    J_mean = np.mean(j_min_observed_IS1, axis=1)
+    J_std = np.std(j_min_observed_IS1, axis=1)
 
-    DD=-np.stack(train_obj_list_UCBonly).squeeze()[:,N_init_IS1:].T
-    D=np.vstack((np.asarray(min_obj_init_all), DD))
-    j_UCBonly_min_observed_IS1=np.minimum.accumulate(D, axis=0)
-    J_UCBonly_mean=np.mean(j_UCBonly_min_observed_IS1,axis=1)
-    J_UCBonly_std=np.std(j_UCBonly_min_observed_IS1,axis=1)
+    DD = -np.stack(train_obj_list_UCBonly).squeeze()[:, N_init_IS1:].T
+    D = np.vstack((np.asarray(min_obj_init_all), DD))
+    j_UCBonly_min_observed_IS1 = np.minimum.accumulate(D, axis=0)
+    J_UCBonly_mean = np.mean(j_UCBonly_min_observed_IS1, axis=1)
+    J_UCBonly_std = np.std(j_UCBonly_min_observed_IS1, axis=1)
 
     plt.figure(figsize=(10, 5))
     # plot_colortable(mcolors.CSS4_COLORS)
@@ -1811,8 +1939,10 @@ def plots_MonteCarlo_objectiveUCB(path, path2,   N_init_IS1,N_init_IS2,    sampl
     plt.plot(x, J_mean, color='r', marker="o", linewidth=3, label='Mean GMFBO')  # Thick line for mean
     plt.fill_between(x, J_mean - J_std, J_mean + J_std, color='r', alpha=0.3, label='±1 Std GMFBO')  # Shaded std region
 
-    plt.plot(x_UCB_only, J_UCBonly_mean, color='b', marker="o", linewidth=3, label='Mean UCB only')  # Thick line for mean
-    plt.fill_between(x_UCB_only, J_UCBonly_mean - J_UCBonly_std, J_UCBonly_mean + J_UCBonly_std, color='b', alpha=0.3, label='±1 Std UCB only')  # Shaded std region
+    plt.plot(x_UCB_only, J_UCBonly_mean, color='b', marker="o", linewidth=3,
+             label='Mean UCB only')  # Thick line for mean
+    plt.fill_between(x_UCB_only, J_UCBonly_mean - J_UCBonly_std, J_UCBonly_mean + J_UCBonly_std, color='b', alpha=0.3,
+                     label='±1 Std UCB only')  # Shaded std region
     plt.xlabel('Mean Unbiased Sampling Cost')
     plt.ylabel('$J^{*}$')
     plt.title('Unbiased Cumulative Sampling Cost vs BO Iterations')
@@ -1821,12 +1951,12 @@ def plots_MonteCarlo_objectiveUCB(path, path2,   N_init_IS1,N_init_IS2,    sampl
     # plt.yscale('log')
     # plt.ylim(0.9, 1.05)  # Focus range
     # plt.yticks([0.9, 0.95, 1.0, 1.05])
-    #plt.savefig(path2+"/J_min_obs_IS1_Mean_Unbiased_cost_sampling.png")
+    # plt.savefig(path2+"/J_min_obs_IS1_Mean_Unbiased_cost_sampling.png")
     plt.show()
 
-    mean_values_baseline=np.load("/home/nobar/codes/GBO2/logs/test_6_11_baseline/mean_values.npy")
-    margin_of_error_baseline=np.load("/home/nobar/codes/GBO2/logs/test_6_11_baseline/margin_of_error.npy")
-    x_baseline=np.load("/home/nobar/codes/GBO2/logs/test_6_11_baseline/x.npy")
+    mean_values_baseline = np.load("/home/nobar/codes/GBO2/logs/test_6_11_baseline/mean_values.npy")
+    margin_of_error_baseline = np.load("/home/nobar/codes/GBO2/logs/test_6_11_baseline/margin_of_error.npy")
+    x_baseline = np.load("/home/nobar/codes/GBO2/logs/test_6_11_baseline/x.npy")
 
     # Compute statistics
     mean_values = np.mean(j_min_observed_IS1, axis=1)  # Mean of each element (over 20 vectors)
@@ -1851,7 +1981,8 @@ def plots_MonteCarlo_objectiveUCB(path, path2,   N_init_IS1,N_init_IS2,    sampl
     # plt.fill_between(x_baseline, mean_values_baseline - margin_of_error_baseline, mean_values_baseline + margin_of_error_baseline,
     #                  color='k', alpha=0.3, label="95% CI MFBO")
     plt.plot(x_UCB_only, mean_values_UCBonly, marker="o", linewidth=3, label="Mean BO-UCB", color='b')
-    plt.fill_between(x_UCB_only, mean_values_UCBonly - margin_of_error_UCBonly, mean_values_UCBonly + margin_of_error_UCBonly,
+    plt.fill_between(x_UCB_only, mean_values_UCBonly - margin_of_error_UCBonly,
+                     mean_values_UCBonly + margin_of_error_UCBonly,
                      color='b', alpha=0.3, label="95% CI BO-UCB")
     plt.xlabel('Mean Unbiased Sampling Cost')
     plt.ylabel('$J^{*}$')
@@ -1859,18 +1990,19 @@ def plots_MonteCarlo_objectiveUCB(path, path2,   N_init_IS1,N_init_IS2,    sampl
     plt.grid(True)
     # plt.ylim(0.9, 1.BATCH_SIZE)  # Focus range
     plt.title("Mean with 95% Confidence Interval")
-    #plt.savefig(path2+"/J_min_obs_IS1_Mean_Unbiased_cost_sampling_95Conf.png")
+    # plt.savefig(path2+"/J_min_obs_IS1_Mean_Unbiased_cost_sampling_95Conf.png")
     plt.show()
     # np.save("/home/nobar/codes/GBO2/logs/test_6_11_baseline/mean_values.npy",mean_values)
     # np.save("/home/nobar/codes/GBO2/logs/test_6_11_baseline/margin_of_error.npy",margin_of_error)
     # np.save("/home/nobar/codes/GBO2/logs/test_6_11_baseline/x.npy",x)
     print("")
 
-
-    costs_IS1=np.hstack((np.asarray(costs_init_IS1).reshape(N_exper,1)-sampling_cost_bias*(N_init_IS1),np.stack(costs_all_list)-np.stack(costs_IS2_all)-np.stack(costs_IS3_all)-sampling_cost_bias*BATCH_SIZE))
-    C_IS1=np.cumsum(costs_IS1, axis=1)
-    C_mean_IS1=np.mean(C_IS1,axis=0)
-    x_IS1_ = C_mean_IS1 #np.arange(0,BATCH_SIZE*N_iter+1,BATCH_SIZE)
+    costs_IS1 = np.hstack((np.asarray(costs_init_IS1).reshape(N_exper, 1) - sampling_cost_bias * (N_init_IS1),
+                           np.stack(costs_all_list) - np.stack(costs_IS2_all) - np.stack(
+                               costs_IS3_all) - sampling_cost_bias * BATCH_SIZE))
+    C_IS1 = np.cumsum(costs_IS1, axis=1)
+    C_mean_IS1 = np.mean(C_IS1, axis=0)
+    x_IS1_ = C_mean_IS1  # np.arange(0,BATCH_SIZE*N_iter+1,BATCH_SIZE)
     x_IS1 = np.interp(new_indices, old_indices, x_IS1_)
     # Plot
     plt.figure(figsize=(10, 5))
@@ -1881,7 +2013,8 @@ def plots_MonteCarlo_objectiveUCB(path, path2,   N_init_IS1,N_init_IS2,    sampl
     # plt.fill_between(x_baseline, mean_values_baseline - margin_of_error_baseline, mean_values_baseline + margin_of_error_baseline,
     #                  color='k', alpha=0.3, label="95% CI MFBO")
     plt.plot(x_UCB_only, mean_values_UCBonly, marker="o", linewidth=3, label="Mean BO-UCB", color='b')
-    plt.fill_between(x_UCB_only, mean_values_UCBonly - margin_of_error_UCBonly, mean_values_UCBonly + margin_of_error_UCBonly,
+    plt.fill_between(x_UCB_only, mean_values_UCBonly - margin_of_error_UCBonly,
+                     mean_values_UCBonly + margin_of_error_UCBonly,
                      color='b', alpha=0.3, label="95% CI BO-UCB")
     plt.xlabel('Mean IS1 only Sampling Cost')
     plt.ylabel('$J^{*}$')
@@ -1889,12 +2022,13 @@ def plots_MonteCarlo_objectiveUCB(path, path2,   N_init_IS1,N_init_IS2,    sampl
     plt.grid(True)
     # plt.ylim(0.9, 1.4)  # Focus range
     plt.title("Mean with 95% Confidence Interval")
-    #plt.savefig(path2+"/J_min_obs_IS1_Mean_IS1onlySamplingCost_95Conf.png")
+    # plt.savefig(path2+"/J_min_obs_IS1_Mean_IS1onlySamplingCost_95Conf.png")
     plt.show()
     # np.save("/home/nobar/codes/GBO2/logs/test_6_11_baseline/mean_values.npy",mean_values)
     # np.save("/home/nobar/codes/GBO2/logs/test_6_11_baseline/margin_of_error.npy",margin_of_error)
     # np.save("/home/nobar/codes/GBO2/logs/test_6_11_baseline/x.npy",x)
     print("")
+
 
 def plot_cost_coef():
     import numpy as np
@@ -1908,6 +2042,7 @@ def plot_cost_coef():
             return 0
         else:
             return A * np.exp(B * (x - 3)) + C
+
     # Generate x values
     x_values = np.linspace(1, 5, 100)
     y_values = [f(x) for x in x_values]
@@ -1923,7 +2058,7 @@ def plot_cost_coef():
     plt.show()
 
 
-def plot_GPs(iter, path, train_x_i,train_obj_i):
+def plot_GPs(iter, path, train_x_i, train_obj_i):
     # Step 3: Define fidelity levels and create a grid for plotting
     # uncomment for my idea
     fidelities = [1.0, 0.1]  # Three fidelity levels
@@ -1933,7 +2068,7 @@ def plot_GPs(iter, path, train_x_i,train_obj_i):
     X1, X2 = torch.meshgrid(x1, x2, indexing="ij")
 
     # Step 4: Prepare the figure with 3x2 subplots
-    fig, axs = plt.subplots(len(fidelities), 2, figsize=(14, 6*fidelities.__len__()))
+    fig, axs = plt.subplots(len(fidelities), 2, figsize=(14, 6 * fidelities.__len__()))
 
     for i, s_val in enumerate(fidelities):
         s_fixed = torch.tensor([[s_val]])
@@ -1952,8 +2087,8 @@ def plot_GPs(iter, path, train_x_i,train_obj_i):
         #     std = posterior.variance.sqrt().reshape(50, 50).numpy()
         # mean= np.load(path + "/EIonly_mean_{}.npy".format(str(iter)))
         # std=np.load(path + "/EIonly_std_{}.npy".format(str(iter)))
-        mean= np.load(path + "/mean_{}.npy".format(str(iter)))
-        std=np.load(path + "/std_{}.npy".format(str(iter)))
+        mean = np.load(path + "/mean_{}.npy".format(str(iter)))
+        std = np.load(path + "/std_{}.npy".format(str(iter)))
         # Plot the posterior mean
         contour_mean = axs[i, 0].contourf(X1.numpy(), X2.numpy(), mean.T, cmap='viridis')
         axs[i, 0].set_title(f"Posterior Mean (s={s_val})")
@@ -1965,7 +2100,8 @@ def plot_GPs(iter, path, train_x_i,train_obj_i):
         fig.colorbar(contour_std, ax=axs[i, 1])
 
         # scatter_train_x = axs[i, 0].scatter(train_x_i[:,0], train_x_i[:,1], c='b',linewidth=15)
-        scatter_train_x = axs[i, 0].scatter(train_x_i[np.argwhere(train_x_i[:,2]==s_val),0], train_x_i[np.argwhere(train_x_i[:,2]==s_val),1], c='r',linewidth=15)
+        scatter_train_x = axs[i, 0].scatter(train_x_i[np.argwhere(train_x_i[:, 2] == s_val), 0],
+                                            train_x_i[np.argwhere(train_x_i[:, 2] == s_val), 1], c='r', linewidth=15)
 
         # np.save(path + "/EIonly_X1_{}.npy".format(str(iter)), X1)
         # np.save(path + "/EIonly_X2_{}.npy".format(str(iter)), X2)
@@ -1979,11 +2115,12 @@ def plot_GPs(iter, path, train_x_i,train_obj_i):
 
     plt.tight_layout()
     # #plt.savefig(path + "/withTrainData_EIonly_GP_itr_{}.png".format(str(iter)))
-    #plt.savefig(path + "/withTrainData_GP_itr_{}.png".format(str(iter)))
+    # plt.savefig(path + "/withTrainData_GP_itr_{}.png".format(str(iter)))
     # plt.show()
     plt.close()
 
-def plot_EIonly_GP(iter, path, train_x_i,train_obj_i):
+
+def plot_EIonly_GP(iter, path, train_x_i, train_obj_i):
     # Step 3: Define fidelity levels and create a grid for plotting
     # uncomment for my idea
     fidelities = [1.0]  # Three fidelity levels
@@ -1993,7 +2130,7 @@ def plot_EIonly_GP(iter, path, train_x_i,train_obj_i):
     X1, X2 = torch.meshgrid(x1, x2, indexing="ij")
 
     # Step 4: Prepare the figure with 3x2 subplots
-    fig, axs = plt.subplots(len(fidelities), 2, figsize=(14, 6*fidelities.__len__()))
+    fig, axs = plt.subplots(len(fidelities), 2, figsize=(14, 6 * fidelities.__len__()))
 
     for i, s_val in enumerate(fidelities):
         s_fixed = torch.tensor([[s_val]])
@@ -2010,8 +2147,8 @@ def plot_EIonly_GP(iter, path, train_x_i,train_obj_i):
         #     posterior = model.posterior(X_plot)
         #     mean = posterior.mean.reshape(50, 50).numpy()
         #     std = posterior.variance.sqrt().reshape(50, 50).numpy()
-        mean= np.load(path + "/EIonly_mean_{}.npy".format(str(iter)))
-        std=np.load(path + "/EIonly_std_{}.npy".format(str(iter)))
+        mean = np.load(path + "/EIonly_mean_{}.npy".format(str(iter)))
+        std = np.load(path + "/EIonly_std_{}.npy".format(str(iter)))
         # Plot the posterior mean
         contour_mean = axs[i].contourf(X1.numpy(), X2.numpy(), mean.T, cmap='viridis')
         axs[0].set_title(f"Posterior Mean (s={s_val})")
@@ -2022,7 +2159,7 @@ def plot_EIonly_GP(iter, path, train_x_i,train_obj_i):
         axs[1].set_title(f"Posterior Standard Deviation (s={s_val})")
         fig.colorbar(contour_std, ax=axs[1])
 
-        scatter_train_x = axs[0].scatter(train_x_i[:,0], train_x_i[:,1], c='b',linewidth=15)
+        scatter_train_x = axs[0].scatter(train_x_i[:, 0], train_x_i[:, 1], c='b', linewidth=15)
         # scatter_train_x = axs[0].scatter(train_x_i[np.argwhere(train_x_i[:,2]==s_val),0], train_x_i[np.argwhere(train_x_i[:,2]==s_val),1], c='r',linewidth=15)
 
         # np.save(path + "/EIonly_X1_{}.npy".format(str(iter)), X1)
@@ -2030,14 +2167,14 @@ def plot_EIonly_GP(iter, path, train_x_i,train_obj_i):
         # np.save(path + "/EIonly_mean_{}.npy".format(str(iter)), mean)
         # np.save(path + "/EIonly_std_{}.npy".format(str(iter)), std)
 
-
         plt.xlabel("$x_1$")
         plt.ylabel("$x_2$")
 
     plt.tight_layout()
-    #plt.savefig(path + "/withTrainData_EIonly_GP_itr_{}.png".format(str(iter)))
+    # plt.savefig(path + "/withTrainData_EIonly_GP_itr_{}.png".format(str(iter)))
     # plt.show()
     plt.close()
+
 
 def normalize_objective(obj, min_bound, max_bound):
     """
@@ -2063,6 +2200,7 @@ def plot_tradeoff():
     # obj_IS1_grid = Objective_all.squeeze()
     def normalize(obj, obj_grid):
         return (obj - obj_grid.mean()) / (obj_grid.std())
+
     RiseTime_all = normalize(mat_data['RiseTime_all'], mat_data['RiseTime_all'])  # Should be a 2D array
     TransientTime_all = normalize(mat_data['TransientTime_all'], mat_data['TransientTime_all'])  # Should be a 2D array
     SettlingTime_all = normalize(mat_data['SettlingTime_all'], mat_data['SettlingTime_all'])  # Should be a 2D array
@@ -2117,28 +2255,25 @@ def plot_tradeoff():
     # # #plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Objective_all_err.png")
     # plt.show()
 
+    def denormalize_gains(k, k_min, k_max):
+        return k * (k_max - k_min) + k_min
 
-    def denormalize_gains(k,k_min,k_max):
-        return k*(k_max-k_min)+k_min
+    BO_data = np.load("/home/nobar/codes/GBO2/logs/test_35_b_3_4/Exper_0/train_x_EIonly.npy")
+    MFBO_data = np.load("/home/nobar/codes/GBO2/logs/test_35_b_3_4/Exper_0/train_x.npy")
+    GMFBO_data = np.load("/home/nobar/codes/GBO2/logs/test_35_3_6/Exper_0/train_x.npy")
 
+    Kp_BO = denormalize_gains(BO_data[:, 0], 70, 120)
+    Kd_BO = denormalize_gains(BO_data[:, 1], 2, 5)
 
+    Kp_GMFBO_IS1 = denormalize_gains(GMFBO_data[GMFBO_data[:, 2] == 1, 0], 70, 120)
+    Kd_GMFBO_IS1 = denormalize_gains(GMFBO_data[GMFBO_data[:, 2] == 1, 1], 2, 5)
+    Kp_GMFBO_IS2 = denormalize_gains(GMFBO_data[GMFBO_data[:, 2] == 0.1, 0], 70, 120)
+    Kd_GMFBO_IS2 = denormalize_gains(GMFBO_data[GMFBO_data[:, 2] == 0.1, 1], 2, 5)
 
-    BO_data=np.load("/home/nobar/codes/GBO2/logs/test_35_b_3_4/Exper_0/train_x_EIonly.npy")
-    MFBO_data=np.load("/home/nobar/codes/GBO2/logs/test_35_b_3_4/Exper_0/train_x.npy")
-    GMFBO_data=np.load("/home/nobar/codes/GBO2/logs/test_35_3_6/Exper_0/train_x.npy")
-
-    Kp_BO=denormalize_gains(BO_data[:,0],70,120)
-    Kd_BO=denormalize_gains(BO_data[:,1],2,5)
-
-    Kp_GMFBO_IS1=denormalize_gains(GMFBO_data[GMFBO_data[:,2]==1,0],70,120)
-    Kd_GMFBO_IS1=denormalize_gains(GMFBO_data[GMFBO_data[:,2]==1,1],2,5)
-    Kp_GMFBO_IS2=denormalize_gains(GMFBO_data[GMFBO_data[:,2]==0.1,0],70,120)
-    Kd_GMFBO_IS2=denormalize_gains(GMFBO_data[GMFBO_data[:,2]==0.1,1],2,5)
-
-    Kp_MFBO_IS1=denormalize_gains(MFBO_data[MFBO_data[:,2]==1,0],70,120)
-    Kd_MFBO_IS1=denormalize_gains(MFBO_data[MFBO_data[:,2]==1,1],2,5)
-    Kp_MFBO_IS2=denormalize_gains(MFBO_data[MFBO_data[:,2]==0.1,0],70,120)
-    Kd_MFBO_IS2=denormalize_gains(MFBO_data[MFBO_data[:,2]==0.1,1],2,5)
+    Kp_MFBO_IS1 = denormalize_gains(MFBO_data[MFBO_data[:, 2] == 1, 0], 70, 120)
+    Kd_MFBO_IS1 = denormalize_gains(MFBO_data[MFBO_data[:, 2] == 1, 1], 2, 5)
+    Kp_MFBO_IS2 = denormalize_gains(MFBO_data[MFBO_data[:, 2] == 0.1, 0], 70, 120)
+    Kd_MFBO_IS2 = denormalize_gains(MFBO_data[MFBO_data[:, 2] == 0.1, 1], 2, 5)
 
     plt.figure(figsize=(9, 7))
     contour = plt.contourf(Kp, Kd, abs(Objective_all_sim - Objective_all).reshape(n_grid, n_grid).T, levels=50,
@@ -2176,9 +2311,8 @@ def plot_tradeoff():
     #             label='MFBO - IS2 estimations', zorder=3)
     plt.legend()
     # plt.title('ABS Error Objective Contour Plot')
-    #plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Objective_all_ABSerr.pdf")
+    # plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Objective_all_ABSerr.pdf")
     plt.show()
-
 
     plt.figure(figsize=(9, 7))
     contour = plt.contourf(Kp, Kd, Objective_all.reshape(n_grid, n_grid).T, levels=50,
@@ -2216,7 +2350,7 @@ def plot_tradeoff():
     #             label='MFBO - IS2 estimations', zorder=3)
     plt.legend()
     # plt.title('ABS Error Objective Contour Plot')
-    #plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Objective_all_methods_iterations.pdf")
+    # plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Objective_all_methods_iterations.pdf")
     plt.show()
 
     plt.figure(figsize=(10, 7.5))
@@ -2266,6 +2400,7 @@ def plot_tradeoff():
 
     print("")
 
+
 def plot_real():
     # Load the .mat file
     # mat_data = scipy.io.loadmat("/home/nobar/codes/GBO2/logs/50x50_dataset/metrics_all.mat")
@@ -2275,6 +2410,7 @@ def plot_real():
     # obj_IS1_grid = Objective_all.squeeze()
     def normalize(obj, obj_grid):
         return (obj - obj_grid.mean()) / (obj_grid.std())
+
     # # Objective_all = mat_data['Objective_all']  # Should be a 2D array
     # RiseTime_all = mat_data['RiseTime_all']  # Should be a 2D array
     # TransientTime_all = mat_data['TransientTime_all']  # Should be a 2D array
@@ -2286,20 +2422,19 @@ def plot_real():
     # TransientTime_all_sim = mat_data_sim['TransientTime_all']  # Should be a 2D array
     # SettlingTime_all_sim = mat_data_sim['SettlingTime_all']  # Should be a 2D array
     # Overshoot_all_sim = mat_data_sim['Overshoot_all']  # Should be a 2D array
-    
-    
-    RiseTime_all = normalize(mat_data['RiseTime_all'],mat_data['RiseTime_all'])  # Should be a 2D array
-    TransientTime_all = normalize(mat_data['TransientTime_all'],mat_data['TransientTime_all'])  # Should be a 2D array
-    SettlingTime_all = normalize(mat_data['SettlingTime_all'],mat_data['SettlingTime_all'])  # Should be a 2D array
-    Overshoot_all = normalize(mat_data['Overshoot_all'],mat_data['Overshoot_all'])  # Should be a 2D array
+
+    RiseTime_all = normalize(mat_data['RiseTime_all'], mat_data['RiseTime_all'])  # Should be a 2D array
+    TransientTime_all = normalize(mat_data['TransientTime_all'], mat_data['TransientTime_all'])  # Should be a 2D array
+    SettlingTime_all = normalize(mat_data['SettlingTime_all'], mat_data['SettlingTime_all'])  # Should be a 2D array
+    Overshoot_all = normalize(mat_data['Overshoot_all'], mat_data['Overshoot_all'])  # Should be a 2D array
 
     # Objective_all_sim = mat_data_sim['Objective_all']  # Should be a 2D array
-    RiseTime_all_sim = normalize(mat_data_sim['RiseTime_all'],mat_data_sim['RiseTime_all'])  # Should be a 2D array
-    TransientTime_all_sim = normalize(mat_data_sim['TransientTime_all'],mat_data_sim['TransientTime_all'])  
-    SettlingTime_all_sim = normalize(mat_data_sim['SettlingTime_all'],mat_data_sim['SettlingTime_all'] )
-    Overshoot_all_sim = normalize(mat_data_sim['Overshoot_all'],mat_data_sim['Overshoot_all'] )
-    
-    n_grid=50
+    RiseTime_all_sim = normalize(mat_data_sim['RiseTime_all'], mat_data_sim['RiseTime_all'])  # Should be a 2D array
+    TransientTime_all_sim = normalize(mat_data_sim['TransientTime_all'], mat_data_sim['TransientTime_all'])
+    SettlingTime_all_sim = normalize(mat_data_sim['SettlingTime_all'], mat_data_sim['SettlingTime_all'])
+    Overshoot_all_sim = normalize(mat_data_sim['Overshoot_all'], mat_data_sim['Overshoot_all'])
+
+    n_grid = 50
     # w1 = 9
     # w2 = 1.8 / 100
     # w3 = 1.5
@@ -2308,8 +2443,8 @@ def plot_real():
     # new_obj = w1 * RiseTime_all + w2 * Overshoot_all + w4 * TransientTime_all + w3 * SettlingTime_all
     # new_obj = normalize_objective(new_obj, obj_IS1_grid)
     # Create meshgrid for contour plot
-    Kp = mat_data["Kp_all"].squeeze()/1000  # Ensure it's a 1D array
-    Kd = mat_data["Kd_all"].squeeze()/1000  # Ensure it's a 1D array
+    Kp = mat_data["Kp_all"].squeeze() / 1000  # Ensure it's a 1D array
+    Kd = mat_data["Kd_all"].squeeze() / 1000  # Ensure it's a 1D array
     # # Plot the contour
     # plt.figure(figsize=(8, 6))
     # # levs=[0.9,0.95,1,1.05,1.1,1.2,1.3,1.4,1.5,2,3]
@@ -2352,7 +2487,8 @@ def plot_real():
 
     Objective_all_sim = w1 * RiseTime_all_sim + w2 * Overshoot_all_sim + w4 * TransientTime_all_sim + w3 * SettlingTime_all_sim
     plt.figure(figsize=(8, 6))
-    contour = plt.contourf(Kp, Kd, Objective_all_sim.reshape(n_grid, n_grid).T, levels=20)  # Transpose to match dimensions
+    contour = plt.contourf(Kp, Kd, Objective_all_sim.reshape(n_grid, n_grid).T,
+                           levels=20)  # Transpose to match dimensions
     plt.colorbar(contour, label='Objective')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
@@ -2361,7 +2497,8 @@ def plot_real():
     plt.show()
 
     plt.figure(figsize=(8, 6))
-    contour = plt.contourf(Kp, Kd, (Objective_all_sim-Objective_all).reshape(n_grid, n_grid).T, levels=20)  # Transpose to match dimensions
+    contour = plt.contourf(Kp, Kd, (Objective_all_sim - Objective_all).reshape(n_grid, n_grid).T,
+                           levels=20)  # Transpose to match dimensions
     plt.colorbar(contour, label='$J_{sim}-J')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
@@ -2383,7 +2520,6 @@ def plot_real():
     # np.save("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/Kd_50_v1.npy",Kd)
     # np.save("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_IS1_50x50_objectives_v1.npy",Objective_all.reshape(n_grid, n_grid))
     # np.save("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_IS2_50x50_objectives_v1.npy",Objective_all_sim.reshape(n_grid, n_grid))
-
 
     # from scipy.interpolate import RegularGridInterpolator
     # # Create the interpolator
@@ -2413,7 +2549,6 @@ def plot_real():
     # plt.title('Interpolated J over Kp-Kd plane')
     # plt.show()
 
-
     #
     #
     # # Plot the contour
@@ -2436,25 +2571,27 @@ def plot_real():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title("Rise Time")
-    #plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_RiseTime_all.png")
+    # plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_RiseTime_all.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
-    contour = plt.contourf(Kp, Kd, TransientTime_all.reshape(n_grid, n_grid).T, levels=30)  # Transpose to match dimensions
+    contour = plt.contourf(Kp, Kd, TransientTime_all.reshape(n_grid, n_grid).T,
+                           levels=30)  # Transpose to match dimensions
     plt.colorbar(contour, label='Transient Time')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title("Transient Time")
-    #plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_TransientTime_all.png")
+    # plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_TransientTime_all.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
-    contour = plt.contourf(Kp, Kd, SettlingTime_all.reshape(n_grid, n_grid).T, levels=30)  # Transpose to match dimensions
+    contour = plt.contourf(Kp, Kd, SettlingTime_all.reshape(n_grid, n_grid).T,
+                           levels=30)  # Transpose to match dimensions
     plt.colorbar(contour, label='Settling Time')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title("Settling Time")
-    #plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_SettlingTime_all.png")
+    # plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_SettlingTime_all.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
@@ -2463,77 +2600,84 @@ def plot_real():
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title("Overshoot")
-    #plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Overshoot_all.png")
+    # plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Overshoot_all.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
-    contour = plt.contourf(Kp, Kd, RiseTime_all_sim.reshape(n_grid, n_grid).T, levels=30)  # Transpose to match dimensions
+    contour = plt.contourf(Kp, Kd, RiseTime_all_sim.reshape(n_grid, n_grid).T,
+                           levels=30)  # Transpose to match dimensions
     plt.colorbar(contour, label='Rise Time')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title("Rise Time")
-    #plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_RiseTime_all_sim.png")
+    # plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_RiseTime_all_sim.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
-    contour = plt.contourf(Kp, Kd, TransientTime_all_sim.reshape(n_grid, n_grid).T, levels=30)  # Transpose to match dimensions
+    contour = plt.contourf(Kp, Kd, TransientTime_all_sim.reshape(n_grid, n_grid).T,
+                           levels=30)  # Transpose to match dimensions
     plt.colorbar(contour, label='Transient Time')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title("Transient Time")
-    #plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_TransientTime_all_sim.png")
+    # plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_TransientTime_all_sim.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
-    contour = plt.contourf(Kp, Kd, SettlingTime_all_sim.reshape(n_grid, n_grid).T, levels=30)  # Transpose to match dimensions
+    contour = plt.contourf(Kp, Kd, SettlingTime_all_sim.reshape(n_grid, n_grid).T,
+                           levels=30)  # Transpose to match dimensions
     plt.colorbar(contour, label='Settling Time')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title("Settling Time")
-    #plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_SettlingTime_all_sim.png")
+    # plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_SettlingTime_all_sim.png")
     plt.show()
 
     plt.figure(figsize=(8, 6))
-    contour = plt.contourf(Kp, Kd, Overshoot_all_sim.reshape(n_grid, n_grid).T, levels=30)  # Transpose to match dimensions
+    contour = plt.contourf(Kp, Kd, Overshoot_all_sim.reshape(n_grid, n_grid).T,
+                           levels=30)  # Transpose to match dimensions
     plt.colorbar(contour, label='Overshoot')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title("Overshoot")
-    #plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Overshoot_all_sim.png")
+    # plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Overshoot_all_sim.png")
     plt.show()
 
-
     plt.figure(figsize=(8, 6))
-    contour = plt.contourf(Kp, Kd, (RiseTime_all-RiseTime_all_sim).reshape(n_grid, n_grid).T, levels=30)  # Transpose to match dimensions
+    contour = plt.contourf(Kp, Kd, (RiseTime_all - RiseTime_all_sim).reshape(n_grid, n_grid).T,
+                           levels=30)  # Transpose to match dimensions
     plt.colorbar(contour, label='$Tr-Tr_{sim}$')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title("Rise Time Error")
-    #plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_RiseTime_all_err.png")
+    # plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_RiseTime_all_err.png")
     plt.show()
     plt.figure(figsize=(8, 6))
-    contour = plt.contourf(Kp, Kd, (SettlingTime_all-SettlingTime_all_sim).reshape(n_grid, n_grid).T, levels=30)  # Transpose to match dimensions
+    contour = plt.contourf(Kp, Kd, (SettlingTime_all - SettlingTime_all_sim).reshape(n_grid, n_grid).T,
+                           levels=30)  # Transpose to match dimensions
     plt.colorbar(contour, label='$Ts-Ts_{sim}$')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title("Settling Time Error")
-    #plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_SettlingTime_all_err.png")
+    # plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_SettlingTime_all_err.png")
     plt.show()
     plt.figure(figsize=(8, 6))
-    contour = plt.contourf(Kp, Kd, (TransientTime_all-TransientTime_all_sim).reshape(n_grid, n_grid).T, levels=30)  # Transpose to match dimensions
+    contour = plt.contourf(Kp, Kd, (TransientTime_all - TransientTime_all_sim).reshape(n_grid, n_grid).T,
+                           levels=30)  # Transpose to match dimensions
     plt.colorbar(contour, label='$Ttr-Ttr_{sim}$')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title("Transient Time Error")
-    #plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_TransientTime_all_err.png")
+    # plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_TransientTime_all_err.png")
     plt.show()
     plt.figure(figsize=(8, 6))
-    contour = plt.contourf(Kp, Kd, (Overshoot_all-Overshoot_all_sim).reshape(n_grid, n_grid).T, levels=30)  # Transpose to match dimensions
+    contour = plt.contourf(Kp, Kd, (Overshoot_all - Overshoot_all_sim).reshape(n_grid, n_grid).T,
+                           levels=30)  # Transpose to match dimensions
     plt.colorbar(contour, label='$M-M_{sim}$')
     plt.xlabel('Kp')
     plt.ylabel('Kd')
     plt.title("Overshoot Error")
-    #plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Overshoot_all_err.png")
+    # plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots3/normalized_Overshoot_all_err.png")
     plt.show()
     # # Plot the contour
     # plt.figure(figsize=(8, 6))
@@ -2585,21 +2729,22 @@ def plot_real():
 
     print("")
 
+
 def plot_gamma_deltaJ(pathALL):
-    dj2ALL=None
+    dj2ALL = None
     for x in [38, 39, 40]:
         for y in range(1, 9):  # 1 to 8 inclusive
-            path = pathALL+"test_{}_{}/".format(str(x),str(y))
+            path = pathALL + "test_{}_{}/".format(str(x), str(y))
             train_x_list = []
             train_obj_list = []
-            delta_J2_init_list=[]
-            JIS2s_for_delta_J2_init_list=[]
+            delta_J2_init_list = []
+            JIS2s_for_delta_J2_init_list = []
             for exper in range(10):
                 exp_path = os.path.join(path, f"Exper_{exper}")
                 train_x = np.load(os.path.join(exp_path, "train_x.npy"))
                 train_obj = np.load(os.path.join(exp_path, "train_obj.npy"))
-                delta_J2=np.load(os.path.join(exp_path, "delta_J2.npy"))
-                JIS2s_for_delta_J2=np.load(os.path.join(exp_path, "JIS2s_for_delta_J2.npy"))
+                delta_J2 = np.load(os.path.join(exp_path, "delta_J2.npy"))
+                JIS2s_for_delta_J2 = np.load(os.path.join(exp_path, "JIS2s_for_delta_J2.npy"))
                 train_x_list.append(train_x)
                 train_obj_list.append(train_obj)
                 delta_J2_init_list.append(abs(delta_J2[:2]))
@@ -2608,26 +2753,26 @@ def plot_gamma_deltaJ(pathALL):
             if dj2ALL is None:
                 dj2ALL = np.stack(delta_J2_init_list)
             else:
-                dj2ALL = np.concatenate((dj2ALL,np.stack(delta_J2_init_list)),axis=2)
+                dj2ALL = np.concatenate((dj2ALL, np.stack(delta_J2_init_list)), axis=2)
 
     dj2ALL_38 = dj2ALL[:, :, :8]
     dj2ALL_39 = dj2ALL[:, :, 8:16]
     dj2ALL_40 = dj2ALL[:, :, 16:]
-    argmin_f=np.array([[7.62,9.43,7.39],
-                           [8.69,7.48,7.08],
-                           [7.03,6.79,5.83],
-                           [6.76,6.75,5.02],
-                           [5.46,6.41,5.52],
-                           [5.41,6.44,5.73],
-                           [6.26,8.72,4.95],
-                           [5.45,7.76,5.35]])
-    E_delta_J=np.stack([np.mean(np.mean(dj2ALL_38, axis=1), axis=0), np.mean(np.mean(dj2ALL_39, axis=1), axis=0),
-              np.mean(np.mean(dj2ALL_40, axis=1), axis=0)]).T
-    gamma_0=np.linspace(0.1, 0.8, 8)
+    argmin_f = np.array([[7.62, 9.43, 7.39],
+                         [8.69, 7.48, 7.08],
+                         [7.03, 6.79, 5.83],
+                         [6.76, 6.75, 5.02],
+                         [5.46, 6.41, 5.52],
+                         [5.41, 6.44, 5.73],
+                         [6.26, 8.72, 4.95],
+                         [5.45, 7.76, 5.35]])
+    E_delta_J = np.stack([np.mean(np.mean(dj2ALL_38, axis=1), axis=0), np.mean(np.mean(dj2ALL_39, axis=1), axis=0),
+                          np.mean(np.mean(dj2ALL_40, axis=1), axis=0)]).T
+    gamma_0 = np.linspace(0.1, 0.8, 8)
     # Marker styles and colors
     markers = ['o', 's', '^']
     colors = ['tab:blue', 'tab:brown', 'tab:green']
-    eps_n=["0.50","0.75","0.25"]
+    eps_n = ["0.50", "0.75", "0.25"]
     # Set global font to Serif
     matplotlib.rcParams['font.family'] = 'Serif'
     matplotlib.rcParams['axes.labelsize'] = 16
@@ -2713,21 +2858,22 @@ def plot_gamma_deltaJ(pathALL):
 
     print("")
 
+
 def plot_b_deltaJ(pathALL):
-    dj2ALL=None
+    dj2ALL = None
     for x in [38, 39, 40]:
         for y in range(1, 9):  # 1 to 8 inclusive
-            path = pathALL+"test_{}_{}/".format(str(x),str(y))
+            path = pathALL + "test_{}_{}/".format(str(x), str(y))
             train_x_list = []
             train_obj_list = []
-            delta_J2_init_list=[]
-            JIS2s_for_delta_J2_init_list=[]
+            delta_J2_init_list = []
+            JIS2s_for_delta_J2_init_list = []
             for exper in range(10):
                 exp_path = os.path.join(path, f"Exper_{exper}")
                 train_x = np.load(os.path.join(exp_path, "train_x.npy"))
                 train_obj = np.load(os.path.join(exp_path, "train_obj.npy"))
-                delta_J2=np.load(os.path.join(exp_path, "delta_J2.npy"))
-                JIS2s_for_delta_J2=np.load(os.path.join(exp_path, "JIS2s_for_delta_J2.npy"))
+                delta_J2 = np.load(os.path.join(exp_path, "delta_J2.npy"))
+                JIS2s_for_delta_J2 = np.load(os.path.join(exp_path, "JIS2s_for_delta_J2.npy"))
                 train_x_list.append(train_x)
                 train_obj_list.append(train_obj)
                 delta_J2_init_list.append(abs(delta_J2[:2]))
@@ -2736,21 +2882,21 @@ def plot_b_deltaJ(pathALL):
             if dj2ALL is None:
                 dj2ALL = np.stack(delta_J2_init_list)
             else:
-                dj2ALL = np.concatenate((dj2ALL,np.stack(delta_J2_init_list)),axis=2)
+                dj2ALL = np.concatenate((dj2ALL, np.stack(delta_J2_init_list)), axis=2)
 
     dj2ALL_38 = dj2ALL[:, :, :8]
     dj2ALL_39 = dj2ALL[:, :, 8:16]
     dj2ALL_40 = dj2ALL[:, :, 16:]
-    argmin_f=np.array([
-    [6, 8, 7],   # b=1
-    [5, 6, 5],   # b=3
-    [4, 6, 6],   # b=5
-    [5, 6, 6],   # b=7
-    [5, 5, 7],   # b=9
-    [5, 8, 6],   # b=13
-    [7, 6, 6],   # b=15
+    argmin_f = np.array([
+        [6, 8, 7],  # b=1
+        [5, 6, 5],  # b=3
+        [4, 6, 6],  # b=5
+        [5, 6, 6],  # b=7
+        [5, 5, 7],  # b=9
+        [5, 8, 6],  # b=13
+        [7, 6, 6],  # b=15
     ])
-    b=np.array([1, 3, 5, 7, 9, 13, 15])
+    b = np.array([1, 3, 5, 7, 9, 13, 15])
 
     E_delta_J = np.stack([np.mean(np.mean(dj2ALL_38, axis=1), axis=0), np.mean(np.mean(dj2ALL_39, axis=1), axis=0),
                           np.mean(np.mean(dj2ALL_40, axis=1), axis=0)]).T
@@ -2841,7 +2987,6 @@ def plot_b_deltaJ(pathALL):
 
 
 if __name__ == "__main__":
-
     # delta_J2_test_46=np.load("/home/nobar/codes/GBO2/logs/test_46/Exper_3/delta_J2.npy")
     # delta_J2_test_49_2=np.load("/home/nobar/codes/GBO2/logs/test_49_2/Exper_3/delta_J2.npy")
     # plot_gt()
@@ -2864,26 +3009,28 @@ if __name__ == "__main__":
 
     # plot_cost_coef()
 
+    # path = "/home/nobar/codes/GBO2/logs/test_50_2_MFBO_caEI_gamma0/"
+    # path = "/home/nobar/codes/GBO2/logs/test_50_2_MFBO_caEI/"
+    # path = "/home/nobar/codes/GBO2/logs/test_50_2_MFBO_taKG/"
     path = "/home/nobar/codes/GBO2/logs/test_50_2/"
     # path2 = "/home/nobar/codes/GBO2/logs/test_31_b_UCB_1/"
     path2 = "/home/nobar/codes/GBO2/logs/test_33_b_1/"
     # get EI only when IS1 changes after 5 iter
     # path2 = "/home/nobar/codes/GBO2/logs/test_46/"
 
-    N_init_IS1=2
-    N_init_IS2=10
-    sampling_cost_bias=5
-    N_exper=10
-    N_iter=20
+    N_init_IS1 = 2
+    N_init_IS2 = 10
+    sampling_cost_bias = 5
+    N_exper = 10
+    N_iter = 20
     s2 = 0.1
     s3 = 0.05
-    BATCH_SIZE=1
-
+    BATCH_SIZE = 1
+    N_IS3_sample_each_time = 4
 
     # path3= "/home/nobar/codes/GBO2/logs/"
     # plot_gamma_deltaJ(path3)
     # plot_b_deltaJ(path3)
-
 
     # # plot GP surrogates
     # for i in range(3):
@@ -2904,7 +3051,6 @@ if __name__ == "__main__":
     #         train_obj_i=train_obj[0:N_init_IS1+j*BATCH_SIZE,:]
     #         plot_EIonly_GP(j, path+"Exper_"+str(i)+"/", train_x_i,train_obj_i)
 
-
     # # validate identical initial dataset
     # for i in range(N_exper):
     #     x=np.load(path+"Exper_{}/train_x_init.npy".format(str(i)))
@@ -2918,6 +3064,7 @@ if __name__ == "__main__":
 
     # plots_MonteCarlo_objective(path,N_init_IS1,N_init_IS2,sampling_cost_bias,N_exper,N_iter,s2,s3, BATCH_SIZE)
     # plots_MonteCarlo_objectiveEI(path,path2,N_init_IS1,N_init_IS2,sampling_cost_bias,N_exper,N_iter,s2,s3, BATCH_SIZE)
-    plots_MonteCarlo_objectiveEI_34tests(path,path2,N_init_IS1,N_init_IS2,sampling_cost_bias,N_exper,N_iter,s2,s3, BATCH_SIZE)
+    plots_MonteCarlo_objectiveEI_34tests(path, path2, N_init_IS1, N_init_IS2, sampling_cost_bias, N_exper, N_iter, s2,
+                                         s3, BATCH_SIZE, N_IS3_sample_each_time)
     # plots_MonteCarlo_objectiveUCB(path,path2,N_init_IS1,N_init_IS2,sampling_cost_bias,N_exper,N_iter,s2,s3, BATCH_SIZE)
     # plots_indicators(path,path2,N_init_IS1,N_init_IS2,sampling_cost_bias,N_exper,N_iter,s2,s3, BATCH_SIZE)
