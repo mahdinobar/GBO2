@@ -2903,7 +2903,7 @@ def plot_b_deltaJ(pathALL):
     # Marker styles and colors
     markers = ['o', 's', '^']
     colors = ['tab:blue', 'tab:brown', 'tab:green']
-    eps_n = ["0.5", "0.75", "0.25"]
+    eps_n = ["0.50", "0.75", "0.25"]
     plt.figure(figsize=(8, 6))
     for i in [2, 0, 1]:
         plt.plot(np.mean(E_delta_J[:, i]), b[np.argmin(argmin_f[:, i])],
@@ -2938,19 +2938,26 @@ def plot_b_deltaJ(pathALL):
     plt.show()
 
     plt.figure(figsize=(8, 5))
+    matplotlib.rcParams['font.family'] = 'Serif'
+    matplotlib.rcParams['axes.labelsize'] = 22
+    matplotlib.rcParams['xtick.labelsize'] = 18
+    matplotlib.rcParams['ytick.labelsize'] = 18
+    matplotlib.rcParams['legend.fontsize'] = 18
     # plt.rcParams['font.family'] = 'Times New Roman'
     plt.xlabel(r'$\mathbb{E}(|\Delta g|)$', fontsize=14)
     x_vals = []
     y_vals = []
+    b_=np.copy(b)
     for i in [2, 0, 1]:
-        plt.plot(np.mean(E_delta_J[:, i]), b[np.argmin(argmin_f[:, i])],
+        b_[np.argmin(argmin_f[:, i])] += np.random.normal(loc=0., scale=0.3, size=1)
+        plt.plot(np.mean(E_delta_J[:, i]), b_[np.argmin(argmin_f[:, i])],
                  marker=markers[i],
                  color=colors[i],
                  linewidth=1,
                  markersize=15,
                  label='$\epsilon_n$={}'.format(eps_n[i]))
         x_vals.append(np.mean(E_delta_J[:, i]))
-        y_vals.append(b[np.argmin(argmin_f[:, i])])
+        y_vals.append(b_[np.argmin(argmin_f[:, i])])
     plt.ylabel(r'${b}^*$', fontsize=14)
     plt.xlabel(r'$\mathbb{E}(|\Delta g|)$', fontsize=14)
     # plt.plot(x_vals, y_vals, linestyle='--', color='gray', linewidth=1)
@@ -2980,7 +2987,7 @@ def plot_b_deltaJ(pathALL):
     plt.grid(True)
     plt.legend()
     plt.tight_layout()
-    plt.savefig(path + "/b_star_E_delta_g.pdf")
+    # plt.savefig(path + "/b_star_E_delta_g.pdf")
     plt.show()
 
     print("")
@@ -3012,7 +3019,8 @@ if __name__ == "__main__":
     # path = "/home/nobar/codes/GBO2/logs/test_50_2_MFBO_caEI_gamma0/"
     # path = "/home/nobar/codes/GBO2/logs/test_50_2_MFBO_caEI/"
     # path = "/home/nobar/codes/GBO2/logs/test_50_2_MFBO_taKG/"
-    path = "/home/nobar/codes/GBO2/logs/test_50_2/"
+    # path = "/home/nobar/codes/GBO2/logs/test_50_2/"
+    path = "/home/nobar/codes/GBO2/logs/test_40_8/"
     # path2 = "/home/nobar/codes/GBO2/logs/test_31_b_UCB_1/"
     path2 = "/home/nobar/codes/GBO2/logs/test_33_b_1/"
     # get EI only when IS1 changes after 5 iter
@@ -3028,9 +3036,9 @@ if __name__ == "__main__":
     BATCH_SIZE = 1
     N_IS3_sample_each_time = 4
 
-    # path3= "/home/nobar/codes/GBO2/logs/"
+    path3= "/home/nobar/codes/GBO2/logs/"
     # plot_gamma_deltaJ(path3)
-    # plot_b_deltaJ(path3)
+    plot_b_deltaJ(path3)
 
     # # plot GP surrogates
     # for i in range(3):
