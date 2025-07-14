@@ -2773,37 +2773,34 @@ def plot_gamma_deltaJ(pathALL):
     markers = ['o', 's', '^']
     colors = ['tab:blue', 'tab:brown', 'tab:green']
     eps_n = ["0.50", "0.75", "0.25"]
-    # Set global font to Serif
+    plt.figure(figsize=(8, 4))
     matplotlib.rcParams['font.family'] = 'Serif'
     matplotlib.rcParams['axes.labelsize'] = 16
     matplotlib.rcParams['xtick.labelsize'] = 14
     matplotlib.rcParams['ytick.labelsize'] = 14
-    matplotlib.rcParams['legend.fontsize'] = 14
-    plt.figure(figsize=(8, 4))
+    matplotlib.rcParams['legend.fontsize'] = 16
     for i in [2, 0, 1]:
         plt.plot(gamma_0, argmin_f[:, i],
                  marker=markers[i],
                  color=colors[i],
                  linewidth=1,
                  markersize=10,
-                 label='$\epsilon_n$={}'.format(eps_n[i]))
+                 label='$\epsilon$={}'.format(eps_n[i]))
     # Draw horizontal line
     y_baseline = 8.44
     plt.hlines(y_baseline, xmin=0.09, xmax=0.82, color="k", linestyles="dashed")
-
     # Add text label on top-middle of the hline
     plt.text(0.50, y_baseline + 0.05, "baseline BO iterations",  # adjust +0.3 as needed
-             fontsize=14, ha='center', va='bottom', family='Serif')
-
+             fontsize=15, ha='center', va='bottom', family='Serif')
     plt.xlabel(r'$l_{\gamma_0}$', fontsize=16)
-    plt.ylabel('mean number of iterations', fontsize=16)
+    plt.ylabel('$n^{*}$', fontsize=16)
     plt.grid(True)
     plt.legend()
     plt.tight_layout()
     plt.xlim([0.09, 0.81])
     plt.savefig(path + "/argminf_gamma0.pdf", format="pdf")
     plt.show()
-
+    
     plt.figure(figsize=(8, 4))
     # Set global font to Serif
     matplotlib.rcParams['font.family'] = 'Serif'
@@ -2821,7 +2818,7 @@ def plot_gamma_deltaJ(pathALL):
                  color=colors[i],
                  linewidth=1,
                  markersize=15,
-                 label='$\epsilon_n$={}'.format(eps_n[i]))
+                 label='$\epsilon$={}'.format(eps_n[i]))
         x_vals.append(np.mean(E_delta_J[:, i]))
         y_vals.append(gamma_0[np.argmin(argmin_f[:, i])])
     plt.ylabel(r'$l_{\gamma_0}^*$', fontsize=16)
@@ -2943,8 +2940,9 @@ def plot_b_deltaJ(pathALL):
     matplotlib.rcParams['xtick.labelsize'] = 18
     matplotlib.rcParams['ytick.labelsize'] = 18
     matplotlib.rcParams['legend.fontsize'] = 18
+    # plt.rcParams['text.usetex'] = True
     # plt.rcParams['font.family'] = 'Times New Roman'
-    plt.xlabel(r'$\mathbb{E}(|\Delta g|)$', fontsize=14)
+    plt.xlabel(r'$\mathbb{E}(\Delta \mathcal{g})$', fontsize=14)
     x_vals = []
     y_vals = []
     b_=np.copy(b)
@@ -2955,11 +2953,11 @@ def plot_b_deltaJ(pathALL):
                  color=colors[i],
                  linewidth=1,
                  markersize=15,
-                 label='$\epsilon_n$={}'.format(eps_n[i]))
+                 label='$\epsilon$={}'.format(eps_n[i]))
         x_vals.append(np.mean(E_delta_J[:, i]))
         y_vals.append(b_[np.argmin(argmin_f[:, i])])
     plt.ylabel(r'${b}^*$', fontsize=14)
-    plt.xlabel(r'$\mathbb{E}(|\Delta g|)$', fontsize=14)
+    plt.xlabel(r'$\mathbb{E}(\Delta \mathcal{g})$', fontsize=14)
     # plt.plot(x_vals, y_vals, linestyle='--', color='gray', linewidth=1)
     # Fit a polynomial (degree 2 is usually enough for 3 points)
     coeffs = np.polyfit(x_vals, y_vals, deg=2)
@@ -2970,7 +2968,7 @@ def plot_b_deltaJ(pathALL):
     # Plot interpolation curve
     plt.plot(x_interp, y_interp, linestyle='dashed', color='black', label='optimum b profile')
     # Format polynomial as string for annotation
-    poly_eq_str = r'$\hat{b}^*(\mathbb{E}(|\Delta g|)$'
+    poly_eq_str = r'$\hat{b}^*(\mathbb{E}(\Delta \mathcal{g})$'
     # Add text annotation inside figure
     # Annotate with arrow pointing to a location on the curve
     text_x, text_y = 0.6, 0.4  # in axes fraction
@@ -3037,7 +3035,7 @@ if __name__ == "__main__":
     N_IS3_sample_each_time = 4
 
     path3= "/home/nobar/codes/GBO2/logs/"
-    # plot_gamma_deltaJ(path3)
+    plot_gamma_deltaJ(path3)
     plot_b_deltaJ(path3)
 
     # # plot GP surrogates
