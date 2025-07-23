@@ -2568,6 +2568,64 @@ def plot_real():
     plt.show()
 
     plt.figure(figsize=(8, 6))
+    matplotlib.rcParams['font.family'] = 'Serif'
+    matplotlib.rcParams['axes.labelsize'] = 20
+    matplotlib.rcParams['xtick.labelsize'] = 18
+    matplotlib.rcParams['ytick.labelsize'] = 18
+    matplotlib.rcParams['legend.fontsize'] = 18
+    contour = plt.contourf(Kp, Kd, Objective_all.reshape(n_grid, n_grid).T,
+                           levels=20)  # Transpose to match dimensions
+    plt.colorbar(contour, label=r'$\mathcal{g}(k, s=1.0)$')
+    plt.xlabel('Kp')
+    plt.ylabel('Kd')
+    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS1_real_g.pdf", format="pdf")
+    plt.show()
+
+    plt.figure(figsize=(8, 6))
+    matplotlib.rcParams['font.family'] = 'Serif'
+    matplotlib.rcParams['axes.labelsize'] = 20
+    matplotlib.rcParams['xtick.labelsize'] = 18
+    matplotlib.rcParams['ytick.labelsize'] = 18
+    matplotlib.rcParams['legend.fontsize'] = 18
+    contour = plt.contourf(Kp, Kd, Objective_all_sim.reshape(n_grid, n_grid).T,
+                           levels=20)  # Transpose to match dimensions
+    plt.colorbar(contour, label=r'$\mathcal{g}(k, s=s\')$')
+    plt.xlabel('Kp')
+    plt.ylabel('Kd')
+    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS2_real_g.pdf", format="pdf")
+    plt.show()
+
+    # todo manual correction
+    Z = 0.5 * abs(
+        (Objective_all.reshape(n_grid, n_grid) - Objective_all_sim.reshape(n_grid, n_grid)) / Objective_all.reshape(n_grid, n_grid)) * 100
+    levels = np.concatenate([
+        np.linspace(0, 20, 50, endpoint=False),  # Very dense in 0–5
+        np.linspace(20, 50, 40, endpoint=False),  # Medium density in 5–20
+        np.geomspace(50, 100, 20)  # Log-spaced in 20–1000
+    ])
+    plt.figure(figsize=(8, 6))
+    matplotlib.rcParams['font.family'] = 'Serif'
+    matplotlib.rcParams['axes.labelsize'] = 20
+    matplotlib.rcParams['xtick.labelsize'] = 18
+    matplotlib.rcParams['ytick.labelsize'] = 18
+    matplotlib.rcParams['legend.fontsize'] = 18
+    # contour = plt.contourf(Kp_grid, Ki_grid, Z, levels=levels, cmap="viridis",  extend="max")
+    from matplotlib.colors import BoundaryNorm
+    norm = BoundaryNorm(boundaries=levels, ncolors=256, extend='max')
+    contour = plt.contourf(Kp, Kd, Z, levels=levels, cmap="plasma", norm=norm, extend="max")
+    # cbar = plt.colorbar(contour)
+    cbar = plt.colorbar(contour, ticks=[0, 20, 50, 100])
+    cbar.set_label(
+        r'$|\frac{\mathcal{g}(k, s=1.0)-\mathcal{g}(k, s=s^{\prime})}{\mathcal{g}(k, s=1.0)}|\times100$%',
+        fontsize=21)
+    plt.xlabel('Kp', fontsize=20)
+    plt.ylabel('Kd', fontsize=20)
+    plt.tight_layout()
+    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/ABSErrorPercent_real_g.pdf", format="pdf")
+    plt.show()
+
+
+    plt.figure(figsize=(8, 6))
     contour = plt.contourf(Kp, Kd, (Objective_all_sim - Objective_all).reshape(n_grid, n_grid).T,
                            levels=20)  # Transpose to match dimensions
     plt.colorbar(contour, label='$J_{sim}-J')
@@ -2798,7 +2856,7 @@ def plot_real():
     # #plt.savefig("/home/nobar/codes/GBO2/logs/50x50_dataset/plots/Weighted_Overshoot_all.png")
     # plt.show()
 
-    print("")
+    return True
 
 
 def plot_gamma_deltaJ(pathALL):
@@ -3065,8 +3123,8 @@ def plot_b_deltaJ(pathALL):
 if __name__ == "__main__":
     # delta_J2_test_46=np.load("/home/nobar/codes/GBO2/logs/test_46/Exper_3/delta_J2.npy")
     # delta_J2_test_49_2=np.load("/home/nobar/codes/GBO2/logs/test_49_2/Exper_3/delta_J2.npy")
-    plot_gt()
-    # plot_real()
+    # plot_gt()
+    plot_real()
     # plot_tradeoff()
 
     # # check objective scales
