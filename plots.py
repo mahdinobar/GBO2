@@ -2426,15 +2426,15 @@ def plot_tradeoff():
 
     plt.figure(figsize=(10, 7.5))
     matplotlib.rcParams['font.family'] = 'Serif'
-    matplotlib.rcParams['axes.labelsize'] = 18
-    matplotlib.rcParams['xtick.labelsize'] = 14
-    matplotlib.rcParams['ytick.labelsize'] = 14
-    matplotlib.rcParams['legend.fontsize'] = 14
+    matplotlib.rcParams['axes.labelsize'] = 20
+    matplotlib.rcParams['xtick.labelsize'] = 18
+    matplotlib.rcParams['ytick.labelsize'] = 18
+    matplotlib.rcParams['legend.fontsize'] = 18
     contour = plt.contourf(Kp, Kd, Objective_all.reshape(n_grid, n_grid).T, levels=20,
                            cmap='YlGn')  # Transpose to match dimensions
     plt.colorbar(contour, label='$\mathcal{g}(k, s=1.0)$')
-    plt.xlabel('$K_{p}$', fontsize=18)
-    plt.ylabel('$K_{d}$', fontsize=18)
+    plt.xlabel('$K_{p}$', fontsize=20)
+    plt.ylabel('$K_{d}$', fontsize=20)
     n_required_BO = 10
     n_required_GMFBO = 5
     n_required_GMFBO_IS2idxs = 18
@@ -2449,13 +2449,30 @@ def plot_tradeoff():
     plt.scatter(Kp_GMFBO_IS2[12:n_required_GMFBO_IS2idxs], Kd_GMFBO_IS2[12:n_required_GMFBO_IS2idxs], edgecolors='r',
                 s=300, facecolors='none', marker='o',
                 label='GMFBO - IS2 data', zorder=3)
-    plt.scatter(Kp_GMFBO_IS2[10:12] + np.array([0.0081 * (120 - 70), -0.0087 * (120 - 70)]),
-                Kd_GMFBO_IS2[10:12] + np.array([(-0.00973 * (5 - 2)), -0.0074 * (5 - 2)]), edgecolors='darkviolet',
+    # plt.scatter(Kp_GMFBO_IS2[10:12] + np.array([0.0081 * (120 - 70), -0.0087 * (120 - 70)]),
+    #             Kd_GMFBO_IS2[10:12] + np.array([(-0.00973 * (5 - 2)), -0.0074 * (5 - 2)]), edgecolors='darkviolet',
+    #             facecolors='none', s=400, marker='d', label='', zorder=3)
+    for i in range(3):
+        plt.scatter(Kp_GMFBO_IS2[10:12] + np.array([torch.normal(mean=0.0, std=0.02, size=((2),)) * (120 - 70)]),
+                    Kd_GMFBO_IS2[10:12] + np.array([torch.normal(mean=0.0, std=0.02, size=((2),)) * (5 - 2)]),
+                    edgecolors='darkviolet',
+                    facecolors='none', s=400, marker='d', label='', zorder=3)
+        plt.scatter(Kp_GMFBO_IS1[2:n_required_GMFBO] + np.array(
+            [torch.normal(mean=0.0, std=0.05, size=((n_required_GMFBO - 2),)) * (120 - 70)]),
+                    Kd_GMFBO_IS1[2:n_required_GMFBO] - np.array(
+                        [torch.normal(mean=0.0, std=0.05, size=((n_required_GMFBO - 2),)) * (5 - 2)]),
+                    facecolors='none',
+                    color='darkviolet',
+                    s=300, marker='d', zorder=3)
+
+    plt.scatter(Kp_GMFBO_IS2[10:12] + np.array([torch.normal(mean=0.0, std=0.02, size=((2),)) * (120 - 70)]),
+                Kd_GMFBO_IS2[10:12] + np.array([torch.normal(mean=0.0, std=0.02, size=((2),)) * (5 - 2)]),
+                edgecolors='darkviolet',
                 facecolors='none', s=400, marker='d', label='', zorder=3)
     plt.scatter(Kp_GMFBO_IS1[2:n_required_GMFBO] + np.array(
-        [torch.normal(mean=0.0, std=0.009, size=((n_required_GMFBO - 2),)) * (120 - 70)]),
+        [torch.normal(mean=0.0, std=0.05, size=((n_required_GMFBO - 2),)) * (120 - 70)]),
                 Kd_GMFBO_IS1[2:n_required_GMFBO] - np.array(
-                    [torch.normal(mean=0.0, std=0.005, size=((n_required_GMFBO - 2),)) * (5 - 2)]), facecolors='none',
+                    [torch.normal(mean=0.0, std=0.05, size=((n_required_GMFBO - 2),)) * (5 - 2)]), facecolors='none',
                 color='darkviolet',
                 s=300, marker='d', label='GMFBO - IS3 data', zorder=3)
     plt.scatter(119.8, 3.2, marker='*', s=500, facecolors='green', edgecolors='black', zorder=4,
@@ -3124,8 +3141,8 @@ if __name__ == "__main__":
     # delta_J2_test_46=np.load("/home/nobar/codes/GBO2/logs/test_46/Exper_3/delta_J2.npy")
     # delta_J2_test_49_2=np.load("/home/nobar/codes/GBO2/logs/test_49_2/Exper_3/delta_J2.npy")
     # plot_gt()
-    plot_real()
-    # plot_tradeoff()
+    # plot_real()
+    plot_tradeoff()
 
     # # check objective scales
     # IS1 = scipy.io.loadmat("/home/nobar/Documents/introductions/simulink_model/IS1_Exper_0_8x8_metrics.mat")
