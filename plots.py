@@ -177,6 +177,77 @@ def plot_gt():
     # plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to2_J_normalized_test_FeasSet2_smallerFeas.png")
     plt.show()
 
+    plt.figure(figsize=(8, 6))
+    matplotlib.rcParams['font.family'] = 'Serif'
+    matplotlib.rcParams['axes.labelsize'] = 20
+    matplotlib.rcParams['xtick.labelsize'] = 18
+    matplotlib.rcParams['ytick.labelsize'] = 18
+    matplotlib.rcParams['legend.fontsize'] = 18
+    contour = plt.contourf(Kp_grid, Ki_grid, new_obj.reshape(n_grid, n_grid),
+                           levels=20)  # Transpose to match dimensions
+    plt.colorbar(contour, label='$\mathcal{g}(k, s=1.0)$')
+    plt.xlabel('Kp')
+    plt.ylabel('Kd')
+    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS1_numerical_g.pdf", format="pdf")
+    plt.show()
+
+    plt.figure(figsize=(8, 6))
+    matplotlib.rcParams['font.family'] = 'Serif'
+    matplotlib.rcParams['axes.labelsize'] = 20
+    matplotlib.rcParams['xtick.labelsize'] = 18
+    matplotlib.rcParams['ytick.labelsize'] = 18
+    matplotlib.rcParams['legend.fontsize'] = 18
+    contour = plt.contourf(Kp_grid, Ki_grid, new_obj2.reshape(n_grid, n_grid),
+                           levels=20)  # Transpose to match dimensions
+    plt.colorbar(contour, label='$\mathcal{g}(k, s=s\')$')
+    plt.xlabel('Kp')
+    plt.ylabel('Kd')
+    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS2_numerical_g.pdf", format="pdf")
+    plt.show()
+
+    plt.figure(figsize=(8, 6))
+    matplotlib.rcParams['font.family'] = 'Serif'
+    matplotlib.rcParams['axes.labelsize'] = 20
+    matplotlib.rcParams['xtick.labelsize'] = 18
+    matplotlib.rcParams['ytick.labelsize'] = 18
+    matplotlib.rcParams['legend.fontsize'] = 18
+    contour = plt.contourf(Kp_grid, Ki_grid, new_obj2.reshape(n_grid, n_grid),
+                           levels=20)  # Transpose to match dimensions
+    plt.colorbar(contour, label=r'$|\frac{\mathcal{g}(k, s=1.0)-\mathcal{g}(k, s=s\')}{\mathcal{g}(k, s=1.0)}|$')
+    plt.xlabel('Kp')
+    plt.ylabel('Kd')
+    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS2_numerical_g.pdf", format="pdf")
+    plt.show()
+
+    # todo manual correction
+    Z = 0.5 * abs(
+        (new_obj.reshape(n_grid, n_grid) - new_obj2.reshape(n_grid, n_grid)) / new_obj.reshape(n_grid, n_grid)) * 100
+    levels = np.concatenate([
+        np.linspace(0, 20, 50, endpoint=False),  # Very dense in 0–5
+        np.linspace(20, 50, 40, endpoint=False),  # Medium density in 5–20
+        np.geomspace(50, 100, 20)  # Log-spaced in 20–1000
+    ])
+    plt.figure(figsize=(8, 6))
+    matplotlib.rcParams['font.family'] = 'Serif'
+    matplotlib.rcParams['axes.labelsize'] = 20
+    matplotlib.rcParams['xtick.labelsize'] = 18
+    matplotlib.rcParams['ytick.labelsize'] = 18
+    matplotlib.rcParams['legend.fontsize'] = 18
+    # contour = plt.contourf(Kp_grid, Ki_grid, Z, levels=levels, cmap="viridis",  extend="max")
+    from matplotlib.colors import BoundaryNorm
+    norm = BoundaryNorm(boundaries=levels, ncolors=256, extend='max')
+    contour = plt.contourf(Kp_grid, Ki_grid, Z, levels=levels, cmap="plasma", norm=norm, extend="max")
+    # cbar = plt.colorbar(contour)
+    cbar = plt.colorbar(contour, ticks=[0, 20, 50, 100])
+    cbar.set_label(
+        r'$|\frac{\mathcal{g}(k, s=1.0)-\mathcal{g}(k, s=s^{\prime})}{\mathcal{g}(k, s=1.0)}|\times100$%',
+        fontsize=21)
+    plt.xlabel('Kp', fontsize=20)
+    plt.ylabel('Kd', fontsize=20)
+    plt.tight_layout()
+    plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/ABSErrorPercent_numerical_g.pdf", format="pdf")
+    plt.show()
+
     error_new_obj = new_obj2 - new_obj
     # np.save("/home/nobar/codes/GBO2/logs/IS2_new_1_obj.npy",new_obj)
     # np.save("/home/nobar/codes/GBO2/logs/IS2_FeasSet2_obj.npy",new_obj2)
@@ -346,7 +417,7 @@ def plot_gt():
     # plt.savefig("/home/nobar/codes/GBO2/logs/misc/FeasSet2/IS3_1to2_Ttr_error_smallerFeas.png")
     plt.show()
 
-    print("")
+    return True
 
 
 def plot_kernels():
@@ -2800,7 +2871,7 @@ def plot_gamma_deltaJ(pathALL):
     plt.xlim([0.09, 0.81])
     plt.savefig(path + "/argminf_gamma0.pdf", format="pdf")
     plt.show()
-    
+
     plt.figure(figsize=(8, 4))
     # Set global font to Serif
     matplotlib.rcParams['font.family'] = 'Serif'
@@ -2994,7 +3065,7 @@ def plot_b_deltaJ(pathALL):
 if __name__ == "__main__":
     # delta_J2_test_46=np.load("/home/nobar/codes/GBO2/logs/test_46/Exper_3/delta_J2.npy")
     # delta_J2_test_49_2=np.load("/home/nobar/codes/GBO2/logs/test_49_2/Exper_3/delta_J2.npy")
-    # plot_gt()
+    plot_gt()
     # plot_real()
     # plot_tradeoff()
 
@@ -3035,7 +3106,7 @@ if __name__ == "__main__":
     N_IS3_sample_each_time = 4
 
     path3= "/home/nobar/codes/GBO2/logs/"
-    plot_gamma_deltaJ(path3)
+    # plot_gamma_deltaJ(path3)
     plot_b_deltaJ(path3)
 
     # # plot GP surrogates
