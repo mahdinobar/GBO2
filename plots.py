@@ -939,8 +939,10 @@ def plots_MonteCarlo_objectiveEI_34tests(path, path2, N_init_IS1, N_init_IS2, sa
             exper_GMFBO = 3
         elif exper == 4:
             exper_GMFBO = 3
-        elif exper == 7:
+        elif exper == 1:
             exper_GMFBO = 3
+        elif exper == 7:
+            exper_GMFBO = 9
         else:
             exper_GMFBO = exper
         # exper_GMFBO = exper
@@ -1457,7 +1459,7 @@ def plots_MonteCarlo_objectiveEI_34tests(path, path2, N_init_IS1, N_init_IS2, sa
     # # plt.title("Mean with 95% Confidence Interval")
     # plt.savefig(path+"/debug_{}.png".format(path[-10:-1]))
     # plt.show()
-    print("")
+    return True
 
 
 def plots_MonteCarlo_objectiveEI(path, path2, N_init_IS1, N_init_IS2, sampling_cost_bias, N_exper, N_iter, s2, s3,
@@ -3146,8 +3148,8 @@ if __name__ == "__main__":
     # delta_J2_test_46=np.load("/home/nobar/codes/GBO2/logs/test_46/Exper_3/delta_J2.npy")
     # delta_J2_test_49_2=np.load("/home/nobar/codes/GBO2/logs/test_49_2/Exper_3/delta_J2.npy")
     # plot_gt()
-    plot_real()
-    plot_tradeoff()
+    # plot_real()
+    # plot_tradeoff()
 
     # # check objective scales
     # IS1 = scipy.io.loadmat("/home/nobar/Documents/introductions/simulink_model/IS1_Exper_0_8x8_metrics.mat")
@@ -3169,7 +3171,7 @@ if __name__ == "__main__":
     # path = "/home/nobar/codes/GBO2/logs/test_50_2_MFBO_caEI/"
     # path = "/home/nobar/codes/GBO2/logs/test_50_2_MFBO_taKG/"
     # path = "/home/nobar/codes/GBO2/logs/test_50_2/"
-    path = "/home/nobar/codes/GBO2/logs/test_40_8/"
+    path = "/home/nobar/codes/GBO2/logs/test_51_1/"
     # path2 = "/home/nobar/codes/GBO2/logs/test_31_b_UCB_1/"
     path2 = "/home/nobar/codes/GBO2/logs/test_33_b_1/"
     # get EI only when IS1 changes after 5 iter
@@ -3185,9 +3187,9 @@ if __name__ == "__main__":
     BATCH_SIZE = 1
     N_IS3_sample_each_time = 4
 
-    path3= "/home/nobar/codes/GBO2/logs/"
-    # plot_gamma_deltaJ(path3)
-    plot_b_deltaJ(path3)
+    # path3= "/home/nobar/codes/GBO2/logs/"
+    # # plot_gamma_deltaJ(path3)
+    # plot_b_deltaJ(path3)
 
     # # plot GP surrogates
     # for i in range(3):
