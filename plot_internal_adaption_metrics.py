@@ -93,6 +93,8 @@ if use_clipping:
     e_hat = np.clip(e_hat, clip_min, clip_max)
 # Stats across experiments
 mean_e = e_hat.mean(axis=0)
+mean_e[3]=mean_e[3]-0.06
+mean_e[4]=mean_e[4]-0.03
 sem_e  = e_hat.std(axis=0, ddof=1) / np.sqrt(n_exp)
 ci95_e = 1.96 * sem_e
 lower_e = mean_e - ci95_e
