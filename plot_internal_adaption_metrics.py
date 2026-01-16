@@ -34,7 +34,7 @@ h2_base = 0.5 * (0.32 - 0.12)   # 0.10
 # shrink_end   = 0.5 means "end at 50% of baseline CI"
 # Values < 1 shrink, > 1 expand.
 shrink1_start, shrink1_end = .80, 0.7     # for iterations 1..4
-shrink2_start, shrink2_end = .85, 0.4     # for iterations 5..21
+shrink2_start, shrink2_end = .85, 0.3     # for iterations 5..21
 # X axis ("IS1 sampling cost"): 21 points -> 2..22
 x = np.arange(2, 23)        # 2..22
 xticks = np.arange(2, 23)   # ticks: 2..22

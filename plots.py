@@ -1207,7 +1207,7 @@ def plots_MonteCarlo_objectiveEI_34tests(path, path2, N_init_IS1, N_init_IS2, sa
     plt.xlim(1, 20)
     plt.xticks(np.arange(1, 21, 2))
     # plt.savefig(path+"/Unbiased_sampling_cost_objective_evaluation.png")
-    plt.savefig(path + "/sampling_cost_iteration.pdf", format="pdf")
+    # plt.savefig(path + "/sampling_cost_iteration.pdf", format="pdf")
     plt.show()
 
     D = np.vstack((np.asarray(min_obj_init_all), DD.T))
@@ -1358,7 +1358,147 @@ def plots_MonteCarlo_objectiveEI_34tests(path, path2, N_init_IS1, N_init_IS2, sa
     # plt.ylim(0.9, 1.4)  # Focus range
     # plt.title("Mean with 95% Confidence Interval")
     # plt.savefig(path + "/all_obj_min_obs_IS1_Mean_IS1onlySamplingCost_95Conf.png")
-    plt.savefig(path + "/numerical_fmin_iter.pdf", format="pdf")
+    # plt.savefig(path + "/numerical_fmin_iter.pdf", format="pdf")
+    plt.show()
+
+    # -----------------------------
+    # Config
+    # -----------------------------
+    BASE_DIR = "/home/nobar/codes/MFBO_baseline/rMFBO/res/records"
+    PREFIX = "HEJ_NEG_RMFBO_R10_NI12_C0"
+    EXPERIMENTS = range(10)  # 0..9
+    FID_TO_EXCLUDE = 0.02
+
+    # -----------------------------
+    # Helpers
+    # -----------------------------
+    def load_experiment(exper: int):
+        x_path = os.path.join(BASE_DIR, f"{PREFIX}_{exper}_train_x.npy")
+        y_path = os.path.join(BASE_DIR, f"{PREFIX}_{exper}_train_obj.npy")
+
+        train_x = np.load(x_path)  # expected (35, 3)
+        train_obj = np.load(y_path)
+
+        # robust reshape
+        train_obj = np.asarray(train_obj).reshape(-1)  # (35,)
+        train_x = np.asarray(train_x)
+
+        if train_x.ndim != 2 or train_x.shape[1] < 1:
+            raise ValueError(f"[exper={exper}] train_x has unexpected shape {train_x.shape}")
+        if train_x.shape[0] != train_obj.shape[0]:
+            raise ValueError(f"[exper={exper}] row mismatch: train_x {train_x.shape}, train_obj {train_obj.shape}")
+
+        return train_x, train_obj
+
+    def running_min(a: np.ndarray) -> np.ndarray:
+        return np.minimum.accumulate(a)
+
+    # -----------------------------
+    # Build one vector per experiment:
+    #   1) exclude rows with fidelity 0.02 (from train_x last column)
+    #   2) take remaining train_obj, negate
+    #   3) compute running minimum over remaining rows
+    # -----------------------------
+    all_running_mins = []
+
+    for exper in EXPERIMENTS:
+        train_x, train_obj = load_experiment(exper)
+
+        fidelities = train_x[:, -1]
+        keep = ~np.isclose(fidelities, FID_TO_EXCLUDE, rtol=0.0, atol=1e-2)
+
+        # exclude fidelity first
+        obj_kept = train_obj[keep]
+
+        if obj_kept.size == 0:
+            print(f"[exper={exper}] no rows left after excluding fidelity={FID_TO_EXCLUDE}, skipping.")
+            continue
+
+        # then negate
+        obj_kept = -obj_kept
+
+        # per-experiment vector: running minimum
+        rm = running_min(obj_kept)
+        all_running_mins.append(rm)
+
+    if len(all_running_mins) == 0:
+        raise RuntimeError("No experiments left after filtering; cannot compute mean/CI.")
+
+    # align by shortest vector length across experiments
+    min_len = min(len(v) for v in all_running_mins)
+    Y = np.stack([v[:min_len] for v in all_running_mins], axis=0)  # (n_exp, min_len)
+
+    # mean + 95% CI across experiments at each step
+    mean_rmfbo = Y.mean(axis=0)
+    std_rmfbo = Y.std(axis=0, ddof=1) if Y.shape[0] > 1 else np.zeros_like(mean_rmfbo)
+    n_exp = Y.shape[0]
+    margin_rmfbo = 1.96 * std_rmfbo / np.sqrt(n_exp) if n_exp > 1 else np.zeros_like(mean_rmfbo)
+
+    # x axis: use step index; if you prefer cost-axis, replace this with your cost vector
+    x_rmfbo = np.arange(1, min_len + 1)
+
+    # exclude first data point and plot from second
+    x_rmfbo = x_rmfbo[1:]
+    mean_rmfbo = mean_rmfbo[1:]
+    margin_rmfbo = margin_rmfbo[1:]
+
+    # -----------------------------
+    # Plot (match your style)
+    # -----------------------------
+    plt.figure(figsize=(12, 8))
+
+    matplotlib.rcParams['font.family'] = 'Serif'
+    matplotlib.rcParams['axes.labelsize'] = 22
+    matplotlib.rcParams['xtick.labelsize'] = 18
+    matplotlib.rcParams['ytick.labelsize'] = 18
+    matplotlib.rcParams['legend.fontsize'] = 18
+
+    # --- your existing curves (keep as-is) ---
+    plt.plot(mean_values_costsIS1only_MFBO_caEI_gamma0, mean_values_MFBO_caEI_gamma0 + 0.015, marker="s", linewidth=3,
+             label="Mean - modified MFBO with caEI", color="black")
+    plt.fill_between(mean_values_costsIS1only_MFBO_caEI_gamma0,
+                     mean_values_MFBO_caEI_gamma0 + 0.015 - margin_of_error_MFBO_caEI_gamma0,
+                     mean_values_MFBO_caEI_gamma0 + 0.015 + margin_of_error_MFBO_caEI_gamma0,
+                     color="black", alpha=0.3, label="95% CI - modified MFBO with caEI")
+
+    plt.plot(mean_values_costsIS1only, mean_values, marker="o", linewidth=3, label="Mean - GMFBO", color="crimson")
+    plt.fill_between(mean_values_costsIS1only, mean_values - margin_of_error, mean_values + margin_of_error,
+                     color="crimson", alpha=0.3, label="95% CI - GMFBO")
+
+    plt.plot(mean_values_costsIS1only_MFBO_taKG, mean_values_MFBO_taKG, marker="p", linewidth=3,
+             label="Mean - baseline MFBO with taKG", color="olive")
+    plt.fill_between(mean_values_costsIS1only_MFBO_taKG, mean_values_MFBO_taKG - margin_of_error_MFBO_taKG,
+                     mean_values_MFBO_taKG + margin_of_error_MFBO_taKG,
+                     color="olive", alpha=0.3, label="95% CI - baseline MFBO with taKG")
+
+    plt.plot(mean_values_costsIS1only_MFBO_caEI, mean_values_MFBO_caEI, marker="d", linewidth=3,
+             label="Mean - baseline MFBO with caEI", color="purple")
+    plt.fill_between(mean_values_costsIS1only_MFBO_caEI, mean_values_MFBO_caEI - margin_of_error_MFBO_caEI,
+                     mean_values_MFBO_caEI + margin_of_error_MFBO_caEI,
+                     color="purple", alpha=0.3, label="95% CI - baseline MFBO with caEI")
+
+    plt.plot(x_EI_only, mean_values_EIonly, marker="^", linewidth=3, label="Mean - BO with EI", color="royalblue")
+    plt.fill_between(x_EI_only, mean_values_EIonly - margin_of_error_EIonly,
+                     mean_values_EIonly + margin_of_error_EIonly,
+                     color="royalblue", alpha=0.3, label="95% CI - BO with EI")
+
+    # --- Add rMFBO mean + CI (requested legend labels) ---
+    # If you want the rMFBO x-axis to be "Mean Sampling Cost on IS1" like others,
+    # replace x_rmfbo with the appropriate cost vector.
+    plt.plot(x_rmfbo, mean_rmfbo, marker="v", linewidth=3, label="Mean - rMFBO", color="darkorange")
+    plt.fill_between(x_rmfbo, mean_rmfbo - margin_rmfbo, mean_rmfbo + margin_rmfbo,
+                     color="darkorange", alpha=0.3, label="95% CI - rMFBO")
+
+    plt.xlabel('Mean Sampling Cost on IS1')
+    plt.ylabel('Minimum Observed Objective on IS1')
+    plt.legend()
+    plt.grid(True)
+
+    # Save PDF
+    out_pdf = os.path.join(BASE_DIR, "all_obj_min_obs_IS1_Mean_IS1onlySamplingCost_95Conf_with_rMFBO.pdf")
+    plt.savefig(out_pdf, format="pdf", bbox_inches="tight")
+    print(f"Saved: {out_pdf}")
+
     plt.show()
 
     # # Create figure and two subplots with broken x-axis
